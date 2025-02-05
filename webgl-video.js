@@ -24,13 +24,10 @@ function main() {
         attribute vec4 aVertexPosition;
         attribute vec2 aTextureCoord;
 
-        uniform mat4 uModelViewMatrix;
-        uniform mat4 uProjectionMatrix;
-
         varying highp vec2 vTextureCoord;
 
         void main() {
-          gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+          gl_Position = aVertexPosition;
           vTextureCoord = aTextureCoord;
           }
         `;
@@ -60,8 +57,6 @@ function main() {
             textureCoord: gl.getAttribLocation(shaderProgram, "aTextureCoord"),
         },
         uniformLocations: {
-            projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
             uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
         },
     };
@@ -72,11 +67,8 @@ function main() {
     const texture = initTexture(gl);
     const video = setupVideo("Firefox.mp4");
 
-    // Flip image pixels into the bottom-to-top order that WebGL expects.
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
     // Draw the scene repeatedly
-    function render(now) {
+    function render() {
         if (copyVideo) {
             updateTexture(gl, texture, video);
         }
