@@ -1,16 +1,17 @@
 const gridSize = 3; // 3x3 grid
 const texCoordSize = 8; // how many texture array locations define a texture quad
 const texCoordsArraySize = gridSize * gridSize * texCoordSize; // final texture array size
+const indexSize = 6;
+const indicesSize = gridSize * gridSize * indexSize;
 
 let texCoords = [];
 let shuffledTextureQuadCoords = [];
+let vertices = [];
+let indices = [];
 
-function createPuzzleGrid() {
+const createPuzzleGrid = () => {
     // puzzle grid settings
     const tileSize = 2 / gridSize; // quad size in clip space (-1 to 1)
-    let vertices = [];
-    let indices = [];
-
     let indexOffset = 0;
 
     // generate grid pieces
@@ -67,7 +68,7 @@ function createPuzzleGrid() {
     };
 }
 
-function swapPuzzles(puzzleFrom, puzzleTo) {
+const swapPuzzles = (puzzleFrom, puzzleTo) => {
     // get start ids of the puzzles to be swapped
     const puzzleFromTexId = (gridSize * puzzleFrom.row + puzzleFrom.col) * texCoordSize
     const puzzleToTexId = (gridSize * puzzleTo.row + puzzleTo.col) * texCoordSize
@@ -81,7 +82,7 @@ function swapPuzzles(puzzleFrom, puzzleTo) {
     return shuffledTextureQuadCoords;
 }
 
-function checkSolved() {
+const checkSolved = () => {
     if (texCoords.length !== shuffledTextureQuadCoords.length)
         throw Error("Something unexpected happened.");
 
@@ -98,6 +99,7 @@ export {
     createPuzzleGrid,
     swapPuzzles,
     checkSolved,
+    indicesSize,
     gridSize
 }
 

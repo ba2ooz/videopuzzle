@@ -1,4 +1,6 @@
-function drawScene(gl, programInfo, buffers, texture) {
+import { indicesSize } from "./puzzle-grid.js";
+
+const drawScene = (gl, programInfo, buffers) => {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -44,18 +46,12 @@ function drawScene(gl, programInfo, buffers, texture) {
 
     // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
-
-    {
-        const vertexCount = 9 * 6;
-        const type = gl.UNSIGNED_SHORT;
-        const offset = 0;
-        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
-    }
+    gl.drawElements(gl.TRIANGLES, indicesSize, gl.UNSIGNED_SHORT, 0);
 }
 
 // Tell WebGL how to pull out the positions from the position
 // buffer into the vertexPosition attribute.
-function setPositionAttribute(gl, buffers, programInfo) {
+const setPositionAttribute = (gl, buffers, programInfo) => {
     const numComponents = 2; // pull out 2 values per iteration
     const type = gl.FLOAT;   // the data in the buffer is 32bit floats
     const normalize = false; // don't normalize
@@ -74,7 +70,7 @@ function setPositionAttribute(gl, buffers, programInfo) {
 }
 
 // tell webgl how to pull out the texture coordinates from buffer
-function setTextureAttribute(gl, buffers, programInfo) {
+const setTextureAttribute = (gl, buffers, programInfo) => {
     const num = 2;              // every coordinate composed of 2 values
     const type = gl.FLOAT;      // the data in the buffer is 32-bit float
     const normalize = false;    // don't normalize

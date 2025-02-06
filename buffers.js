@@ -1,6 +1,6 @@
 import { createPuzzleGrid } from "./puzzle-grid.js";
 
-function initBuffers(gl) {
+const initBuffers = (gl) => {
     const grid = createPuzzleGrid();
     const positionBuffer = initPositionBuffer(gl, grid.vertices);
     const textureCoordBuffer = initTextureBuffer(gl, grid.shuffledTextureQuadCoords);
@@ -13,7 +13,7 @@ function initBuffers(gl) {
     };
 }
 
-function initPositionBuffer(gl, gridPositions) {
+const initPositionBuffer = (gl, gridPositions) => {
     // Create a buffer for the square's positions.
     const positionBuffer = gl.createBuffer();
 
@@ -29,7 +29,7 @@ function initPositionBuffer(gl, gridPositions) {
     return positionBuffer;
 }
 
-function initTextureBuffer(gl, gridCoords) {
+const initTextureBuffer = (gl, gridCoords) => {
     const textureCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(gridCoords), gl.STATIC_DRAW);
@@ -37,7 +37,7 @@ function initTextureBuffer(gl, gridCoords) {
     return textureCoordBuffer;
 }
 
-function initIndexBuffer(gl, gridIndices) {
+const initIndexBuffer = (gl, gridIndices) => {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(gridIndices), gl.STATIC_DRAW);
@@ -45,7 +45,11 @@ function initIndexBuffer(gl, gridIndices) {
     return indexBuffer;
 }
 
-export { initBuffers };
+const updateTextureBuffer = (gl, newGridCoords) => {
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newGridCoords), gl.STATIC_DRAW);
+} 
+
+export { initBuffers, updateTextureBuffer };
 
 //            |
 //   (-1,1)---|---(1,1)    
