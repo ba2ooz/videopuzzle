@@ -1,24 +1,50 @@
 import { initBuffers } from "./init-buffers.js";
 import { drawScene } from "./draw-scene.js";
+import { swapPuzzles, checkSolved, gridSize } from "./puzzle-grid.js";
 
 // will set to true when video can be copied to texture
 let copyVideo = false;
 
+// Get a WebGLRenderingContext to render content
+const canvas = document.querySelector("#video-canvas");
+const gl = canvas.getContext("webgl");
+
+// Only continue if WebGL is available and working
+if (!gl) 
+    alert("Unable to initialize WebGL. Your browser or machine may not support it.");
+
+canvas.addEventListener("pointerdown", (e) => {
+    const puzzleBoard = canvas.getBoundingClientRect();
+    const puzzleFrom = getPointerCoords(e, puzzleBoard);
+
+    canvas.addEventListener("pointerup", (e) => {
+        const puzzleTo = getPointerCoords(e, puzzleBoard);
+        const puzzleTexturesAfterSwap = swapPuzzles(puzzleFrom, puzzleTo);
+        
+        // uodate the textures buffer
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(puzzleTexturesAfterSwap), gl.STATIC_DRAW);
+        
+        if (checkSolved()) 
+            console.log("puzzle solved");
+    },
+        { once: true });
+});
+
+function getPointerCoords(e, board) {
+    // get click down positions
+    const x = e.clientX - board.left;
+    const y = e.clientY - board.top;
+
+    // convert click position to grid coordinates
+    const row = Math.floor((y / canvas.height) * gridSize);
+    const col = Math.floor((x / canvas.width) * gridSize);
+
+    return { row, col };
+}
 
 main();
 
 function main() {
-    // Get a WebGLRenderingContext to render content
-    const canvas = document.querySelector("#video-canvas");
-    const gl = canvas.getContext("webgl");
-
-    // Only continue if WebGL is available and working
-    if (!gl) {
-        alert(
-            "Unable to initialize WebGL. Your browser or machine may not support it.",
-        );
-    }
-
     // Vertex shader program
     const vsSource = /*glsl*/ `
         attribute vec4 aVertexPosition;
