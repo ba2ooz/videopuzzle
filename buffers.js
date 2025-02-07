@@ -6,7 +6,7 @@ const initBuffers = (gl, grid) => {
     return {
         position: positionBuffer,
         textureCoord: textureCoordBuffer,
-        indices: indexBuffer,
+        indices: { collection: indexBuffer, size: grid.indices.length }
     };
 }
 
