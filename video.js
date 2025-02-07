@@ -1,4 +1,6 @@
-const setupVideo = (videoElement, canUpdate, url) => {
+let canCopyVideo = false;
+
+const setupVideo = (videoElement, url) => {
     let playing = false;
     let timeupdate = false;
 
@@ -31,7 +33,7 @@ const setupVideo = (videoElement, canUpdate, url) => {
 
     function checkReady() {
         if (playing && timeupdate) {
-            canUpdate.ready = true;
+            canCopyVideo = true;
         }
     }
 
@@ -76,19 +78,15 @@ const initTexture = (gl) => {
 }
 
 const updateTexture = (gl, texture, video) => {
-    const level = 0;
-    const internalFormat = gl.RGBA;
-    const srcFormat = gl.RGBA;
-    const srcType = gl.UNSIGNED_BYTE;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(
-        gl.TEXTURE_2D,
-        level,
-        internalFormat,
-        srcFormat,
-        srcType,
-        video,
-    );
+    // ready to copy frame from video element
+    if (canCopyVideo) {
+        const level = 0;
+        const internalFormat = gl.RGBA;
+        const srcFormat = gl.RGBA;
+        const srcType = gl.UNSIGNED_BYTE;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, video);
+    }
 }
 
 

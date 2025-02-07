@@ -24,19 +24,14 @@ const gridSettings = createPuzzleGrid();
 const buffers = initBuffers(gl, gridSettings);
 
 // Load video texture
-let canUpdateRef = { ready: false };
 const videoElement = document.createElement("video");
-const videoRef = video.setupVideo(videoElement, canUpdateRef, "Firefox.mp4");
+const videoRef = video.setupVideo(videoElement, "Firefox.mp4");
 const texture = video.initTexture(gl);
 
 // Draw the scene repeatedly
 const render = () => {
-    // ready to copy frame from video element
-    if (canUpdateRef.ready)
-        video.updateTexture(gl, texture, videoRef);
-
+    video.updateTexture(gl, texture, videoRef);
     drawScene(gl, programInfo, buffers);
-
     requestAnimationFrame(render);
 }
 
