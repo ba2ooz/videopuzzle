@@ -1,7 +1,4 @@
-import { createPuzzleGrid } from "./puzzle-grid.js";
-
-const initBuffers = (gl) => {
-    const grid = createPuzzleGrid();
+const initBuffers = (gl, grid) => {
     const positionBuffer = initPositionBuffer(gl, grid.vertices);
     const textureCoordBuffer = initTextureBuffer(gl, grid.shuffledTextureQuadCoords);
     const indexBuffer = initIndexBuffer(gl, grid.indices);
