@@ -2,9 +2,14 @@
 const vsSource = /*glsl*/ `
         attribute vec4 aVertexPosition;
         attribute vec2 aTextureCoord;
+
+        uniform mat4 uModelMatrix;
+        uniform mat4 uProjectionMatrix;
+
         varying highp vec2 vTextureCoord;
+
         void main() {
-          gl_Position = aVertexPosition;
+          gl_Position = uProjectionMatrix * uModelMatrix * aVertexPosition;
           vTextureCoord = aTextureCoord;
           }
         `;
@@ -50,6 +55,8 @@ const initShaderProgram = (gl) => {
     },
     uniformLocations: {
       uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+      uProjectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+      uModelMatrix: gl.getUniformLocation(shaderProgram, "uModelMatrix"),
     },
   };
 

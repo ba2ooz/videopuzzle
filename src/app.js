@@ -9,7 +9,7 @@ const PUZZLE_SIZE = 4;
 
 // get a WebGLRenderingContext to render content
 const canvas = document.querySelector("#video-canvas");
-const gl = canvas.getContext("webgl");
+const gl = canvas.getContext("webgl2");
 if (!gl) {
   const errMsg =
     "Unable to initialize WebGL. Your browser or machine may not support it.";
@@ -22,10 +22,11 @@ if (!gl) {
 // init the shader program
 const programInfo = initShaderProgram(gl);
 const puzzleGrid = createPuzzleGrid(PUZZLE_SIZE);
+const modelViewsMatrix = puzzleGrid.getTilesMatrix();
 const buffers = initBuffers(gl, puzzleGrid);
 
 // init video texture
-const videoRef = video.setupVideo("Firefox.mp4");
+const videoRef = video.setupVideo("testVideo.mp4");
 const texture = video.initTexture(gl);
 
 // add pointer listener to the canvas
@@ -34,7 +35,7 @@ addPointerListenerOn(gl, canvas, puzzleGrid);
 // render the scene
 const render = () => {
   video.updateTexture(gl, texture, videoRef);
-  drawScene(gl, programInfo, buffers);
+  drawScene(gl, programInfo, buffers, modelViewsMatrix);
   requestAnimationFrame(render);
 };
 

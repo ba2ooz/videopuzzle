@@ -2,6 +2,9 @@ export const createPuzzleGrid = (gridSize = 3) => {
 
   const TEX_COORD_SIZE = 8; // how many texture array locations define a texture quad
   const TEX_COORDS_ARRAY_SIZE = gridSize * gridSize * TEX_COORD_SIZE; // final texture array size
+  
+  let tilesMatrix = []; //new Array(gridSize * gridSize).fill().map(() => mat4.create());
+  let tilesMatrixCopy = [];
 
   let shuffledTexCoords = [];
   let texCoords = [];
@@ -13,39 +16,28 @@ export const createPuzzleGrid = (gridSize = 3) => {
     let indexOffset = 0;
 
     // generate grid tiles coordinates for vertices, textures and indices
-    for (let row = 0; row < gridSize; row++) {
-      for (let col = 0; col < gridSize; col++) {
-        let x = -1 + col * tileSize;
-        let y = 1 - row * tileSize;
-        let u = col / gridSize;
-        let v = row / gridSize;
-
-        // vertices coords -> Top-left, Top-right, Bottom-left, Bottom-right
-        let tileVertices = [
-          x,
-          y,
-          x + tileSize,
-          y,
-          x,
-          y - tileSize,
-          x + tileSize,
-          y - tileSize,
+    for (let col = 0; col < gridSize; col++) {
+      for (let row = 0; row < gridSize; row++) {
+        // vertices coords 
+        const tileVertices = [
+          0,          0,         // Top-left 
+          tileSize,   0,         // Top-right
+          0,          -tileSize, // Bottom-left
+          tileSize,   -tileSize, // Bottom-right
         ];
 
         // texture coords -> Top-left, Top-right, Bottom-left, Bottom-right
-        let tileTexCoords = [
-          u,
-          v,
-          u + 1 / gridSize,
-          v,
-          u,
-          v + 1 / gridSize,
-          u + 1 / gridSize,
-          v + 1 / gridSize,
+        let u = row / gridSize;
+        let v = col / gridSize;
+        const tileTexCoords = [
+          u, v,                                // Top-left 
+          u + 1 / gridSize, v,                 // Top-right
+          u, v + 1 / gridSize,                 // Bottom-left 
+          u + 1 / gridSize, v + 1 / gridSize,  // Bottom-right   
         ];
 
         // indices coords for two triangles (0, 1, 2) and (1, 2, 3)
-        let tileIndices = [
+        const tileIndices = [
           indexOffset,
           indexOffset + 1,
           indexOffset + 2,
@@ -54,14 +46,26 @@ export const createPuzzleGrid = (gridSize = 3) => {
           indexOffset + 3,
         ];
 
+        // increment the index offset for the next tile
+        indexOffset += 4;
+
+        // create a model matrix for each tile to easily apply transformations later
+        let x = -1 + col * tileSize;
+        let y = 1 - row * tileSize;
+        const tileMatrix = mat4.create();
+        mat4.translate(tileMatrix, tileMatrix, [x, y, 0]);
+        
+        // push the generated data to the respective arrays
+        tilesMatrix.push(tileMatrix);
         vertices.push(...tileVertices);
         texCoords.push(...tileTexCoords);
         indices.push(...tileIndices);
-
-        indexOffset += 4;
       }
     }
 
+    // make a copy of the tiles matrix to reset the grid when needed
+    tilesMatrixCopy = structuredClone(tilesMatrix);
+    
     // shuffle the grid tiles
     shuffledTexCoords = shuffleTiles([...texCoords]);
   };
@@ -78,6 +82,44 @@ export const createPuzzleGrid = (gridSize = 3) => {
 
     return tilesTexCoords;
   };
+
+  // translates the normalized coordinates to the grid coordinates
+  const getTileCoords = (x, y) => {
+    return {
+      row: Math.floor(x * gridSize), 
+      col: Math.floor(y * gridSize)
+    };
+  }
+
+  // resets the tile to its original position
+  const resetTile = (tileCoords) => {
+    const tileIndex = tileCoords.row * gridSize + tileCoords.col;
+    tilesMatrix[tileIndex] = structuredClone(tilesMatrixCopy[tileIndex]); 
+  };
+
+  // applies translation to the tile
+  const moveTile = (tileCoords, x, y) => {
+    // calculate the offsets to drag the tile by its center
+    const tileVertixId = (gridSize * tileCoords.col + tileCoords.row) * TEX_COORD_SIZE;
+    const tileCenterX = (vertices[tileVertixId] + vertices[tileVertixId + 2]) / 2;
+    const tileCenterY = (vertices[tileVertixId + 1] + vertices[tileVertixId + 5]) / 2;
+    const offsetX = x - tileCenterX;
+    const offsetY = y - tileCenterY;
+
+    // get the current tile translation
+    const tileIndex = tileCoords.row * gridSize + tileCoords.col;
+    const tile = tilesMatrix[tileIndex]; 
+    const tileX = tile[12]; 
+    const tileY = tile[13]; 
+
+    // calculate the needed offset to move the tile to the new position
+    const translateX = offsetX - tileX;
+    const translateY = offsetY - tileY;
+    const translateZ = 0.01;  // to render the dragged tile on top of the others 
+
+    // apply translation to actually move the tile
+    mat4.translate(tilesMatrix[tileIndex], tilesMatrix[tileIndex], [translateX, translateY, translateZ]);
+  }
 
   const swapTiles = (tileFrom, tileTo) => {
     // tiles point to same location, no need to swap
@@ -124,8 +166,11 @@ export const createPuzzleGrid = (gridSize = 3) => {
     getVertices: () => vertices,
     getShuffledTexCoords: () => shuffledTexCoords,
     getIndices: () => indices,
-    getGridSize: () => gridSize,
+    getTilesMatrix: () => tilesMatrix,
+    getTileCoords,
+    resetTile,
     swapTiles,
+    moveTile,
     isUnshuffled,
   };
 };
