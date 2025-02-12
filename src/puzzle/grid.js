@@ -27,8 +27,8 @@ export const createPuzzleGrid = (gridSize = 3) => {
         ];
 
         // texture coords -> Top-left, Top-right, Bottom-left, Bottom-right
-        let u = row / gridSize;
-        let v = col / gridSize;
+        let u = col / gridSize;
+        let v = row / gridSize;
         const tileTexCoords = [
           u, v,                                // Top-left 
           u + 1 / gridSize, v,                 // Top-right
