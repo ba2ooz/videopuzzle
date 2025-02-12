@@ -56,7 +56,7 @@ export const createPuzzleGrid = (gridSize = 3) => {
         mat4.translate(tileMatrix, tileMatrix, [x, y, 0]);
         
         // push the generated data to the respective arrays
-        tilesMatrix.push(tileMatrix);
+        tilesMatrix.push({modelMatrix: tileMatrix, isHighlighted: false});
         vertices.push(...tileVertices);
         texCoords.push(...tileTexCoords);
         indices.push(...tileIndices);
@@ -97,6 +97,30 @@ export const createPuzzleGrid = (gridSize = 3) => {
     tilesMatrix[tileIndex] = structuredClone(tilesMatrixCopy[tileIndex]); 
   };
 
+  // highlights the potential swap tile
+  const higlightTile = (tileCoords) => {
+    if (!validTileCoords(tileCoords)) {
+      return null;
+    }
+
+    const tileIndex = tileCoords.row * gridSize + tileCoords.col;
+    tilesMatrix[tileIndex].isHighlighted = true;
+
+    return tileCoords;
+  }
+
+  // removes the highlight from the tile
+  const unhiglightTile = (tileCoords) => {
+    if (!validTileCoords(tileCoords)) {
+      return null;
+    }
+
+    const tileIndex = tileCoords.row * gridSize + tileCoords.col;
+    tilesMatrix[tileIndex].isHighlighted = false;
+
+    return tileCoords;
+  }
+
   // applies translation to the tile
   const moveTile = (tileCoords, x, y) => {
     // calculate the offsets to drag the tile by its center
@@ -108,7 +132,7 @@ export const createPuzzleGrid = (gridSize = 3) => {
 
     // get the current tile translation
     const tileIndex = tileCoords.row * gridSize + tileCoords.col;
-    const tile = tilesMatrix[tileIndex]; 
+    const tile = tilesMatrix[tileIndex].modelMatrix; 
     const tileX = tile[12]; 
     const tileY = tile[13]; 
 
@@ -118,7 +142,7 @@ export const createPuzzleGrid = (gridSize = 3) => {
     const translateZ = 0.01;  // to render the dragged tile on top of the others 
 
     // apply translation to actually move the tile
-    mat4.translate(tilesMatrix[tileIndex], tilesMatrix[tileIndex], [translateX, translateY, translateZ]);
+    mat4.translate(tile, tile, [translateX, translateY, translateZ]);
   }
 
   const swapTiles = (tileFrom, tileTo) => {
@@ -146,6 +170,28 @@ export const createPuzzleGrid = (gridSize = 3) => {
     return shuffledTexCoords;
   };
 
+  // check if the tile coords are valid
+  const validTileCoords = (tileCoords) => {
+    // check for null and undefined
+    if (
+      !tileCoords || 
+      tileCoords.row === undefined || 
+      tileCoords.col === undefined
+    ) {
+      return false;
+    }
+
+    // check if the received coords are within the grid bounds
+    if (
+      tileCoords.row < 0 || tileCoords.row >= gridSize || 
+      tileCoords.col < 0 || tileCoords.col >= gridSize
+    ) {
+        return false;
+    }
+
+    return true;
+  }
+
   const isUnshuffled = () => {
     // the original and shuffled array should never be different in length
     if (texCoords.length !== shuffledTexCoords.length)
@@ -168,6 +214,8 @@ export const createPuzzleGrid = (gridSize = 3) => {
     getIndices: () => indices,
     getTilesMatrix: () => tilesMatrix,
     getTileCoords,
+    unhiglightTile,
+    higlightTile,
     resetTile,
     swapTiles,
     moveTile,

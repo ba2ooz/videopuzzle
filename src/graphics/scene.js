@@ -24,14 +24,31 @@ const drawScene = (gl, programInfo, buffers, modelViewsMatrix) => {
     -1, 1,  // Bottom, top
     -10, 10 // far, near
   );
-  gl.uniformMatrix4fv(programInfo.uniformLocations.uProjectionMatrix, false, orthoMatrix);
+  gl.uniformMatrix4fv(
+    programInfo.uniformLocations.uProjectionMatrix, 
+    false, 
+    orthoMatrix
+  );
 
   modelViewsMatrix.forEach((modelViewMatrix, index) => {
+    // apply overlay color for the highlighted tiles
+    if (modelViewMatrix.isHighlighted){
+      gl.uniform4f(
+        programInfo.uniformLocations.uOverlayColor, 
+        1.0, 1.0, 1.0, 0.4              
+      );  // RGBA blue 0.2 opacity
+    } else {
+      gl.uniform4f(
+        programInfo.uniformLocations.uOverlayColor, 
+        0.0, 0.0, 0.0, 0.0
+      );  // no overlay
+    }
+
     // pass the model matrix to the shader
     gl.uniformMatrix4fv(
       programInfo.uniformLocations.uModelMatrix,
       false,
-      modelViewMatrix,
+      modelViewMatrix.modelMatrix,
     );
     // draw the geometry
     gl.drawElements(

@@ -16,10 +16,20 @@ const vsSource = /*glsl*/ `
 
 // fragment shader program
 const fsSource = /*glsl*/ `
+        precision mediump float;
+        
         varying highp vec2 vTextureCoord;
+
         uniform sampler2D uSampler;
+        uniform vec4 uOverlayColor; // RGBA color with transparency
+
         void main(void) {
-          gl_FragColor = texture2D(uSampler, vTextureCoord);
+          vec4 texColor = texture2D(uSampler, vTextureCoord);
+    
+          // blend texture color with overlay color
+          vec4 finalColor = mix(texColor, uOverlayColor, uOverlayColor.a);
+      
+          gl_FragColor = finalColor;
         }
       `;
 
@@ -55,8 +65,12 @@ const initShaderProgram = (gl) => {
     },
     uniformLocations: {
       uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
-      uProjectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+      uProjectionMatrix: gl.getUniformLocation(
+        shaderProgram,
+        "uProjectionMatrix"
+      ),
       uModelMatrix: gl.getUniformLocation(shaderProgram, "uModelMatrix"),
+      uOverlayColor: gl.getUniformLocation(shaderProgram, "uOverlayColor"),
     },
   };
 
