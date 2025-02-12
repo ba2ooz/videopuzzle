@@ -139,7 +139,7 @@ export const createPuzzleGrid = (gridSize = 3) => {
     // calculate the needed offset to move the tile to the new position
     const translateX = offsetX - tileX;
     const translateY = offsetY - tileY;
-    const translateZ = 0.01;  // to render the dragged tile on top of the others 
+    const translateZ = 0.001;  // to render the dragged tile on top of the others 
 
     // apply translation to actually move the tile
     mat4.translate(tile, tile, [translateX, translateY, translateZ]);
