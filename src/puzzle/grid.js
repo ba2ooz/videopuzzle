@@ -163,6 +163,125 @@ export const createPuzzleGrid = (gridSize = 3) => {
     return shuffledTextures;
   };
 
+  const shiftRows = (direction) => {
+    // let lastRowCopies = [];
+
+    // let lastRow = gridSize - 1;
+    // for (let col = 0; col < gridSize; col++){
+    //   const sourceId = col * gridSize * TEX_COORD_SIZE + lastRow * TEX_COORD_SIZE;
+  
+    //   for (let texCoordId = 0; texCoordId < TEX_COORD_SIZE; texCoordId++){
+    //       lastRowCopies.push(shuffledTextures[sourceId + texCoordId])
+    //   }
+    // }
+
+    // for (let row = gridSize - 2; row >= 0; row--){
+    //   for (let col = 0; col < gridSize; col++){
+    //     const sourceId = col * gridSize * TEX_COORD_SIZE + row * TEX_COORD_SIZE;
+    //     let targetId = sourceId + TEX_COORD_SIZE;
+    
+    //     for (let texCoordId = 0; texCoordId < TEX_COORD_SIZE; texCoordId++){
+    //         shuffledTextures[targetId + texCoordId] = shuffledTextures[sourceId + texCoordId]
+    //     }
+    //   }
+    // }
+
+    // for (let col = 0; col < gridSize; col++){
+    //   let targetId = col * gridSize * TEX_COORD_SIZE;
+  
+    //   for (let texCoordId = 0; texCoordId < TEX_COORD_SIZE; texCoordId++){
+    //     shuffledTextures[targetId + texCoordId] = lastRowCopies[col * TEX_COORD_SIZE + texCoordId]
+    //   }
+    // }
+
+    // return shuffledTextures;
+    let shiftOffset;
+    let messedUpRowSource;
+    let messedUpRowTarget;
+    if ( direction === "UP" ) {
+      shiftOffset = TEX_COORD_SIZE;
+      messedUpRowSource = 0;
+      messedUpRowTarget = gridSize - 1;
+    }
+
+    if ( direction === "DOWN" ) {
+      shiftOffset = -1 * TEX_COORD_SIZE;
+      messedUpRowSource = gridSize - 1;
+      messedUpRowTarget = 0;
+    }
+
+    // because we shift up or down by one tile 
+    // the resulted grid will end up looking differently
+    // than we desire as depicted below, 
+    // so to avoid this, we are going to create a copy of the
+    // first or last row while it has the right order 
+    // and replace the messed up tiles with the copied good ones
+    //
+    //            | because textures are stored contiguously by column  |
+    //            | t1 is first item in the array                       |
+    //            | t9 is the last item in the array                    |    
+    //            | after shift t9 will replace t1 which is not desired |
+    //            | t9 should replace t6                                |
+    //
+    //                            shift down example 
+    //
+    //                     
+    //  original grid              after shift grid                after replace grid
+    //
+    //    t1 t4 t7                     t9 t3 t6 -> (bad first row)      t3 t6 t9 -> (good first row)
+    //    t2 t5 t8  => will end up =>  t1 t4 t7  =>    should be    =>  t1 t4 t7
+    //    t3 t6 t9                     t2 t5 t8                         t2 t5 t8
+
+    // backup the first/last row wich will end messed up after tiles shift
+    let messedUpRow = [];
+    for (let col = 0; col < gridSize; col++){
+      const sourceId = 
+        col * gridSize * TEX_COORD_SIZE + messedUpRowSource * TEX_COORD_SIZE;
+
+      for (let texCoordId = 0; texCoordId < TEX_COORD_SIZE; texCoordId++){
+        messedUpRow.push(shuffledTextures[sourceId + texCoordId])
+      }
+    }
+
+    // shift the textures on columns by one tile up/down
+    shuffledTextures = shuffledTextures.slice(shiftOffset)
+      .concat(shuffledTextures.slice(0, shiftOffset));
+
+    // replace the messed up row textures with unmessed textures from the source row backuped earlier
+    for (let col = 0; col < gridSize; col++){
+      const targetId = 
+        col * gridSize * TEX_COORD_SIZE + messedUpRowTarget * TEX_COORD_SIZE;
+
+      for (let texCoordId = 0; texCoordId < TEX_COORD_SIZE; texCoordId++){
+        shuffledTextures[targetId + texCoordId] = 
+          messedUpRow[col * TEX_COORD_SIZE + texCoordId]
+      }
+    }
+
+    return shuffledTextures;
+  }
+
+  const shiftColumns = (direction) => {
+    // the textures are stored in contiguous manner and they match the column order. so to shift on columns we have to 
+    // either take the column length subarray from the end of the textures array
+    // and prepend it to the textures array in order to shift right
+    // or take the the column length subarray from the start of the textures array
+    // and append it to the textures array in order to shift left
+    let shiftOffset;
+    if ( direction === "LEFT" ) {
+      shiftOffset = gridSize * TEX_COORD_SIZE;
+    }
+
+    if ( direction === "RIGHT" ) {
+      shiftOffset = -1 * gridSize * TEX_COORD_SIZE;
+    }
+
+    shuffledTextures = shuffledTextures.slice(shiftOffset)
+      .concat(shuffledTextures.slice(0, shiftOffset));
+
+    return shuffledTextures;
+  }
+
   // check if the tile coords are valid
   const validTileCoords = (tileCoords) => {
     // check for null and undefined
@@ -300,6 +419,8 @@ export const createPuzzleGrid = (gridSize = 3) => {
     getTilesMatrix: () => tilesMatrix,
     initDragState,
     cleanDragState,
+    shiftColumns,
+    shiftRows,
     swapTiles,
     dragTile,
     isUnshuffled,

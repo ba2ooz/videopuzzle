@@ -21,7 +21,7 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
     // handle pointer down released
     const handlePointerUp = (e) => {
       window.removeEventListener("pointermove", handlePointerMove);
-      
+
       // swap dragged and highlighted tiles texture
       const gridTextures = grid.swapTiles();
       // reset the grid state. This has to happen even if no swap occured
@@ -44,5 +44,27 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp, { once: true });
+  });
+
+  document.getElementById("shift_LEFT").addEventListener("click", () => {
+    const gridTextures = grid.shiftColumns("LEFT");
+    updateTextureBuffer(gl, gridTextures);
+  });
+
+  document.getElementById("shift_RIGHT").addEventListener("click", () => {
+    const gridTextures = grid.shiftColumns("RIGHT");
+    updateTextureBuffer(gl, gridTextures);
+  });
+
+  document.getElementById("shift_UP").addEventListener("click", () => {
+    const gridTextures = grid.shiftRows("UP");
+    console.log(gridTextures);
+    updateTextureBuffer(gl, gridTextures);
+  });
+
+  document.getElementById("shift_DOWN").addEventListener("click", () => {
+    const gridTextures = grid.shiftRows("DOWN");
+    console.log(gridTextures);
+    updateTextureBuffer(gl, gridTextures);
   });
 };
