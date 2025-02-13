@@ -1,6 +1,6 @@
 const initBuffers = (gl, config) => {
   const positionBuffer = initPositionBuffer(gl, config.getVertices());
-  const textureCoordBuffer = initTextureBuffer(gl, config.getShuffledTexCoords());
+  const textureCoordBuffer = initTextureBuffer(gl, config.getTextures());
   const indexBuffer = initIndexBuffer(gl, config.getIndices());
 
   return {
