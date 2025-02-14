@@ -1,6 +1,8 @@
+let textureCoordBuffer;
+
 const initBuffers = (gl, config) => {
   const positionBuffer = initPositionBuffer(gl, config.getVertices());
-  const textureCoordBuffer = initTextureBuffer(gl, config.getTextures());
+  textureCoordBuffer = initTextureBuffer(gl, config.getTextures());
   const indexBuffer = initIndexBuffer(gl, config.getIndices());
 
   return {
@@ -25,11 +27,7 @@ const initPositionBuffer = (gl, vertixCoords) => {
 const initTextureBuffer = (gl, texCoords) => {
   const textureCoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-  gl.bufferData(
-    gl.ARRAY_BUFFER, 
-    new Float32Array(texCoords), 
-    gl.STATIC_DRAW
-  );
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 
   return textureCoordBuffer;
 };
@@ -54,4 +52,17 @@ const updateTextureBuffer = (gl, newTexCoords) => {
   );
 };
 
-export { initBuffers, updateTextureBuffer };
+const updateTextureBufferSubData = (gl, newTexCoords, offset) => {
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
+  gl.bufferSubData(
+    gl.ARRAY_BUFFER,
+    offset * Float32Array.BYTES_PER_ELEMENT,
+    new Float32Array(newTexCoords)
+  );
+};
+
+export { 
+  initBuffers, 
+  updateTextureBuffer,
+  updateTextureBufferSubData
+};

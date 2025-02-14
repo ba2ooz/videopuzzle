@@ -149,18 +149,30 @@ export const createPuzzleGrid = (gridSize = 3) => {
     }
 
     // get start ids of the tiles to be swapped
-    const tileFromTexId = 
+    const sourceTexId = 
       (gridSize * draggedTile.row + draggedTile.col) * TEX_COORD_SIZE;
-    const tileToTexId = 
+    const targetTexId = 
       (gridSize * highlightedTile.row + highlightedTile.col) * TEX_COORD_SIZE;
 
-    // swap the tiles textures
+    // swap the tiles textures, update shuffledtTextures state
     for (let i = 0; i < TEX_COORD_SIZE; i++) {
-      [shuffledTextures[tileFromTexId + i], shuffledTextures[tileToTexId + i]] =
-        [shuffledTextures[tileToTexId + i], shuffledTextures[tileFromTexId + i]];
+      [shuffledTextures[sourceTexId + i], shuffledTextures[targetTexId + i]] =
+        [shuffledTextures[targetTexId + i], shuffledTextures[sourceTexId + i]];
     }
 
-    return shuffledTextures;
+    // return offset ids for both textures and the respective data
+    // shuffledTextures already contains the new state 
+    // so target texture matches targetId and source texture matches sourceId, not viceversa
+    return {
+      texture1: {
+        offsetId: sourceTexId, 
+        data: shuffledTextures.slice(sourceTexId, sourceTexId + TEX_COORD_SIZE)
+      }, 
+      texture2: {
+        offsetId: targetTexId, 
+        data: shuffledTextures.slice(targetTexId, targetTexId + TEX_COORD_SIZE)
+      }
+    };
   };
 
   const shiftRows = (direction) => {

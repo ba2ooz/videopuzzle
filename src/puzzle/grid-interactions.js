@@ -1,4 +1,7 @@
-import { updateTextureBuffer } from "../graphics/buffers.js";
+import {
+  updateTextureBuffer,
+  updateTextureBufferSubData,
+} from "../graphics/buffers.js";
 
 export const addPointerListenerOn = (gl, canvas, grid) => {
   // gets pointer coords relative to canvas
@@ -23,16 +26,25 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
       window.removeEventListener("pointermove", handlePointerMove);
 
       // swap dragged and highlighted tiles texture
-      const gridTextures = grid.swapTiles();
+      const swappedTextures = grid.swapTiles();
       // reset the grid state. This has to happen even if no swap occured
       grid.cleanDragState();
 
       // no swap occurred, do nothing
-      if (!gridTextures) {
+      if (!swappedTextures) {
         return;
       }
 
-      updateTextureBuffer(gl, gridTextures);
+      updateTextureBufferSubData(
+        gl,
+        swappedTextures.texture1.data,
+        swappedTextures.texture1.offsetId
+      );
+      updateTextureBufferSubData(
+        gl,
+        swappedTextures.texture2.data,
+        swappedTextures.texture2.offsetId
+      );
 
       if (grid.isUnshuffled()) {
         console.log("puzzle solved");
