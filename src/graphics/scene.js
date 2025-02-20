@@ -3,7 +3,7 @@ const NORMALIZE = false;    // don't normalize
 const STRIDE = 0;           // how many bytes to get from one set of values to the next
 const OFFSET = 0;           // how many bytes inside the buffer to start from
 
-const drawScene = (gl, programInfo, buffers, modelViewsMatrix) => {
+const drawScene = (gl, programInfo, buffers, modelViews) => {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);                   // Clear to black, fully opaque
   gl.clearDepth(1.0);                                  // Clear everything
   gl.enable(gl.DEPTH_TEST);                            // Enable depth testing
@@ -18,8 +18,8 @@ const drawScene = (gl, programInfo, buffers, modelViewsMatrix) => {
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices.buffer); // indices to use to index the vertices
 
   // set the projection matrix and pass it to the shader
-  const orthoMatrix = mat4.create();
-  mat4.ortho(orthoMatrix,
+  const projectionMatrix = mat4.create();
+  mat4.ortho(projectionMatrix,
     -1, 1,  // Left, right
     -1, 1,  // Bottom, top
     -10, 10 // far, near
@@ -27,12 +27,20 @@ const drawScene = (gl, programInfo, buffers, modelViewsMatrix) => {
   gl.uniformMatrix4fv(
     programInfo.uniformLocations.uProjectionMatrix, 
     false, 
-    orthoMatrix
+    projectionMatrix
   );
 
-  modelViewsMatrix.forEach((modelViewMatrix, index) => {
+  modelViews.forEach((modelView, index) => {
+    // reset tile before translation
+    mat4.identity(modelView.modelMatrix);
+    mat4.translate(modelView.modelMatrix, modelView.modelMatrix, [
+      modelView.currentX,
+      modelView.currentY,
+      modelView.currentZ,
+    ]);
+
     // apply overlay color for the highlighted tiles
-    if (modelViewMatrix.isHighlighted){
+    if (modelView.isHighlighted){
       gl.uniform4f(
         programInfo.uniformLocations.uOverlayColor, 
         1.0, 1.0, 1.0, 0.4              
@@ -48,8 +56,9 @@ const drawScene = (gl, programInfo, buffers, modelViewsMatrix) => {
     gl.uniformMatrix4fv(
       programInfo.uniformLocations.uModelMatrix,
       false,
-      modelViewMatrix.modelMatrix,
+      modelView.modelMatrix,
     );
+
     // draw the geometry
     gl.drawElements(
       gl.TRIANGLES,

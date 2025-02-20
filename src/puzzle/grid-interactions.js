@@ -1,3 +1,4 @@
+import { Direction } from "./direction.js";
 import {
   updateTextureBuffer,
   updateTextureBufferSubData,
@@ -18,7 +19,7 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
     // handle pointer movement during pointer down event
     const handlePointerMove = (e) => {
       const [pointerX, pointerY] = getCanvasEventCoords(e);
-      grid.dragTile(pointerX, pointerY);
+      grid.handleDragAction(pointerX, pointerY);
     };
 
     // handle pointer down released
@@ -26,9 +27,9 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
       window.removeEventListener("pointermove", handlePointerMove);
 
       // swap dragged and highlighted tiles texture
-      const swappedTextures = grid.swapTiles();
+      const swappedTextures = grid.handleSwapAction();
       // reset the grid state. This has to happen even if no swap occured
-      grid.cleanDragState();
+      grid.clearDragState();
 
       // no swap occurred, do nothing
       if (!swappedTextures) {
@@ -59,23 +60,23 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
   });
 
   document.getElementById("shift_LEFT").addEventListener("click", () => {
-    const gridTextures = grid.shiftColumns("LEFT");
+    const gridTextures = grid.shiftOnColumns(Direction.LEFT);
     updateTextureBuffer(gl, gridTextures);
   });
 
   document.getElementById("shift_RIGHT").addEventListener("click", () => {
-    const gridTextures = grid.shiftColumns("RIGHT");
+    const gridTextures = grid.shiftOnColumns(Direction.RIGHT);
     updateTextureBuffer(gl, gridTextures);
   });
 
   document.getElementById("shift_UP").addEventListener("click", () => {
-    const gridTextures = grid.shiftRows("UP");
+    const gridTextures = grid.shiftOnRows(Direction.UP);
     console.log(gridTextures);
     updateTextureBuffer(gl, gridTextures);
   });
 
   document.getElementById("shift_DOWN").addEventListener("click", () => {
-    const gridTextures = grid.shiftRows("DOWN");
+    const gridTextures = grid.shiftOnRows(Direction.DOWN);
     console.log(gridTextures);
     updateTextureBuffer(gl, gridTextures);
   });
