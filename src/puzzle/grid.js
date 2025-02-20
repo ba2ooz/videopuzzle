@@ -1,6 +1,11 @@
 import { Direction } from "./direction.js";
 import { Tile } from "./tile.js";
 
+/**
+ * Holds and manages the game grid state
+ * 
+ * @param {number} gridSize
+ */
 export class GameGrid {
   highlightedTile = null;
   draggedTile = null;
@@ -15,7 +20,11 @@ export class GameGrid {
     this.shuffleTextures();
   }
 
-  // generates grid tiles, coordinates for vertices, textures and indices
+  /**
+   * Generates grid tiles, coordinates for vertices, textures and indices
+   * 
+   * @returns {void} void
+   */
   generateGrid() {
     let indexOffset = 0;
     let id = 0;
@@ -33,7 +42,12 @@ export class GameGrid {
     }
   }
 
-  // Fisher–Yates shuffle algorithm - ensures each item is swapped only once
+  /**
+   * Shuffles the texture properties within the GameGrid tiles collection
+   * 
+   * @uses FisherYates shuffle algorithm - ensures each item is swapped only once
+   * @returns {void} void
+   */
   shuffleTextures() {
     for (let i = this.tiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -41,12 +55,23 @@ export class GameGrid {
     }
   }
 
-  // checks each tile has the right identity as win condition
+  /**
+   * Checks if all tiles in the grid are in their original positions.
+   *
+   * @returns {boolean} True if all tiles are in their original positions, otherwise false.
+   */
   isUnshuffled() {
     return this.tiles.every((tile) => tile.checkIdentity());
   }
 
-  // sets initial state of the dragged and highlighted tiles
+  /**
+   * Initializes the drag state by setting the dragged tile based on the given pointer coordinates.
+   * If a tile is found at the specified coordinates, it also sets the highlighted tile to the dragged tile.
+   *
+   * @param {number} pointerX - The x-coordinate of the pointer.
+   * @param {number} pointerY - The y-coordinate of the pointer.
+   * @returns {void} void
+   */
   initDragState(pointerX, pointerY) {
     this.draggedTile = this.getTileAt(pointerX, pointerY);
     if (!this.draggedTile) {
@@ -57,7 +82,15 @@ export class GameGrid {
     this.highlightedTile = this.draggedTile;
   }
 
-  // clears the grid after a drag event
+  /**
+   * Clears the drag state by resetting the dragged tile and removing any highlights.
+   * 
+   * This method performs the following actions:
+   * 1. Resets the translation of the currently dragged tile and sets it to null.
+   * 2. Removes the highlight from the currently highlighted tile and sets it to null.
+   * 
+   * @returns {void} void
+   */
   clearDragState() {
     // reset the dragged tile
     if (this.draggedTile) {
@@ -66,12 +99,18 @@ export class GameGrid {
     }
     // clear highlight
     if (this.highlightedTile) {
-      this.highlightedTile.unhiglight();
+      this.highlightedTile.unhighlight();
       this.highlightedTile = null;
     }
   }
 
-  // translates and highlights the needed tiles
+  /**
+   * Handles the drag action for a tile.
+   *
+   * @param {number} pointerX - The x-coordinate of the pointer.
+   * @param {number} pointerY - The y-coordinate of the pointer.
+   * @returns {void} void
+   */
   handleDragAction(pointerX, pointerY) {
     // no dragged tile should not be a valid scenario
     if (this.draggedTile) {
@@ -82,7 +121,13 @@ export class GameGrid {
     }
   }
 
-  // highligths the tiles as the dragged tile moves over them
+  /**
+   * Highlights the tiles as the dragged tile moves over them.
+   *
+   * @param {number} pointerX - The x-coordinate of the pointer.
+   * @param {number} pointerY - The y-coordinate of the pointer.
+   * @returns {void} void
+   */
   handleHighlightAction(pointerX, pointerY) {
     // get the tile currently being pointed at - the potential tile to highlight
     const highlightTileCandidate = this.getTileAt(pointerX, pointerY);
@@ -94,7 +139,7 @@ export class GameGrid {
 
     // unhighlight the already highlighted tile when candiate tile coords change
     if (this.highlightedTile instanceof Tile) {
-      this.highlightedTile = this.highlightedTile.unhiglight();
+      this.highlightedTile = this.highlightedTile.unhighlight();
     }
 
     // only proceed further if the highlight candidate is not the dragged tile
@@ -104,11 +149,28 @@ export class GameGrid {
 
     // highlight the candidate and update highlighted tile object state
     if (highlightTileCandidate instanceof Tile) {
-      this.highlightedTile = highlightTileCandidate.higlight();
+      this.highlightedTile = highlightTileCandidate.highlight();
     }
   }
 
-  // swaps the dragged tile with the one underneath it
+  /**
+   * Handles the swap action between two tiles.
+   * 
+   * This method performs the following steps:
+   * 1. Checks if the dragged tile and highlighted tile are valid.
+   * 2. Ensures the tiles are not pointing to the same location.
+   * 3. Swaps the textures of the dragged tile and highlighted tile.
+   * 4. Returns the offset IDs and texture data for both tiles.
+   * 
+   * @returns  {Object|null}               An object containing the two texture objects:
+   * @property {Object} texture1          - The first texture object.
+   * @property {number} texture1.offsetId - The offset ID for the dragged tile's texture.
+   * @property {Array}  texture1.data     - The texture data for the dragged tile.
+   * 
+   * @property {Object} texture2          - The second texture object.
+   * @property {number} texture2.offsetId - The offset ID for the highlighted tile's texture.
+   * @property {Array}  texture2.data     - The texture data for the highlighted tile.
+   */
   handleSwapAction() {
     // can't swap when tiles coords are not valid
     if (!this.draggedTile || !this.highlightedTile) {
@@ -139,7 +201,13 @@ export class GameGrid {
     };
   }
 
-  // swaps all tiles within the grid left and right
+  /**
+   * Shifts(swaps) the textures of the tiles in the grid in the specified direction.
+   *
+   * @param {Direction} direction - The direction to shift the textures. 
+   *                                Use `Direction.LEFT` to shift left and `Direction.RIGHT` to shift right.
+   * @returns {Array} The updated textures of the grid after the shift.
+   */
   shiftOnColumns(direction) {
     let shiftOffset;
     if (direction === Direction.LEFT) {
@@ -171,7 +239,13 @@ export class GameGrid {
     return this.getTextures();
   }
 
-  // swaps all tiles within the grid up and down`
+  /**
+   * Shifts(swaps) the textures of the tiles in the grid in the specified direction.
+   *
+   * @param {Direction} direction - The direction to shift the textures. 
+   *                                Use `Direction.UP` to shift up and `Direction.DOWN` to shift down.
+   * @returns {Array} The updated textures of the grid after the shift.
+   */
   shiftOnRows(direction) {
     let shiftOffset;
     if (direction === Direction.UP) {
@@ -203,7 +277,13 @@ export class GameGrid {
     return this.getTextures();
   }
 
-  // translates input coordinates to grid coordinates and returns the tile at that location
+  /**
+   * Retrieves the tile at the specified pointer coordinates.
+   *
+   * @param   {number}          pointerX - The X coordinate of the pointer.
+   * @param   {number}          pointerY - The Y coordinate of the pointer.
+   * @returns {Object|undefined} The tile object at the specified coordinates, or undefined if no tile is found.
+   */
   getTileAt(pointerX, pointerY) {
     return this.tiles.find(
       (tile) =>
@@ -212,7 +292,11 @@ export class GameGrid {
     );
   }
 
-  // gets the tiles textures as a flattened array
+  /**
+   * Retrieves an array of textures from the tiles collection.
+   *
+   * @returns {Array} An array containing all the textures from the tiles collection.
+   */
   getTextures() {
     let textures = [];
     this.tiles.forEach((tile) => {
@@ -222,14 +306,29 @@ export class GameGrid {
     return textures;
   }
 
+  /**
+   * Returns the vertices array.
+   *
+   * @returns {Array} An array containing all the vertices for the grid tiles.
+   */
   getVertices() {
     return this.vertices;
   }
 
+  /**
+   * Returns the indices array.
+   *
+   * @returns {Array} An array containing all the indices for the grid tiles.
+   */
   getIndices() {
     return this.indices;
   }
 
+  /**
+   * Returns the tiles array.
+   *
+   * @returns {Array} An array containing all the tiles of the grid.
+   */
   getTiles() {
     return this.tiles;
   }

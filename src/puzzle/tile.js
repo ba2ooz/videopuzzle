@@ -11,6 +11,13 @@ export class Tile {
   originalId;
   shuffleId;
 
+  /**
+   * Creates a new Tile instance.
+   * @param {number} id - The ID of the tile.
+   * @param {number} col - The column position of the tile in the grid.
+   * @param {number} row - The row position of the tile in the grid.
+   * @param {number} gridSize - The size of the grid.
+   */
   constructor(id, col, row, gridSize) {
     // set tile id
     this.originalId = id;
@@ -22,7 +29,7 @@ export class Tile {
 
     // set tile helper info
     this.gridSize = gridSize;
-    this.tileSize = 2 / gridSize;   // tile size in clip space (-1 to 1)
+    this.tileSize = 2 / gridSize; // tile size in clip space (-1 to 1)
 
     // set tile defaults
     this.isHighlighted = false;
@@ -30,6 +37,9 @@ export class Tile {
     this.initTexture();
   }
 
+  /**
+   * Initializes the model matrix and sets the initial and current coordinates.
+   */
   initModelMatrix() {
     this.modelMatrix = mat4.create();
     this.initialX = this.currentX = -1 + this.row * this.tileSize;
@@ -37,7 +47,9 @@ export class Tile {
     this.initialZ = this.currentZ = 0;
   }
 
-  // Top-left, Top-right, Bottom-left, Bottom-right
+  /**
+   * Initializes the texture coordinates of the tile.
+   */
   initTexture() {
     const u = this.row / this.gridSize;
     const v = this.col / this.gridSize;
@@ -54,14 +66,27 @@ export class Tile {
     ];
   }
 
+  /**
+   * Sets the texture coordinates of the tile.
+   * @param {number[]} texture - The new texture coordinates.
+   */
   setTexture(texture) {
     this.texture = texture;
   }
 
+  /**
+   * Gets the texture coordinates of the tile.
+   * @returns {number[]} The texture coordinates.
+   */
   getTexture() {
     return this.texture;
   }
 
+  /**
+   * Translates the tile to a new position.
+   * @param {number} newX - The new X coordinate.
+   * @param {number} newY - The new Y coordinate.
+   */
   translate(newX, newY) {
     // normalize the input coordinates
     const normalizedX = 2 * newX - 1;
@@ -74,43 +99,65 @@ export class Tile {
     const offsetY = normalizedY - tileCenterY;
 
     // set the tile's new position
-    this.currentX = offsetX; 
-    this.currentY = offsetY; 
+    this.currentX = offsetX;
+    this.currentY = offsetY;
     this.currentZ = 0.001; // to render the dragged tile on top of the others
   }
 
+  /**
+   * Resets the tile's position to its initial coordinates.
+   */
   resetTranslate() {
     this.currentX = this.initialX;
     this.currentY = this.initialY;
     this.currentZ = this.initialZ;
   }
 
-  // highlights the tile
-  higlight() {
+  /**
+   * Highlights the tile.
+   * @returns {Tile} The current tile instance.
+   */
+  highlight() {
     this.isHighlighted = true;
     return this;
   }
 
-  // removes the highlight from the tile
-  unhiglight() {
+  /**
+   * Removes the highlight from the tile.
+   * @returns {null} Null when the tile is unhighlighted.
+   */
+  unhighlight() {
     this.isHighlighted = false;
     return null;
   }
 
-  // swaps current tile's texture with onther tile's texture
+  /**
+   * Swaps the current tile's texture and shuffle ID with another tile.
+   * @param {Tile} otherTile - The other tile to swap with.
+   * @returns {void} void.
+   */
   swap(otherTile) {
     // swap textures
     [this.texture, otherTile.texture] = [otherTile.texture, this.texture];
     // swap shuffleIds
-    [this.shuffleId, otherTile.shuffleId] = [otherTile.shuffleId, this.shuffleId]; 
+    [this.shuffleId, otherTile.shuffleId] = [
+      otherTile.shuffleId,
+      this.shuffleId,
+    ];
   }
 
-  // the tile has the right identity when orginalId equals shuffleId
+  /**
+   * Checks if the tile has the correct identity.
+   * @returns {boolean} True if the tile's original ID matches its shuffle ID.
+   */
   checkIdentity() {
     return this.originalId === this.shuffleId;
   }
 
-  // Top-left, Top-right, Bottom-left, Bottom-right
+  /**
+   * Gets the vertices of the tile - 2 coordinates per corner, 4 corners.
+   * @returns {number[]} The vertices of the tile in this order: Top-left, Top-right, Bottom-left, Bottom-right.
+   */
   getVertices() {
     return [
       0,
@@ -124,6 +171,11 @@ export class Tile {
     ];
   }
 
+  /**
+   * Gets the indices for the tile's vertices.
+   * @param {number} indexOffset - The offset for the indices.
+   * @returns {number[]} The indices for the tile's vertices.
+   */
   getIndices(indexOffset) {
     return [
       indexOffset,
