@@ -17,7 +17,6 @@ export class TileAnimation {
    * @returns {boolean} - Returns false if the animation is complete and should be removed from active animations, true otherwise.
    */
   update(deltaTime) {
-    console.log(deltaTime);
     this.progress += deltaTime / this.duration;
     if (this.progress >= 1) {
       const endPosition = {

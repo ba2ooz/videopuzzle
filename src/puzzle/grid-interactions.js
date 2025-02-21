@@ -1,8 +1,4 @@
 import { Direction } from "./direction.js";
-import {
-  updateTextureBuffer,
-  updateTextureBufferSubData,
-} from "../graphics/buffers.js";
 import { GameGrid } from "./grid.js";
 
 /**
@@ -66,15 +62,23 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
         return;
       }
 
-      updateTextureBufferSubData(
-        gl,
-        swappedTextures.texture1.data,
-        swappedTextures.texture1.offsetId
+      document.dispatchEvent(
+        new CustomEvent("update_texture", {
+          detail: {
+            gl: gl,
+            texture: swappedTextures.texture1.data,
+            offset: swappedTextures.texture1.offsetId,
+          },
+        })
       );
-      updateTextureBufferSubData(
-        gl,
-        swappedTextures.texture2.data,
-        swappedTextures.texture2.offsetId
+      document.dispatchEvent(
+        new CustomEvent("update_texture", {
+          detail: {
+            gl: gl,
+            texture: swappedTextures.texture2.data,
+            offset: swappedTextures.texture2.offsetId,
+          },
+        })
       );
 
       if (grid.isUnshuffled()) {
@@ -91,23 +95,37 @@ export const addPointerListenerOn = (gl, canvas, grid) => {
 
   document.getElementById("shift_LEFT").addEventListener("click", () => {
     const gridTextures = grid.shiftOnColumns(Direction.LEFT);
-    updateTextureBuffer(gl, gridTextures);
+    document.dispatchEvent(
+      new CustomEvent("update_all_textures", {
+        detail: { gl: gl, textures: gridTextures },
+      })
+    );
   });
 
   document.getElementById("shift_RIGHT").addEventListener("click", () => {
     const gridTextures = grid.shiftOnColumns(Direction.RIGHT);
-    updateTextureBuffer(gl, gridTextures);
+    document.dispatchEvent(
+      new CustomEvent("update_all_textures", {
+        detail: { gl: gl, textures: gridTextures },
+      })
+    );
   });
 
   document.getElementById("shift_UP").addEventListener("click", () => {
     const gridTextures = grid.shiftOnRows(Direction.UP);
-    console.log(gridTextures);
-    updateTextureBuffer(gl, gridTextures);
+    document.dispatchEvent(
+      new CustomEvent("update_all_textures", {
+        detail: { gl: gl, textures: gridTextures },
+      })
+    );
   });
 
   document.getElementById("shift_DOWN").addEventListener("click", () => {
     const gridTextures = grid.shiftOnRows(Direction.DOWN);
-    console.log(gridTextures);
-    updateTextureBuffer(gl, gridTextures);
+    document.dispatchEvent(
+      new CustomEvent("update_all_textures", {
+        detail: { gl: gl, textures: gridTextures },
+      })
+    );
   });
 };

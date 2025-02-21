@@ -61,8 +61,12 @@ const updateTextureBufferSubData = (gl, newTexCoords, offset) => {
   );
 };
 
-export { 
-  initBuffers, 
-  updateTextureBuffer,
-  updateTextureBufferSubData
-};
+document.addEventListener("update_all_textures", (e) =>
+  updateTextureBuffer(e.detail.gl, e.detail.textures)
+);
+
+document.addEventListener("update_texture", (e) =>
+  updateTextureBufferSubData(e.detail.gl, e.detail.texture, e.detail.offset)
+);
+
+export { initBuffers };
