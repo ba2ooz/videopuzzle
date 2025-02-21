@@ -83,6 +83,43 @@ export class Tile {
   }
 
   /**
+   * Gets the initial position of the tile.
+   * 
+   * @returns {Object} An object containing the initial x, y, and z coordinates.
+   */
+  getInitialPosition() {
+    return {
+      x: this.initialX,
+      y: this.initialY,
+      z: this.initialZ
+    }
+  }
+
+  /**
+   * Gets the current position of the tile.
+   * 
+   * @returns {Object} An object containing the current x, y, and z coordinates.
+   */
+  getCurrentPosition() {
+    return {
+      x: this.currentX,
+      y: this.currentY,
+      z: this.currentZ
+    }
+  }
+
+  /**
+   * Sets the current position of the tile.
+   *
+   * @param {Object} position - An object containing the new x, y, and z coordinates to be set as current position.
+   */
+  setCurrentPosition(position) {
+      this.currentX = position.x;
+      this.currentY = position.y;
+      this.currentZ = position.z;
+  }
+
+  /**
    * Translates the tile to a new position.
    * @param {number} newX - The new X coordinate.
    * @param {number} newY - The new Y coordinate.
@@ -136,7 +173,7 @@ export class Tile {
    * @param {Tile} otherTile - The other tile to swap with.
    * @returns {void} void.
    */
-  swap(otherTile) {
+  swapTexture(otherTile) {
     // swap textures
     [this.texture, otherTile.texture] = [otherTile.texture, this.texture];
     // swap shuffleIds

@@ -32,9 +32,16 @@ const texture = video.initTexture(gl);
 // add pointer listener to the canvas
 addPointerListenerOn(gl, canvas, gameGrid);
 
+let lastFrameTime = performance.now();
+
 // render the scene
 const render = () => {
+  let now = performance.now();
+  let deltaTime = now - lastFrameTime;
+  lastFrameTime = now;
+
   video.updateTexture(gl, texture, videoRef);
+  gameGrid.updateAnimations(deltaTime);
   drawScene(gl, programInfo, buffers, gridTiles);
   requestAnimationFrame(render);
 };
