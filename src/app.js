@@ -1,3 +1,4 @@
+import { GLContext } from "./utils/GLcontext.js";
 import { addPointerListenerOn } from "./puzzle/grid-interactions.js";
 import { initShaderProgram } from "./graphics/shader.js";
 import { GameGrid } from "./puzzle/grid.js";
@@ -8,16 +9,10 @@ import * as video from "./graphics/video.js";
 const PUZZLE_SIZE = 4;
 
 // get a WebGLRenderingContext to render content
-const canvas = document.querySelector("#video-canvas");
-const gl = canvas.getContext("webgl2");
-if (!gl) {
-  const errMsg =
-    "Unable to initialize WebGL. Your browser or machine may not support it.";
 
-  alert(errMsg);
-
-  throw Error(errMsg);
-}
+const glContext = new GLContext("#video-canvas");
+const canvas = glContext.canvas;
+const gl = glContext.gl;
 
 // init the shader program
 const programInfo = initShaderProgram(gl);
