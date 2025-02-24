@@ -1,5 +1,5 @@
 import { GLContext } from "./utils/GLcontext.js";
-import { addPointerListenerOn } from "./puzzle/grid-interactions.js";
+import { GridEventsHandler } from "./puzzle/grid-interactions.js";
 import { initShaderProgram } from "./graphics/shader.js";
 import { GameGrid } from "./puzzle/grid.js";
 import { initBuffers } from "./graphics/buffers.js";
@@ -9,23 +9,22 @@ import * as video from "./graphics/video.js";
 const PUZZLE_SIZE = 4;
 
 // get a WebGLRenderingContext to render content
-
 const glContext = new GLContext("#video-canvas");
-const canvas = glContext.canvas;
-const gl = glContext.gl;
 
-// init the shader program
-const programInfo = initShaderProgram(gl);
+// create the game grid
 const gameGrid = new GameGrid(PUZZLE_SIZE);
 const gridTiles = gameGrid.getTiles();
-const buffers = initBuffers(gl, gameGrid);
+
+// init the shader program and the buffers
+const programInfo = initShaderProgram(glContext.gl);
+const buffers = initBuffers(glContext.gl, gameGrid);
 
 // init video texture
 const videoRef = video.setupVideo("testVideo.mp4");
-const texture = video.initTexture(gl);
+const texture = video.initTexture(glContext.gl);
 
-// add pointer listener to the canvas
-addPointerListenerOn(gl, canvas, gameGrid);
+// add pointer listeners on the canvas
+new GridEventsHandler(glContext, gameGrid);
 
 let lastFrameTime = performance.now();
 
@@ -35,9 +34,9 @@ const render = () => {
   let deltaTime = now - lastFrameTime;
   lastFrameTime = now;
 
-  video.updateTexture(gl, texture, videoRef);
+  video.updateTexture(glContext.gl, texture, videoRef);
   gameGrid.updateAnimations(deltaTime);
-  drawScene(gl, programInfo, buffers, gridTiles);
+  drawScene(glContext.gl, programInfo, buffers, gridTiles);
   requestAnimationFrame(render);
 };
 

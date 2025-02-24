@@ -2,130 +2,160 @@ import { Direction } from "./direction.js";
 import { GameGrid } from "./grid.js";
 
 /**
- * Adds pointer and click event listeners to the canvas and document elements for grid interactions.
+ * Handles pointer event listeners on the canvas for grid interactions.
  *
- * @param {WebGLRenderingContext} gl - The WebGL rendering context.
- * @param {HTMLCanvasElement} canvas - The canvas element to attach pointer events to.
- * @param {GameGrid} grid - The grid object that handles drag and swap actions.
+ * @param     {GLContext}             glContext        - Object containing the GLWebRenderingContext and its HTMLCanvasElement.
+ * @property  {HTMLCanvasElement}     glContext.canvas - the gl canvas
+ * @property  {WebGLRenderingContext} glContext.gl     - the gl rendering context
+ * @param     {GameGrid}              grid             - The grid object that handles drag and swap actions.
  */
-export const addPointerListenerOn = (gl, canvas, grid) => {
-  /**
-   * Calculates the coordinates of a mouse event relative to the canvas.
-   *
-   * @param {Event} e - The mouse event object.
-   * @returns {number[]} An array containing the normalized x and y coordinates of the event.
-   */
-  const getCanvasEventCoords = (e) => {
-    const canvasRect = canvas.getBoundingClientRect();
-    return [
-      (e.clientX - canvasRect.left) / canvas.width,
-      (e.clientY - canvasRect.top) / canvas.height,
-    ];
-  };
+export class GridEventsHandler {
+  constructor(glContext, grid) {
+    this.gl = glContext.gl;
+    this.canvasRect = glContext.canvas.getBoundingClientRect();
+    this.canvasWidth = glContext.canvas.width;
+    this.canvasHeight = glContext.canvas.height;
+    this.grid = grid;
+
+    // shared state for pointer events
+    this.isPointerDown = false;
+
+    // bind event handlers to ensure 'this' refers to the class instance
+    this.handlePointerDown = this.handlePointerDown.bind(this);
+    this.handlePointerMove = this.handlePointerMove.bind(this);
+    this.handlePointerUp = this.handlePointerUp.bind(this);
+
+    // add event listeners
+    glContext.canvas.addEventListener("pointerdown", this.handlePointerDown);
+    window.addEventListener("pointermove", this.handlePointerMove);
+    window.addEventListener("pointerup", this.handlePointerUp);
+
+    // add button event listeners
+    this.addButtonListeners();
+  }
 
   /**
    * Handles the pointer down within the canvas.
    *
    * @param {Event} e - The pointer move event.
    */
-  canvas.addEventListener("pointerdown", (e) => {
-    /**
-     * Handles the pointer move event by getting the coordinates of the event
-     * on the canvas and passing them to the grid's drag action handler.
-     *
-     * @param {Event} e - The pointer move event.
-     */
-    const handlePointerMove = (e) => {
-      const [pointerX, pointerY] = getCanvasEventCoords(e);
-      grid.handleDragAction(pointerX, pointerY);
-    };
+  handlePointerDown(e) {
+    this.isPointerDown = true;
+    const [pointerX, pointerY] = this.getCanvasEventCoords(e);
+    this.grid.initDragState(pointerX, pointerY);
+  }
 
-    /**
-     * Handles the pointer up event.
-     *
-     * This function is triggered when the pointer is released. It removes the
-     * pointer move event listener, swaps the textures of the dragged and
-     * highlighted tiles, and updates the texture buffer data.
-     *
-     * @param {PointerEvent} e - The pointer event object.
-     */
-    const handlePointerUp = (e) => {
-      window.removeEventListener("pointermove", handlePointerMove);
+  /**
+   * Handles the pointer move event on the entire window for as long as pointerdown is active
+   *
+   * @param {Event} e - The pointer move event.
+   */
+  handlePointerMove(e) {
+    if (!this.isPointerDown) {
+      return;
+    }
 
-      // swap dragged and highlighted tiles texture
-      const swappedTextures = grid.handleSwapAction();
-      // reset the grid state. This has to happen even if no swap occured
-      grid.clearDragState();
+    const [pointerX, pointerY] = this.getCanvasEventCoords(e);
+    this.grid.handleDragAction(pointerX, pointerY);
+  }
 
-      // no swap occurred, do nothing
-      if (!swappedTextures) {
-        return;
-      }
+  /**
+   * Handles the pointer up event on entire window.
+   * This is triggered when the pointer is released.
+   * It resets @param isPointerDown state and handles a two tiles swap event.
+   *
+   * @param {Event} e - The pointer event object.
+   */
+  handlePointerUp(e) {
+    if (!this.isPointerDown) {
+      return;
+    }
 
-      document.dispatchEvent(
-        new CustomEvent("update_texture", {
-          detail: {
-            gl: gl,
-            texture: swappedTextures.texture1.data,
-            offset: swappedTextures.texture1.offsetId,
-          },
-        })
-      );
-      document.dispatchEvent(
-        new CustomEvent("update_texture", {
-          detail: {
-            gl: gl,
-            texture: swappedTextures.texture2.data,
-            offset: swappedTextures.texture2.offsetId,
-          },
-        })
-      );
+    // pointerdown released, update the state
+    this.isPointerDown = false;
 
-      if (grid.isUnshuffled()) {
-        console.log("puzzle solved");
-      }
-    };
+    const swappedTextures = this.grid.handleSwapAction();
+    // reset the grid state. This has to happen even if no swap occured
+    this.grid.clearDragState();
 
-    const [pointerX, pointerY] = getCanvasEventCoords(e);
-    grid.initDragState(pointerX, pointerY);
+    // no swap occurred, do nothing
+    if (!swappedTextures) {
+      return;
+    }
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp, { once: true });
-  });
+    this.updateTexture(swappedTextures.texture1);
+    this.updateTexture(swappedTextures.texture2);
 
-  document.getElementById("shift_LEFT").addEventListener("click", () => {
-    const gridTextures = grid.shiftOnColumns(Direction.LEFT);
+    if (this.grid.isUnshuffled()) {
+      console.log("puzzle solved");
+    }
+  }
+
+  /**
+   * Registers the grid buttons click events
+   */
+  addButtonListeners() {
+    const leftButton = document.getElementById("shift_LEFT");
+    const rightButton = document.getElementById("shift_RIGHT");
+    const upButton = document.getElementById("shift_UP");
+    const downButton = document.getElementById("shift_DOWN");
+
+    leftButton.addEventListener("pointerdown", () =>
+      this.updateAllTextures(this.grid.shiftOnColumns(Direction.LEFT))
+    );
+    rightButton.addEventListener("pointerdown", () =>
+      this.updateAllTextures(this.grid.shiftOnColumns(Direction.RIGHT))
+    );
+    upButton.addEventListener("pointerdown", () =>
+      this.updateAllTextures(this.grid.shiftOnRows(Direction.UP))
+    );
+    downButton.addEventListener("pointerdown", () =>
+      this.updateAllTextures(this.grid.shiftOnRows(Direction.DOWN))
+    );
+  }
+
+  /**
+   * Executes a callback function which shifts the grid textures
+   * And triggers a custom texture update event
+   *
+   * @param {function} handleShift - callback shift textures function
+   */
+  updateAllTextures(handleShift) {
+    const gridTextures = handleShift;
     document.dispatchEvent(
       new CustomEvent("update_all_textures", {
-        detail: { gl: gl, textures: gridTextures },
+        detail: { gl: this.gl, textures: gridTextures },
       })
     );
-  });
+  }
 
-  document.getElementById("shift_RIGHT").addEventListener("click", () => {
-    const gridTextures = grid.shiftOnColumns(Direction.RIGHT);
+  /**
+   * Triggers a custom texture update event
+   *
+   * @param {Object} texture - texture object holding the data and the offset id at which data should be inserted
+   */
+  updateTexture(texture) {
     document.dispatchEvent(
-      new CustomEvent("update_all_textures", {
-        detail: { gl: gl, textures: gridTextures },
+      new CustomEvent("update_texture", {
+        detail: {
+          gl: this.gl,
+          texture: texture.data,
+          offset: texture.offsetId,
+        },
       })
     );
-  });
+  }
 
-  document.getElementById("shift_UP").addEventListener("click", () => {
-    const gridTextures = grid.shiftOnRows(Direction.UP);
-    document.dispatchEvent(
-      new CustomEvent("update_all_textures", {
-        detail: { gl: gl, textures: gridTextures },
-      })
-    );
-  });
-
-  document.getElementById("shift_DOWN").addEventListener("click", () => {
-    const gridTextures = grid.shiftOnRows(Direction.DOWN);
-    document.dispatchEvent(
-      new CustomEvent("update_all_textures", {
-        detail: { gl: gl, textures: gridTextures },
-      })
-    );
-  });
-};
+  /**
+   * Calculates the coordinates of a mouse event relative to the canvas.
+   *
+   * @param   {Event} e  - The mouse event object.
+   * @returns {number[]} An array containing the normalized x and y coordinates of the event.
+   */
+  getCanvasEventCoords(e) {
+    return [
+      (e.clientX - this.canvasRect.left) / this.canvasWidth,
+      (e.clientY - this.canvasRect.top) / this.canvasHeight,
+    ];
+  }
+}
