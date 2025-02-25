@@ -5,6 +5,7 @@ import { GameGrid } from "./puzzle/grid.js";
 import { BuffersManager } from "./graphics/BuffersManager.js";
 import { drawScene } from "./graphics/scene.js";
 import * as video from "./graphics/video.js";
+import videoUrl from "./testVideo.mp4";
 
 const PUZZLE_SIZE = 4;
 
@@ -24,7 +25,7 @@ const buffers = new BuffersManager(glContext.gl, {
 }).getBuffers();
 
 // init video texture
-const videoRef = video.setupVideo("testVideo.mp4");
+const videoRef = video.setupVideo(videoUrl);
 const texture = video.initTexture(glContext.gl);
 
 // add pointer listeners on the canvas

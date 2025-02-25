@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix'; 
+
 const NUM_COMPONENTS = 2;   // every coordinate composed of 2 values
 const NORMALIZE = false;    // don't normalize
 const STRIDE = 0;           // how many bytes to get from one set of values to the next
