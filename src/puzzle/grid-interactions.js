@@ -4,17 +4,14 @@ import { GameGrid } from "./grid.js";
 /**
  * Handles pointer event listeners on the canvas for grid interactions.
  *
- * @param     {GLContext}             glContext        - Object containing the GLWebRenderingContext and its HTMLCanvasElement.
- * @property  {HTMLCanvasElement}     glContext.canvas - the gl canvas
- * @property  {WebGLRenderingContext} glContext.gl     - the gl rendering context
+ * @param     {HTMLCanvasElement}     canvas           - the gl canvas
  * @param     {GameGrid}              grid             - The grid object that handles drag and swap actions.
  */
 export class GridEventsHandler {
-  constructor(glContext, grid) {
-    this.gl = glContext.gl;
-    this.canvasRect = glContext.canvas.getBoundingClientRect();
-    this.canvasWidth = glContext.canvas.width;
-    this.canvasHeight = glContext.canvas.height;
+  constructor(canvas, grid) {
+    this.canvasRect = canvas.getBoundingClientRect();
+    this.canvasWidth = canvas.width;
+    this.canvasHeight = canvas.height;
     this.grid = grid;
 
     // shared state for pointer events
@@ -26,7 +23,7 @@ export class GridEventsHandler {
     this.handlePointerUp = this.handlePointerUp.bind(this);
 
     // add event listeners
-    glContext.canvas.addEventListener("pointerdown", this.handlePointerDown);
+    canvas.addEventListener("pointerdown", this.handlePointerDown);
     window.addEventListener("pointermove", this.handlePointerMove);
     window.addEventListener("pointerup", this.handlePointerUp);
 
@@ -124,7 +121,7 @@ export class GridEventsHandler {
     const gridTextures = handleShift;
     document.dispatchEvent(
       new CustomEvent("update_all_textures", {
-        detail: { gl: this.gl, textures: gridTextures },
+        detail: { textures: gridTextures },
       })
     );
   }
@@ -138,7 +135,6 @@ export class GridEventsHandler {
     document.dispatchEvent(
       new CustomEvent("update_texture", {
         detail: {
-          gl: this.gl,
           texture: texture.data,
           offset: texture.offsetId,
         },

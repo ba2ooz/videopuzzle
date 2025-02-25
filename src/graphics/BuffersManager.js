@@ -1,0 +1,127 @@
+/**
+ * Manages the gl buffers state.
+ *
+ * @param    {WebGLRenderingContext} gl              - The WebGL rendering context.
+ * @param    {Object}                config          - The configuration object for the buffers.
+ * @property {Float32Array}          config.vertices - The vertices data for the position buffer.
+ * @property {Float32Array}          config.textures - The texture coordinates data for the texture buffer.
+ * @property {Uint16Array}           config.indices  - The indices data for the index buffer.
+ */
+export class BuffersManager {
+  constructor(gl, config) {
+    this.gl = gl;
+    this.config = config;
+
+    // init buffers
+    this.initPositionBuffer(config.vertices);
+    this.initTextureBuffer(config.textures);
+    this.initIndexBuffer(config.indices);
+
+    // register the texture update listeners
+    this.addUpdateListeners();
+  }
+
+  /**
+   * Returns the current state of the buffers
+   *
+   * @returns  {Object}                {}       - Object containing the current buffers state
+   * @property {WebGlBuffer|undefined} position - The vertices buffer
+   * @property {WebGlBuffer|undefined} texture  - The textures buffer
+   * @property {WebGlBuffer|undefined} index    - The indices buffer
+   *
+   */
+  getBuffers() {
+    return {
+      position: this.positionBuffer,
+      texture: this.textureCoordBuffer,
+      index: this.indexBuffer,
+    };
+  }
+
+  /**
+   * Inits the vertices buffer
+   *
+   * @param {Float32Array} vertixCoords - The vertices array
+   */
+  initPositionBuffer(vertixCoords) {
+    this.positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(vertixCoords),
+      this.gl.STATIC_DRAW
+    );
+  }
+
+  /**
+   * Inits the textures buffer
+   *
+   * @param {Float32Array} texCoords - The textures array
+   */
+  initTextureBuffer(texCoords) {
+    this.textureCoordBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(texCoords),
+      this.gl.STATIC_DRAW
+    );
+  }
+
+  /**
+   * Inits the indices buffer
+   *
+   * @param {Uint16Array} indexCoords - The indices array
+   */
+  initIndexBuffer(indexCoords) {
+    this.indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.bufferData(
+      this.gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(indexCoords),
+      this.gl.STATIC_DRAW
+    );
+  }
+
+  /**
+   * Updates the entire textures buffer
+   *
+   * @param {Float32Array} newTexCoords - The new textures array
+   */
+  updateTextureBuffer(newTexCoords) {
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(newTexCoords),
+      this.gl.STATIC_DRAW
+    );
+  }
+  /**
+   * Updates a subarray of the textures buffer
+   *
+   * @param {Float32Array} newTexCoords - The new textures subarray
+   * @param {number}       offset       - The start index for data replace in the existing texture buffer array
+   */
+  updateTextureBufferSubData(newTexCoords, offset) {
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    this.gl.bufferSubData(
+      this.gl.ARRAY_BUFFER,
+      offset * Float32Array.BYTES_PER_ELEMENT,
+      new Float32Array(newTexCoords)
+    );
+  }
+
+  /**
+   * Registers two custom events that:
+   * 1. triggers a replace of the entire buffer textures array
+   * 2. triggers a subarray replace in the buffer textures array
+   */
+  addUpdateListeners() {
+    document.addEventListener("update_all_textures", (e) =>
+      this.updateTextureBuffer(e.detail.textures)
+    );
+
+    document.addEventListener("update_texture", (e) =>
+      this.updateTextureBufferSubData(e.detail.texture, e.detail.offset)
+    );
+  }
+}

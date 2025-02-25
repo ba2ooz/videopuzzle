@@ -15,7 +15,7 @@ const drawScene = (gl, programInfo, buffers, modelViews) => {
 
   // install render program
   gl.useProgram(programInfo.program);                   
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices.buffer); // indices to use to index the vertices
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.index); // indices to use to index the vertices
 
   // set the projection matrix and pass it to the shader
   const projectionMatrix = mat4.create();
@@ -85,7 +85,7 @@ const setPositionAttribute = (gl, buffers, programInfo) => {
 
 // pull out the texture coordinates from buffer into the textureCoord attribute.
 const setTextureAttribute = (gl, buffers, programInfo) => {
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.texture);
   gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
   gl.vertexAttribPointer(
     programInfo.attribLocations.textureCoord,

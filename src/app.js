@@ -2,7 +2,7 @@ import { GLContext } from "./utils/GLcontext.js";
 import { GridEventsHandler } from "./puzzle/grid-interactions.js";
 import { initShaderProgram } from "./graphics/shader.js";
 import { GameGrid } from "./puzzle/grid.js";
-import { initBuffers } from "./graphics/buffers.js";
+import { BuffersManager } from "./graphics/BuffersManager.js";
 import { drawScene } from "./graphics/scene.js";
 import * as video from "./graphics/video.js";
 
@@ -17,14 +17,18 @@ const gridTiles = gameGrid.getTiles();
 
 // init the shader program and the buffers
 const programInfo = initShaderProgram(glContext.gl);
-const buffers = initBuffers(glContext.gl, gameGrid);
+const buffers = new BuffersManager(glContext.gl, {
+  vertices: gameGrid.getVertices(),
+  textures: gameGrid.getTextures(),
+  indices: gameGrid.getIndices(),
+}).getBuffers();
 
 // init video texture
 const videoRef = video.setupVideo("testVideo.mp4");
 const texture = video.initTexture(glContext.gl);
 
 // add pointer listeners on the canvas
-new GridEventsHandler(glContext, gameGrid);
+new GridEventsHandler(glContext.canvas, gameGrid);
 
 let lastFrameTime = performance.now();
 
