@@ -1,6 +1,9 @@
+import vertexShader from 'bundle-text:./utils/shader.vert?raw';
+import fragmentShader from 'bundle-text:./utils/shader.frag?raw';
+
 import { GLContext } from "./utils/GLcontext.js";
 import { GridEventsHandler } from "./puzzle/grid-interactions.js";
-import { initShaderProgram } from "./graphics/shader.js";
+import { ShaderManager } from "./graphics/ShaderManager.js";
 import { GameGrid } from "./puzzle/grid.js";
 import { BuffersManager } from "./graphics/BuffersManager.js";
 import { drawScene } from "./graphics/scene.js";
@@ -17,7 +20,7 @@ const gameGrid = new GameGrid(PUZZLE_SIZE);
 const gridTiles = gameGrid.getTiles();
 
 // init the shader program and the buffers
-const programInfo = initShaderProgram(glContext.gl);
+const shaderManager = new ShaderManager(glContext.gl, vertexShader, fragmentShader);
 const buffers = new BuffersManager(glContext.gl, {
   vertices: gameGrid.getVertices(),
   textures: gameGrid.getTextures(),
@@ -41,7 +44,7 @@ const render = () => {
 
   video.updateTexture(glContext.gl, texture, videoRef);
   gameGrid.updateAnimations(deltaTime);
-  drawScene(glContext.gl, programInfo, buffers, gridTiles);
+  drawScene(glContext.gl, shaderManager, buffers, gridTiles);
   requestAnimationFrame(render);
 };
 
