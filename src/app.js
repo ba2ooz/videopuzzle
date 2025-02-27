@@ -32,7 +32,7 @@ const shaderManager = new ShaderManager(
 const sceneManager = new SceneManager(glContext.gl, shaderManager, buffers);
 
 // init video texture
-sceneManager.initVideoTexture(videoUrl);
+const initVideo = async () => await sceneManager.initVideoTexture(videoUrl);
 
 // add pointer listeners on the canvas
 new GridEventsHandler(glContext.canvas, gameGrid);
@@ -45,4 +45,5 @@ const renderLoop = () => {
   requestAnimationFrame(renderLoop);
 };
 
+initVideo();
 requestAnimationFrame(renderLoop);

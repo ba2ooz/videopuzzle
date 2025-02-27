@@ -1,7 +1,7 @@
 import { ShaderManager } from "./ShaderManager.js";
+import { VideoManager } from "./VideoManager.js";
 import { Tile } from "../puzzle/tile.js";
 import { mat4 } from "gl-matrix";
-import * as video from "./video.js";
 
 /**
  * Manages all the rendering logic
@@ -16,13 +16,13 @@ export class SceneManager {
     this.gl = gl;
     this.shader = shader;
     this.buffers = buffers;
-    this.projectionMatrix = this.createProjectionMatrix();
+    this.video = new VideoManager(gl);
     this.lastFrameTime = performance.now();
+    this.projectionMatrix = this.createProjectionMatrix();
   }
 
-  initVideoTexture(videoUrl) {
-    this.videoRef = video.setupVideo(videoUrl);
-    this.videoTexture = video.initTexture(this.gl);
+  async initVideoTexture(videoUrl) {
+    await this.video.setupVideo(videoUrl);
   }
 
   /**
@@ -173,7 +173,7 @@ export class SceneManager {
     const deltaTime = now - this.lastFrameTime;
     this.lastFrameTime = now;
 
-    video.updateTexture(this.gl, this.videoTexture, this.videoRef);
+    this.video.updateTexture();
     updateAnimationsCallback(deltaTime);
 
     this.drawScene(modelViews);
