@@ -5,7 +5,7 @@ import { GridEventsHandler } from "./puzzle/grid-interactions.js";
 import { BuffersManager } from "./graphics/BuffersManager.js";
 import { ShaderManager } from "./graphics/ShaderManager.js";
 import { SceneManager } from "./graphics/SceneManager.js";
-import { GLContext } from "./utils/GLcontext.js";
+import { GLContext } from "./core/GLcontext.js";
 import { GameGrid } from "./puzzle/grid.js";
 import videoUrl from "./testVideo.mp4";
 
