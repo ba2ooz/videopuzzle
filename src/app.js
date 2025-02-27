@@ -1,5 +1,5 @@
-import fragmentShader from "bundle-text:./utils/shader.frag?raw";
-import vertexShader from "bundle-text:./utils/shader.vert?raw";
+import fragmentShader from "bundle-text:./core/shader.frag?raw";
+import vertexShader from "bundle-text:./core/shader.vert?raw";
 
 import { GridEventsHandler } from "./puzzle/grid-interactions.js";
 import { BuffersManager } from "./graphics/BuffersManager.js";
@@ -11,39 +11,50 @@ import videoUrl from "./testVideo.mp4";
 
 const PUZZLE_SIZE = 4;
 
-// create the game grid
-const gameGrid = new GameGrid(PUZZLE_SIZE);
-const gridTiles = gameGrid.getTiles();
+class Game {
+  constructor() {
+    // get a WebGLRenderingContext to render content
+    this.glContext = new GLContext("#video-canvas");
 
-// get a WebGLRenderingContext to render content
-const glContext = new GLContext("#video-canvas");
+    // create the game grid
+    this.gameGrid = new GameGrid(PUZZLE_SIZE);
 
-// init the shader program, buffers and the rendering scene
-const buffers = new BuffersManager(glContext.gl, {
-  vertices: gameGrid.getVertices(),
-  textures: gameGrid.getTextures(),
-  indices: gameGrid.getIndices(),
-}).getBuffers();
-const shaderManager = new ShaderManager(
-  glContext.gl,
-  vertexShader,
-  fragmentShader
-);
-const sceneManager = new SceneManager(glContext.gl, shaderManager, buffers);
+    // init the buffers, shader program and the rendering scene
+    this.buffers = new BuffersManager(this.glContext.gl, {
+      vertices: this.gameGrid.getVertices(),
+      textures: this.gameGrid.getTextures(),
+      indices: this.gameGrid.getIndices(),
+    }).getBuffers();
 
-// init video texture
-const initVideo = async () => await sceneManager.initVideoTexture(videoUrl);
+    this.shaderManager = new ShaderManager(
+      this.glContext.gl,
+      vertexShader,
+      fragmentShader
+    );
 
-// add pointer listeners on the canvas
-new GridEventsHandler(glContext.canvas, gameGrid);
+    this.sceneManager = new SceneManager(
+      this.glContext.gl,
+      this.shaderManager,
+      this.buffers
+    );
 
-// render the scene
-const renderLoop = () => {
-  sceneManager.render(gridTiles, (delta) =>
-    gameGrid.updateAnimations(delta)
-  );
-  requestAnimationFrame(renderLoop);
-};
+    // add events listeners on the canvas
+    new GridEventsHandler(this.glContext.canvas, this.gameGrid);
+  }
 
-initVideo();
-requestAnimationFrame(renderLoop);
+  async start() {
+    await this.sceneManager.initVideoTexture(videoUrl);
+    this.loop();
+  }
+
+  loop = () => {
+    const tiles = this.gameGrid.getTiles();
+    this.sceneManager.render(tiles, (delta) =>
+      this.gameGrid.updateAnimations(delta)
+    );
+    requestAnimationFrame(this.loop);
+  }
+}
+
+const game = new Game();
+game.start();
