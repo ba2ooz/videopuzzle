@@ -1,6 +1,7 @@
+import { TileSwapAnimation } from "../animations/TileSwapAnimation.js";
 import { Direction } from "./direction.js";
 import { Tile } from "./tile.js";
-import { TileAnimation } from "./tile-animation.js";
+
 /**
  * Holds and manages the game grid state
  *
@@ -191,7 +192,7 @@ export class GameGrid {
 
     // create animation for the swap
     this.animations.push(
-      new TileAnimation(
+      new TileSwapAnimation(
         this.draggedTile,
         this.highlightedTile.getInitialPosition()
       )
@@ -258,7 +259,7 @@ export class GameGrid {
           z: shiftedTilesCopy[index].initialZ,
         };
         this.animations.push(
-          new TileAnimation(tile, shiftedTilePos, shiftedTilePos.z)
+          new TileSwapAnimation(tile, shiftedTilePos, shiftedTilePos.z)
         );
       });
     }
@@ -315,7 +316,7 @@ export class GameGrid {
           z: shiftedTilesCopy[index].initialZ,
         };
         this.animations.push(
-          new TileAnimation(tile, shiftedTilePos, shiftedTilePos.z)
+          new TileSwapAnimation(tile, shiftedTilePos, shiftedTilePos.z)
         );
       });
     }
