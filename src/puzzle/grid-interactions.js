@@ -18,14 +18,14 @@ export class GridEventsHandler {
     this.isPointerDown = false;
 
     // bind event handlers to ensure 'this' refers to the class instance
-    this.handlePointerDown = this.handlePointerDown.bind(this);
-    this.handlePointerMove = this.handlePointerMove.bind(this);
-    this.handlePointerUp = this.handlePointerUp.bind(this);
+    this.handleGridPointerDown = this.handleGridPointerDown.bind(this);
+    this.handleGridPointerMove = this.handleGridPointerMove.bind(this);
+    this.handleGridPointerUp = this.handleGridPointerUp.bind(this);
 
     // add event listeners
-    canvas.addEventListener("pointerdown", this.handlePointerDown);
-    window.addEventListener("pointermove", this.handlePointerMove);
-    window.addEventListener("pointerup", this.handlePointerUp);
+    canvas.addEventListener("pointerdown", this.handleGridPointerDown);
+    window.addEventListener("pointermove", this.handleGridPointerMove);
+    window.addEventListener("pointerup", this.handleGridPointerUp);
 
     // add button event listeners
     this.addButtonListeners();
@@ -36,7 +36,7 @@ export class GridEventsHandler {
    *
    * @param {Event} e - The pointer move event.
    */
-  handlePointerDown(e) {
+  handleGridPointerDown(e) {
     this.isPointerDown = true;
     const [pointerX, pointerY] = this.getCanvasEventCoords(e);
     this.grid.initDragState(pointerX, pointerY);
@@ -47,7 +47,7 @@ export class GridEventsHandler {
    *
    * @param {Event} e - The pointer move event.
    */
-  handlePointerMove(e) {
+  handleGridPointerMove(e) {
     if (!this.isPointerDown) {
       return;
     }
@@ -63,7 +63,7 @@ export class GridEventsHandler {
    *
    * @param {Event} e - The pointer event object.
    */
-  handlePointerUp(e) {
+  handleGridPointerUp(e) {
     if (!this.isPointerDown) {
       return;
     }
@@ -99,30 +99,44 @@ export class GridEventsHandler {
     const downButton = document.getElementById("shift_DOWN");
 
     leftButton.addEventListener("pointerdown", () =>
-      this.updateAllTextures(this.grid.shiftOnColumns(Direction.LEFT))
+      this.handleGridButtonPointerDown(this.grid.shiftOnColumns(Direction.LEFT))
     );
     rightButton.addEventListener("pointerdown", () =>
-      this.updateAllTextures(this.grid.shiftOnColumns(Direction.RIGHT))
+      this.handleGridButtonPointerDown(this.grid.shiftOnColumns(Direction.RIGHT))
     );
     upButton.addEventListener("pointerdown", () =>
-      this.updateAllTextures(this.grid.shiftOnRows(Direction.UP))
+      this.handleGridButtonPointerDown(this.grid.shiftOnRows(Direction.UP))
     );
     downButton.addEventListener("pointerdown", () =>
-      this.updateAllTextures(this.grid.shiftOnRows(Direction.DOWN))
+      this.handleGridButtonPointerDown(this.grid.shiftOnRows(Direction.DOWN))
     );
   }
 
   /**
    * Executes a callback function which shifts the grid textures
-   * And triggers a custom texture update event
+   * Triggers texture update event.
+   * Checks for win condition in which case removes the grid interaction listeners.
    *
    * @param {function} handleShift - callback shift textures function
    */
-  updateAllTextures(handleShift) {
+  handleGridButtonPointerDown(handleShift) {
     const gridTextures = handleShift;
+    this.updateAllTextures(gridTextures);
+
+    if (this.grid.isUnshuffled()) {
+      this.grid.unshuffledWithSuccess();
+    }
+  }
+
+  /**
+   * Triggers a custom texture update event
+   *
+   * @param {Array} textures - The textures array
+   */
+  updateAllTextures(textures) {
     document.dispatchEvent(
       new CustomEvent("update_all_textures", {
-        detail: { textures: gridTextures },
+        detail: { textures: textures },
       })
     );
   }
