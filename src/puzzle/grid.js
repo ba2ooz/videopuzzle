@@ -1,4 +1,5 @@
 import { TileSwapAnimation } from "../animations/TileSwapAnimation.js";
+import { TileWinAnimation } from "../animations/TileWinAnimation.js";
 import { Direction } from "./direction.js";
 import { Tile } from "./tile.js";
 
@@ -65,6 +66,27 @@ export class GameGrid {
    */
   isUnshuffled() {
     return this.tiles.every((tile) => tile.checkIdentity());
+  }
+
+  /**
+   * Creates a win animation for each tile of the grid.
+   */
+  unshuffledWithSuccess() {
+    const delay = 100; // ms
+
+    for (let row = 0; row < this.gridSize; row++) {
+      // get the tiles on the current row
+      const rowTiles = this.tiles.filter((tile) => tile.row === row);
+
+      // apply win animation for each tile
+      rowTiles.forEach((tile, index) => {
+        const animationDelay = ((row + index) * delay); //ms
+        const animationDuration = delay*this.gridSize*this.gridSize;
+        this.animations.push(
+          new TileWinAnimation(tile, animationDuration, animationDelay)
+        );
+      });
+    }
   }
 
   /**

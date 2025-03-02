@@ -37,6 +37,15 @@ export class Tile {
     this.isHighlighted = false;
     this.initModelMatrix();
     this.initTexture();
+    this.scale = 1;
+  }
+
+  setScale(scale) {
+    this.scale = scale;
+  }
+
+  getScale() {
+    return this.scale;
   }
 
   /**

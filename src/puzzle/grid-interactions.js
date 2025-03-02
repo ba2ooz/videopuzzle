@@ -84,6 +84,7 @@ export class GridEventsHandler {
     this.updateTexture(swappedTextures.texture2);
 
     if (this.grid.isUnshuffled()) {
+      this.grid.unshuffledWithSuccess();
       console.log("puzzle solved");
     }
   }

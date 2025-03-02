@@ -110,6 +110,12 @@ export class SceneManager {
       modelView.modelMatrix,
       translatePosition
     );
+    const scale = modelView.getScale();
+    mat4.scale(
+      modelView.modelMatrix,
+      modelView.modelMatrix,
+      [scale, scale, 1]
+    );
 
     // set overlay color based on highlight state
     this.setOverlayColor(modelView.isHighlighted);
