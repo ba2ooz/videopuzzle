@@ -1,14 +1,14 @@
 import { TileSwapAnimation } from "../animations/TileSwapAnimation.js";
 import { TileWinAnimation } from "../animations/TileWinAnimation.js";
-import { Direction } from "./direction.js";
-import { Tile } from "./tile.js";
+import { Direction } from "./Direction.js";
+import { Tile } from "./Tile.js";
 
 /**
  * Holds and manages the game grid state
  *
  * @param {number} gridSize
  */
-export class GameGrid {
+export class Grid {
   highlightedTile = null;
   draggedTile = null;
 

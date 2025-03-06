@@ -1,12 +1,12 @@
 import fragmentShader from "bundle-text:./core/shader.frag?raw";
 import vertexShader from "bundle-text:./core/shader.vert?raw";
 
-import { GridEventsHandler } from "./puzzle/grid-interactions.js";
+import { GridEventsHandler } from "./puzzle/GridEventsHandler.js";
 import { BuffersManager } from "./graphics/BuffersManager.js";
 import { ShaderManager } from "./graphics/ShaderManager.js";
 import { SceneManager } from "./graphics/SceneManager.js";
 import { GLContext } from "./core/GLcontext.js";
-import { GameGrid } from "./puzzle/grid.js";
+import { Grid } from "./puzzle/Grid.js";
 import videoUrl from "./testVideo.mp4";
 
 const PUZZLE_SIZE = 4;
@@ -17,7 +17,7 @@ class Game {
     this.glContext = new GLContext("#video-canvas");
 
     // create the game grid
-    this.gameGrid = new GameGrid(PUZZLE_SIZE);
+    this.gameGrid = new Grid(PUZZLE_SIZE);
 
     // init the buffers, shader program and the rendering scene
     this.buffersManager = new BuffersManager(this.glContext.gl, {

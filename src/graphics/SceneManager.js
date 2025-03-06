@@ -1,7 +1,7 @@
 import { BuffersManager } from "./BuffersManager.js";
 import { ShaderManager } from "./ShaderManager.js";
 import { VideoManager } from "./VideoManager.js";
-import { Tile } from "../puzzle/tile.js";
+import { Tile } from "../puzzle/Tile.js";
 import { mat4 } from "gl-matrix";
 
 /**
