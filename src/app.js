@@ -20,11 +20,11 @@ class Game {
     this.gameGrid = new GameGrid(PUZZLE_SIZE);
 
     // init the buffers, shader program and the rendering scene
-    this.buffers = new BuffersManager(this.glContext.gl, {
+    this.buffersManager = new BuffersManager(this.glContext.gl, {
       vertices: this.gameGrid.getVertices(),
       textures: this.gameGrid.getTextures(),
       indices: this.gameGrid.getIndices(),
-    }).getBuffers();
+    });
 
     this.shaderManager = new ShaderManager(
       this.glContext.gl,
@@ -35,7 +35,7 @@ class Game {
     this.sceneManager = new SceneManager(
       this.glContext.gl,
       this.shaderManager,
-      this.buffers
+      this.buffersManager
     );
 
     // add events listeners on the canvas

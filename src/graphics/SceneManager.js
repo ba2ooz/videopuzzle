@@ -1,3 +1,4 @@
+import { BuffersManager } from "./BuffersManager.js";
 import { ShaderManager } from "./ShaderManager.js";
 import { VideoManager } from "./VideoManager.js";
 import { Tile } from "../puzzle/tile.js";
@@ -10,12 +11,12 @@ export class SceneManager {
   /**
    * @param {WebGL2RenderingContext} gl
    * @param {ShaderManager} shader
-   * @param {Object} buffers
+   * @param {BuffersManager} buffersManager
    */
-  constructor(gl, shader, buffers) {
+  constructor(gl, shader, buffersManager) {
     this.gl = gl;
     this.shader = shader;
-    this.buffers = buffers;
+    this.buffersManager = buffersManager;
     this.video = new VideoManager(gl);
     this.lastFrameTime = performance.now();
     this.projectionMatrix = this.createProjectionMatrix();
@@ -45,7 +46,7 @@ export class SceneManager {
    * Pulls out the positions from the position buffer into the vertexPosition attribute.
    */
   setupPositionAttribute() {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.position);
+    this.buffersManager.bindPositionBuffer();
     this.gl.enableVertexAttribArray(this.shader.attributes.position);
     this.gl.vertexAttribPointer(
       this.shader.attributes.position,
@@ -61,7 +62,7 @@ export class SceneManager {
    * Pulls out the texture coordinates from buffer into the textureCoord attribute.
    */
   setupTextureAttribute() {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.texture);
+    this.buffersManager.bindTextureBuffer();
     this.gl.enableVertexAttribArray(this.shader.attributes.texture);
     this.gl.vertexAttribPointer(
       this.shader.attributes.texture,
@@ -149,11 +150,13 @@ export class SceneManager {
 
     // setup render program
     this.gl.useProgram(this.shader.program);
-    // specify indices to use to index the vertices
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.index);
+
     // setup attributes
     this.setupPositionAttribute();
     this.setupTextureAttribute();
+
+    // specify indices to use to index the vertices
+    this.buffersManager.bindIndexBuffer();
 
     // pass projection matrix to the shader
     this.gl.uniformMatrix4fv(

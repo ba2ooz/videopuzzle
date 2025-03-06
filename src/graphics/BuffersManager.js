@@ -21,21 +21,25 @@ export class BuffersManager {
     this.addUpdateListeners();
   }
 
-  /**
-   * Returns the current state of the buffers
-   *
-   * @returns  {Object}                {}       - Object containing the current buffers state
-   * @property {WebGlBuffer|undefined} position - The vertices buffer
-   * @property {WebGlBuffer|undefined} texture  - The textures buffer
-   * @property {WebGlBuffer|undefined} index    - The indices buffer
-   *
-   */
-  getBuffers() {
-    return {
-      position: this.positionBuffer,
-      texture: this.textureCoordBuffer,
-      index: this.indexBuffer,
-    };
+  bindPositionBuffer() {
+    if (!this.positionBuffer) {
+      this.positionBuffer = this.gl.createBuffer();
+    }
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+  }
+
+  bindTextureBuffer() {
+    if (!this.textureCoordBuffer) {
+      this.textureCoordBuffer = this.gl.createBuffer();
+    }
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+  }
+
+  bindIndexBuffer() {
+    if (!this.indexBuffer) {
+      this.indexBuffer = this.gl.createBuffer();
+    }
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   }
 
   /**
@@ -44,8 +48,7 @@ export class BuffersManager {
    * @param {Float32Array} vertixCoords - The vertices array
    */
   initPositionBuffer(vertixCoords) {
-    this.positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+    this.bindPositionBuffer();
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       new Float32Array(vertixCoords),
@@ -59,8 +62,7 @@ export class BuffersManager {
    * @param {Float32Array} texCoords - The textures array
    */
   initTextureBuffer(texCoords) {
-    this.textureCoordBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+    this.bindTextureBuffer();
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       new Float32Array(texCoords),
@@ -74,8 +76,7 @@ export class BuffersManager {
    * @param {Uint16Array} indexCoords - The indices array
    */
   initIndexBuffer(indexCoords) {
-    this.indexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.bindIndexBuffer();
     this.gl.bufferData(
       this.gl.ELEMENT_ARRAY_BUFFER,
       new Uint16Array(indexCoords),
