@@ -13,6 +13,10 @@ export class ShaderManager {
     this.setProgramLocations();
   }
 
+  useProgram() {
+    this.gl.useProgram(this.program);
+  }
+
   /**
    * Creates a WebGL program from vertex and fragment shader sources.
    *
@@ -70,16 +74,58 @@ export class ShaderManager {
    * Sets the locations of the shader program's attributes and uniforms.
    */
   setProgramLocations() {
-    this.attributes = {
-      texture: this.gl.getAttribLocation(this.program, "aTextureCoord"),
-      position: this.gl.getAttribLocation(this.program, "aVertexPosition"),
-    };
+    this.attributes = new Map([
+      ['texture', this.gl.getAttribLocation(this.program, "aTextureCoord")],
+      ['position', this.gl.getAttribLocation(this.program, "aVertexPosition")]
+    ]);
 
-    this.uniforms = {
-      model: this.gl.getUniformLocation(this.program, "uModelMatrix"),
-      sampler: this.gl.getUniformLocation(this.program, "uSampler"),
-      projection: this.gl.getUniformLocation(this.program, "uProjectionMatrix"),
-      overlayColor: this.gl.getUniformLocation(this.program, "uOverlayColor"),
-    };
+    this.uniforms = new Map([
+      ['model', this.gl.getUniformLocation(this.program, "uModelMatrix")],
+      ['sampler', this.gl.getUniformLocation(this.program, "uSampler")],
+      ['projection', this.gl.getUniformLocation(this.program, "uProjectionMatrix")],
+      ['overlayColor', this.gl.getUniformLocation(this.program, "uOverlayColor")]
+    ]);
+  }
+
+  /**
+   * Sets the attribute for the given location in the shader program.
+   *
+   * @param {number} location - The location of the attribute in the shader program.
+   */
+  setAttribute(location) {
+    const attribute = this.attributes.get(location);
+    this.gl.enableVertexAttribArray(attribute);
+    this.gl.vertexAttribPointer(
+      attribute,
+      2,        // every coordinate composed of 2 values
+      this.gl.FLOAT,
+      false,    // normalize - don't normalize
+      0,        // stride - how many bytes to get from one set of values to the next
+      0         // offset - how many bytes inside the buffer to start from
+    );
+  }
+
+  /**
+   * Sets the value of a uniform variable for the current WebGL program.
+   *
+   * @param {string}       location - The name of the uniform variable.
+   * @param {Float32Array} number   - The value to set for the uniform variable.
+   */
+  setUniform(location, number) {
+    this.gl.uniform4fv(this.uniforms.get(location), number);
+  }
+
+  /**
+   * Sets a 4x4 matrix uniform value for the shader program.
+   *
+   * @param {string}       location - The name of the uniform variable in the shader program.
+   * @param {Float32Array} data     - The 4x4 matrix data to be set for the uniform variable.
+   */
+  setUniformMatrix(location, data) {
+    this.gl.uniformMatrix4fv(
+      this.uniforms.get(location),
+      false,
+      data
+    );
   }
 }

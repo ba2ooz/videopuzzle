@@ -10,12 +10,12 @@ import { mat4 } from "gl-matrix";
 export class SceneManager {
   /**
    * @param {WebGL2RenderingContext} gl
-   * @param {ShaderManager} shader
+   * @param {ShaderManager} shaderManager
    * @param {BuffersManager} buffersManager
    */
-  constructor(gl, shader, buffersManager) {
+  constructor(gl, shaderManager, buffersManager) {
     this.gl = gl;
-    this.shader = shader;
+    this.shaderManager = shaderManager;
     this.buffersManager = buffersManager;
     this.video = new VideoManager(gl);
     this.lastFrameTime = performance.now();
@@ -47,15 +47,7 @@ export class SceneManager {
    */
   setupPositionAttribute() {
     this.buffersManager.bindPositionBuffer();
-    this.gl.enableVertexAttribArray(this.shader.attributes.position);
-    this.gl.vertexAttribPointer(
-      this.shader.attributes.position,
-      2,        // every coordinate composed of 2 values
-      this.gl.FLOAT,
-      false,    // normalize - don't normalize
-      0,        // stride - how many bytes to get from one set of values to the next
-      0         // offset - how many bytes inside the buffer to start from
-    );
+    this.shaderManager.setAttribute("position");
   }
 
   /**
@@ -63,15 +55,7 @@ export class SceneManager {
    */
   setupTextureAttribute() {
     this.buffersManager.bindTextureBuffer();
-    this.gl.enableVertexAttribArray(this.shader.attributes.texture);
-    this.gl.vertexAttribPointer(
-      this.shader.attributes.texture,
-      2,        // every coordinate composed of 2 values
-      this.gl.FLOAT,
-      false,    // normalize - don't normalize
-      0,        // stride - how many bytes to get from one set of values to the next
-      0         // offset - how many bytes inside the buffer to start from
-    );
+    this.shaderManager.setAttribute("texture");
   }
 
   /**
@@ -84,7 +68,7 @@ export class SceneManager {
       ? [1.0, 1.0, 1.0, 0.4] // highlighted
       : [0.0, 0.0, 0.0, 0.0]; // no overlay
 
-    this.gl.uniform4fv(this.shader.uniforms.overlayColor, color);
+    this.shaderManager.setUniform("overlayColor", color);
   }
 
   /**
@@ -99,41 +83,25 @@ export class SceneManager {
    * @param {number}       index                   - The index of the element to draw.
    */
   drawElement(modelView, index) {
-    // reset and update model matrix
-    const translatePosition = [
-      modelView.currentX,
-      modelView.currentY,
-      modelView.currentZ,
-    ];
+    // reset and update model matrix position
     mat4.identity(modelView.modelMatrix);
-    mat4.translate(
-      modelView.modelMatrix,
-      modelView.modelMatrix,
-      translatePosition
-    );
+    const pos = modelView.getCurrentPosition();
+    mat4.translate(modelView.modelMatrix, modelView.modelMatrix, [pos.x, pos.y, pos.z]);
+
+    // set current scale
     const scale = modelView.getScale();
-    mat4.scale(
-      modelView.modelMatrix,
-      modelView.modelMatrix,
-      [scale, scale, 1]
-    );
+    mat4.scale(modelView.modelMatrix, modelView.modelMatrix, [scale, scale, 1]);
 
     // set overlay color based on highlight state
     this.setOverlayColor(modelView.isHighlighted);
 
     // pass model matrix to the shader
-    this.gl.uniformMatrix4fv(
-      this.shader.uniforms.model,
-      false,
-      modelView.modelMatrix
-    );
+    this.shaderManager.setUniformMatrix('model', modelView.modelMatrix);
 
     // draw the geometry
     this.gl.drawElements(
-      this.gl.TRIANGLES,
-      6,  // number of vertices to draw
-      this.gl.UNSIGNED_SHORT,
-      index * 6 * 2
+      this.gl.TRIANGLES, 6, // number of vertices to draw
+      this.gl.UNSIGNED_SHORT, index * 6 * 2
     );
   }
 
@@ -147,23 +115,14 @@ export class SceneManager {
 
   drawScene(modelViews) {
     this.resetScene();
-
-    // setup render program
-    this.gl.useProgram(this.shader.program);
-
     // setup attributes
     this.setupPositionAttribute();
     this.setupTextureAttribute();
-
-    // specify indices to use to index the vertices
-    this.buffersManager.bindIndexBuffer();
-
+    
+    // setup render program
+    this.shaderManager.useProgram();
     // pass projection matrix to the shader
-    this.gl.uniformMatrix4fv(
-      this.shader.uniforms.projection,
-      false,
-      this.projectionMatrix
-    );
+    this.shaderManager.setUniformMatrix('projection', this.projectionMatrix);
 
     // draw grid elements
     modelViews.forEach((modelView, index) =>
