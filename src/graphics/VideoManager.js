@@ -15,6 +15,7 @@ export class VideoManager {
    */
   setupVideo(url) {
     this.videoElement = document.createElement("video");
+    this.videoElement.crossOrigin = "anonymous";
     this.videoElement.playsInline = true;
     this.videoElement.muted = true;
     this.videoElement.loop = true;

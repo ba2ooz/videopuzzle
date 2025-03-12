@@ -1,0 +1,34 @@
+<!-- Game Screen -->
+<div id="block-slider-screen">
+  <div class="container">
+    <div class="game-header">
+      <button class="back-button" id="back-to-selection">
+        ← Back to Puzzles
+      </button>
+      <h2 class="game-clock">00:00:00</h2>
+      <span class="move-counter">Moves: <span id="move-count">0</span></span>
+    </div>
+
+    <div class="game-container">
+      <div class="puzzle-board">
+        <canvas id="video-canvas" width="640" height="480"></canvas>
+      </div>
+      
+      <div class="game-actions">
+        <button class="action-button" id="shift_LEFT">◄</button>
+        <button class="action-button" id="shift_UP">▲</button>
+        <button class="action-button" id="shift_DOWN">▼</button>
+        <button class="action-button" id="shift_RIGHT">►</button>
+      
+        <button class="action-button primary" id="view-solution">
+          View Solution
+        </button>
+      </div>
+      
+      <div class="success-message" id="success-message">
+        <h3 class="success-title">Puzzle Solved!</h3>
+        <p>You completed the puzzle in <span id="final-moves">12</span> moves.</p>
+      </div>
+    </div>
+  </div>
+</div>
