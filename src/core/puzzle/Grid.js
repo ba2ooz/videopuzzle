@@ -1,5 +1,5 @@
-import { TileSwapAnimation } from "../animations/TileSwapAnimation.js";
-import { TileWinAnimation } from "../animations/TileWinAnimation.js";
+import { TileSwapAnimation } from "../../animations/TileSwapAnimation.js";
+import { TileWinAnimation } from "../../animations/TileWinAnimation.js";
 import { Direction } from "./Direction.js";
 import { Tile } from "./Tile.js";
 

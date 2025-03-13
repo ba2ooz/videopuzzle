@@ -1,5 +1,5 @@
-import { Direction } from "../../puzzle/Direction.js";
-import { Grid } from "../../puzzle/Grid.js";
+import { Direction } from "../../core/puzzle/Direction.js";
+import { Grid } from "../../core/puzzle/Grid.js";
 
 /**
  * Handles pointer event listeners on the canvas for grid interactions.

@@ -3,11 +3,11 @@ import vertexShader from "bundle-text:../../core/shader.vert?raw";
 import gameHTML from "bundle-text:./puzzle-game.html?raw";
 
 import { PuzzleGameEventsHandler } from "./PuzzleGameEventsHandler.js";
-import { BuffersManager } from "../../graphics/BuffersManager.js";
-import { ShaderManager } from "../../graphics/ShaderManager.js";
-import { SceneManager } from "../../graphics/SceneManager.js";
+import { BuffersManager } from "../../core/graphics/BuffersManager.js";
+import { ShaderManager } from "../../core/graphics/ShaderManager.js";
+import { SceneManager } from "../../core/graphics/SceneManager.js";
 import { GLContext } from "../../core/GLcontext.js";
-import { Grid } from "../../puzzle/Grid.js";
+import { Grid } from "../../core/puzzle/Grid.js";
 
 import { createDomElementFromHtml } from "../utils.js";
 
