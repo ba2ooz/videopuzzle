@@ -19,20 +19,77 @@ export class PuzzleSolverComponent {
 
     const puzzle = this.service.getPuzzleById(this.puzzleId);
     this.game.render(puzzle);
+    this.startClock();
 
     this.addListeners();
+  }
+
+  startClock() {
+    this.seconds = 0;
+    this.clockStop = false;
+    this.clockElement = document.querySelector(".game-clock")
+
+    this.updateClock(); 
+    this.clockIntervalId = setInterval(() => {
+      if (!this.clockStop) {
+        this.seconds++;
+        this.updateClock(); // update the clock every second
+      }
+    }, 1000);
+  }
+
+  updateClock() {
+    this.hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
+    this.minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
+    this.seconds = String(this.seconds % 60).padStart(2, '0');
+
+    // format the time as HH:MM:SS
+    const timeString = `${this.hours}:${this.minutes}:${this.seconds}`;
+
+    // update the clock display
+    this.clockElement.textContent = timeString;
+  }
+
+  readFinalClock() {
+    let timeString = "";
+    if (this.hours > 0) {
+      timeString += `${this.hours} hours, `;
+    }
+    if (this.minutes > 0) {
+      timeString += `${this.minutes} minutes and `;
+    }
+    timeString += `${this.seconds} seconds`;
+
+    return timeString;
   }
 
   addListeners() {
     this.backToSelectionBtn = document.getElementById("back-to-selection");
     this.successMessage = document.getElementById("success-message");
     this.finalMoves = document.getElementById("final-moves");
+    this.finalClock = document.getElementById("final-clock");
     this.moves = document.getElementById("move-count");
-  
-    this.eventHandlers.addAndStoreEventListener(this.backToSelectionBtn, "pointerdown", this.handleGoBack.bind(this));
-    this.eventHandlers.addAndStoreEventListener(document, "update_all_textures", this.handleUpdateMoves.bind(this));
-    this.eventHandlers.addAndStoreEventListener(document, "update_texture", this.handleUpdateMoves.bind(this));
-    this.eventHandlers.addAndStoreEventListener(document, "unshuffled", this.handlePuzzleSolved.bind(this));
+
+    this.eventHandlers.addAndStoreEventListener(
+      this.backToSelectionBtn,
+      "pointerdown",
+      this.handleGoBack.bind(this)
+    );
+    this.eventHandlers.addAndStoreEventListener(
+      document,
+      "update_all_textures",
+      this.handleUpdateMoves.bind(this)
+    );
+    this.eventHandlers.addAndStoreEventListener(
+      document,
+      "update_texture",
+      this.handleUpdateMoves.bind(this)
+    );
+    this.eventHandlers.addAndStoreEventListener(
+      document,
+      "unshuffled",
+      this.handlePuzzleSolved.bind(this)
+    );
   }
 
   destroy() {
@@ -41,9 +98,12 @@ export class PuzzleSolverComponent {
   }
 
   handlePuzzleSolved() {
+    this.clockStop = true;
+    clearInterval(this.clockIntervalId);
     this.finalMoves.textContent = this.game.getMovesCount();
+    this.finalClock.textContent = this.readFinalClock();
     this.successMessage.classList.add("visible");
-  };
+  }
 
   handleUpdateMoves() {
     this.moves.textContent = this.game.getMovesCount();
