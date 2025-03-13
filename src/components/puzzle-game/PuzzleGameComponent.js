@@ -1,24 +1,28 @@
-import fragmentShader from "bundle-text:../core/shader.frag?raw";
-import vertexShader from "bundle-text:../core/shader.vert?raw";
+import fragmentShader from "bundle-text:../../core/shader.frag?raw";
+import vertexShader from "bundle-text:../../core/shader.vert?raw";
+import gameHTML from "bundle-text:./puzzle-game.html?raw";
 
-import { GridEventsHandler } from "./GridEventsHandler.js";
-import { BuffersManager } from "../graphics/BuffersManager.js";
-import { ShaderManager } from "../graphics/ShaderManager.js";
-import { SceneManager } from "../graphics/SceneManager.js";
-import { GLContext } from "../core/GLcontext.js";
-import { Grid } from "./Grid.js";
+import { PuzzleGameEventsHandler } from "./PuzzleGameEventsHandler.js";
+import { BuffersManager } from "../../graphics/BuffersManager.js";
+import { ShaderManager } from "../../graphics/ShaderManager.js";
+import { SceneManager } from "../../graphics/SceneManager.js";
+import { GLContext } from "../../core/GLcontext.js";
+import { Grid } from "../../puzzle/Grid.js";
 
-const PUZZLE_SIZE = 4;
+import { createDomElementFromHtml } from "../utils.js";
 
-export class Game {
-  constructor(videoUrl) {
-    this.videoUrl = videoUrl;
+export class PuzzleGameComponent {
+  constructor(container) {
+    this.container = container;
+  }
 
+  setup(videoUrl) {
     // get a WebGLRenderingContext to render content
     this.glContext = new GLContext("#video-canvas");
 
     // create the game grid
-    this.gameGrid = new Grid(PUZZLE_SIZE);
+    const puzzleSize = 4;
+    this.gameGrid = new Grid(puzzleSize);
 
     // init the buffers, shader program and the rendering scene
     this.buffersManager = new BuffersManager(this.glContext.gl, {
@@ -39,12 +43,15 @@ export class Game {
       this.buffersManager
     );
 
+    this.sceneManager.initVideoTexture(videoUrl);
+
     // add events listeners on the canvas
-    new GridEventsHandler(this.glContext.canvas, this.gameGrid);
+    new PuzzleGameEventsHandler(this.glContext.canvas, this.gameGrid);
   }
 
-  async start() {
-    await this.sceneManager.initVideoTexture(this.videoUrl);
+  render(gameInfo) {
+    this.container.appendChild(createDomElementFromHtml(gameHTML));
+    this.setup(gameInfo.videoUrl);
     this.loop();
   }
 

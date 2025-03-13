@@ -1,13 +1,13 @@
-import { Direction } from "./Direction.js";
-import { Grid } from "./Grid.js";
+import { Direction } from "../../puzzle/Direction.js";
+import { Grid } from "../../puzzle/Grid.js";
 
 /**
  * Handles pointer event listeners on the canvas for grid interactions.
  *
  * @param     {HTMLCanvasElement}     canvas           - the gl canvas
- * @param     {Grid}              grid             - The grid object that handles drag and swap actions.
+ * @param     {Grid}                  grid             - The grid object that handles drag and swap actions.
  */
-export class GridEventsHandler {
+export class PuzzleGameEventsHandler {
   constructor(canvas, grid) {
     this.grid = grid;
     this.canvas = canvas;

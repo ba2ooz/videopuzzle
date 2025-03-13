@@ -1,7 +1,7 @@
 import puzzleSolverHTML from "bundle-text:./puzzle-solver.html?raw";
 import page from "page";
 
-import { Game } from "../../puzzle/Game.js";
+import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 
 export class PuzzleSolverComponent {
   constructor(container, service, puzzleId) {
@@ -13,9 +13,11 @@ export class PuzzleSolverComponent {
   render() {
     this.container.innerHTML = puzzleSolverHTML;
 
+    const gameContainer = document.querySelector("#solver-container");
+    this.game = new PuzzleGameComponent(gameContainer);
+
     const puzzle = this.service.getPuzzleById(this.puzzleId);
-    this.game = new Game(puzzle.videoUrl);
-    this.game.start();
+    this.game.render(puzzle);
 
     this.addListeners();
   }
