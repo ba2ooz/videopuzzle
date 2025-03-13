@@ -77,7 +77,7 @@ export class PuzzleGameEventsHandler {
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
       this.notifyUnshuffled();
-      this.removeAllEventListeners();
+      this.eventHandlers.removeAllEventListeners();
     }
   }
 
@@ -95,7 +95,7 @@ export class PuzzleGameEventsHandler {
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
       this.notifyUnshuffled();
-      this.removeAllEventListeners();
+      this.eventHandlers.removeAllEventListeners();
     }
   }
 
@@ -103,20 +103,20 @@ export class PuzzleGameEventsHandler {
    * Registers the grid interaction events
    */
   addGridListeners() {
-    this.addAndStoreEventListener(
+    this.eventHandlers.addAndStoreEventListener(
       this.canvas,
       "pointerdown",
-      this.handleGridPointerDown
+      this.handleGridPointerDown.bind(this)
     );
-    this.addAndStoreEventListener(
+    this.eventHandlers.addAndStoreEventListener(
       window,
       "pointermove",
-      this.handleGridPointerMove
+      this.handleGridPointerMove.bind(this)
     );
-    this.addAndStoreEventListener(
+    this.eventHandlers.addAndStoreEventListener(
       window,
       "pointerup",
-      this.handleGridPointerUp
+      this.handleGridPointerUp.bind(this)
     );
   }
 
@@ -130,44 +130,21 @@ export class PuzzleGameEventsHandler {
     this.rightButton = document.getElementById("shift_RIGHT");
 
     const eventType = "pointerdown";
-    this.addAndStoreEventListener(this.upButton, eventType, () =>
+    this.eventHandlers.addAndStoreEventListener(this.upButton, eventType, () =>
       this.handleGridButtonPointerDown(this.grid.shiftOnRows, Direction.UP)
     );
-    this.addAndStoreEventListener(this.downButton, eventType, () =>
+    this.eventHandlers.addAndStoreEventListener(this.downButton, eventType, () =>
       this.handleGridButtonPointerDown(this.grid.shiftOnRows, Direction.DOWN)
     );
-    this.addAndStoreEventListener(this.leftButton, eventType, () =>
+    this.eventHandlers.addAndStoreEventListener(this.leftButton, eventType, () =>
       this.handleGridButtonPointerDown(this.grid.shiftOnColumns, Direction.LEFT)
     );
-    this.addAndStoreEventListener(this.rightButton, eventType, () =>
+    this.eventHandlers.addAndStoreEventListener(this.rightButton, eventType, () =>
       this.handleGridButtonPointerDown(
         this.grid.shiftOnColumns,
         Direction.RIGHT
       )
     );
-  }
-
-  /**
-   * Adds an event listener to the specified element and stores the handler for future reference.
-   *
-   * @param {HTMLElement} element   - The DOM element to which the event listener will be added.
-   * @param {string}      eventType - The type of the event to listen for (e.g., 'pointerdown', 'pointermove').
-   * @param {Function}    handler   - The function to be called when the event is triggered.
-   */
-  addAndStoreEventListener(element, eventType, handler) {
-    const boundHandler = handler.bind(this);
-    this.eventHandlers.set(element, { eventType, boundHandler });
-    element.addEventListener(eventType, boundHandler);
-  }
-
-  /** 
-   * Removes all the event listeners.
-   */
-  removeAllEventListeners() {
-    this.eventHandlers.forEach(({ eventType, boundHandler }, element) => {
-      element.removeEventListener(eventType, boundHandler);
-    });
-    this.eventHandlers.clear();
   }
 
   /**

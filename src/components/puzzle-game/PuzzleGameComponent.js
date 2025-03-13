@@ -9,7 +9,7 @@ import { SceneManager } from "../../core/graphics/SceneManager.js";
 import { GLContext } from "../../core/GLcontext.js";
 import { Grid } from "../../core/puzzle/Grid.js";
 
-import { createDomElementFromHtml } from "../utils.js";
+import { createDomElementFromHtml } from "../../utils/utils.js";
 
 export class PuzzleGameComponent {
   constructor(container) {

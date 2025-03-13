@@ -8,6 +8,7 @@ export class PuzzleSolverComponent {
     this.container = container;
     this.service = service;
     this.puzzleId = puzzleId;
+    this.eventHandlers = new Map(); // store event handlers for easy removal
   }
 
   render() {
@@ -27,23 +28,29 @@ export class PuzzleSolverComponent {
     this.successMessage = document.getElementById("success-message");
     this.finalMoves = document.getElementById("final-moves");
     this.moves = document.getElementById("move-count");
+  
+    this.eventHandlers.addAndStoreEventListener(this.backToSelectionBtn, "pointerdown", this.handleGoBack.bind(this));
+    this.eventHandlers.addAndStoreEventListener(document, "update_all_textures", this.handleUpdateMoves.bind(this));
+    this.eventHandlers.addAndStoreEventListener(document, "update_texture", this.handleUpdateMoves.bind(this));
+    this.eventHandlers.addAndStoreEventListener(document, "unshuffled", this.handlePuzzleSolved.bind(this));
+  }
 
-    document.addEventListener("unshuffled", () => {
-      this.finalMoves.textContent = this.game.getMovesCount();
-      this.successMessage.classList.add("visible");
-    });
+  destroy() {
+    this.eventHandlers.removeAllEventListeners();
+    this.game.destroy();
+  }
 
-    document.addEventListener("update_all_textures", () =>
-      this.moves.textContent = this.game.getMovesCount()
-    );
+  handlePuzzleSolved() {
+    this.finalMoves.textContent = this.game.getMovesCount();
+    this.successMessage.classList.add("visible");
+  };
 
-    document.addEventListener("update_texture", () =>
-      this.moves.textContent = this.game.getMovesCount()
-    );
+  handleUpdateMoves() {
+    this.moves.textContent = this.game.getMovesCount();
+  }
 
-    this.backToSelectionBtn.addEventListener("pointerdown", () => {
-      this.game.destroy();
-      page.redirect("/");
-    });
+  handleGoBack() {
+    this.destroy();
+    page.redirect("/");
   }
 }
