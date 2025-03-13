@@ -18,6 +18,8 @@ export class Grid {
 
   animations = [];
 
+  moves = 0;
+
   constructor(gridSize) {
     this.gridSize = gridSize;
     this.generateGrid();
@@ -207,6 +209,9 @@ export class Grid {
       return null;
     }
 
+    // update moves counter
+    this.moves++;
+
     // swap
     this.draggedTile.swapTexture(this.highlightedTile);
     const draggedTexture = this.draggedTile.getTexture();
@@ -242,6 +247,9 @@ export class Grid {
    * @returns {Array} The updated textures of the grid after the shift.
    */
   shiftOnColumns(direction) {
+    // update moves counter
+    this.moves++;
+
     let shiftOffset;
     if (direction === Direction.LEFT) {
       shiftOffset = 1;
@@ -297,6 +305,9 @@ export class Grid {
    * @returns {Array} The updated textures of the grid after the shift.
    */
   shiftOnRows(direction) {
+    // update moves counter
+    this.moves++;
+
     let shiftOffset;
     if (direction === Direction.UP) {
       shiftOffset = 1;
@@ -411,5 +422,9 @@ export class Grid {
    */
   getTiles() {
     return this.tiles;
+  }
+
+  getMovesCount() {
+    return this.moves;
   }
 }

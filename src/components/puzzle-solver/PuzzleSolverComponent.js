@@ -23,15 +23,25 @@ export class PuzzleSolverComponent {
   }
 
   addListeners() {
-    const viewSolutionBtn = document.getElementById("view-solution");
-    viewSolutionBtn.addEventListener("pointerdown", () => {
-      const successMessage = document.getElementById("success-message");
-      const finalMoves = document.getElementById("final-moves");
-      successMessage.classList.add("visible");
+    this.backToSelectionBtn = document.getElementById("back-to-selection");
+    this.successMessage = document.getElementById("success-message");
+    this.finalMoves = document.getElementById("final-moves");
+    this.moves = document.getElementById("move-count");
+
+    document.addEventListener("unshuffled", () => {
+      this.finalMoves.textContent = this.game.getMovesCount();
+      this.successMessage.classList.add("visible");
     });
 
-    const backToSelectionBtn = document.getElementById("back-to-selection");
-    backToSelectionBtn.addEventListener("pointerdown", () => {
+    document.addEventListener("update_all_textures", () =>
+      this.moves.textContent = this.game.getMovesCount()
+    );
+
+    document.addEventListener("update_texture", () =>
+      this.moves.textContent = this.game.getMovesCount()
+    );
+
+    this.backToSelectionBtn.addEventListener("pointerdown", () => {
       this.game.destroy();
       page.redirect("/");
     });

@@ -76,6 +76,7 @@ export class PuzzleGameEventsHandler {
 
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
+      this.notifyUnshuffled();
       this.removeAllEventListeners();
     }
   }
@@ -93,6 +94,7 @@ export class PuzzleGameEventsHandler {
 
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
+      this.notifyUnshuffled();
       this.removeAllEventListeners();
     }
   }
@@ -195,6 +197,10 @@ export class PuzzleGameEventsHandler {
         },
       })
     );
+  }
+
+  notifyUnshuffled() {
+    document.dispatchEvent(new CustomEvent("unshuffled"));
   }
 
   /**

@@ -61,6 +61,10 @@ export class PuzzleGameComponent {
       this.gameGrid.updateAnimations(delta)
     );
     this.animationFrameId = requestAnimationFrame(this.loop);
+  };
+
+  getMovesCount() {
+    return this.gameGrid.getMovesCount();
   }
 
   destroy() {
