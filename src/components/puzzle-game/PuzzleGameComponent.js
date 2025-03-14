@@ -46,11 +46,12 @@ export class PuzzleGameComponent {
     this.sceneManager.initVideoTexture(videoUrl);
 
     // add events listeners on the canvas
-    new PuzzleGameEventsHandler(this.glContext.canvas, this.gameGrid);
+    this.gameEventsHandler = new PuzzleGameEventsHandler(this.glContext.canvas, this.gameGrid);
   }
 
   render(gameInfo) {
-    this.container.appendChild(createDomElementFromHtml(gameHTML));
+    this.gameElement = createDomElementFromHtml(gameHTML);
+    this.container.appendChild(this.gameElement);
     this.setup(gameInfo.videoUrl);
     this.loop();
   }
@@ -69,7 +70,22 @@ export class PuzzleGameComponent {
 
   destroy() {
     cancelAnimationFrame(this.animationFrameId);
-    this.glContext.gl = null;
-    GLContext.instance = null;
+    this.gameEventsHandler.destroy();
+    this.buffersManager.destroy();
+    this.shaderManager.destroy();
+    this.sceneManager.destroy();
+    this.gameElement.remove();
+    this.glContext.destroy();
+    this.gameGrid.destroy();
+
+    this.gameEventsHandler = null;
+    this.animationFrameId = null;
+    this.buffersManager = null;
+    this.shaderManager = null;
+    this.sceneManager = null;
+    this.gameElement = null;
+    this.glContext = null;
+    this.container = null;
+    this.gameGrid = null;
   }
 }

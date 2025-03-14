@@ -427,4 +427,15 @@ export class Grid {
   getMovesCount() {
     return this.moves;
   }
+
+  destroy() {
+    this.tiles.forEach((tile) => tile.destroy());
+    this.highlightedTile = null;
+    this.draggedTile = null;
+    this.animations = null;
+    this.vertices = null;
+    this.indices = null;
+    this.tiles = null;
+    this.moves = null;
+  }
 }

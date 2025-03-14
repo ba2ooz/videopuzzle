@@ -146,4 +146,15 @@ export class SceneManager {
 
     this.drawScene(modelViews);
   }
+
+  destroy() {
+    this.video.destroy();
+
+    this.projectionMatrix = null;
+    this.buffersManager = null;
+    this.shaderManager = null;
+    this.lastFrameTime = null;
+    this.video = null;
+    this.gl = null;
+  }
 }

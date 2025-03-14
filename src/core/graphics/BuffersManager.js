@@ -133,5 +133,13 @@ export class BuffersManager {
 
   destroy() {
     document.removeEventListener("texture_swap", this.handleTexturesSwapEvent);
+    this.gl.deleteBuffer(this.textureCoordBuffer);
+    this.gl.deleteBuffer(this.positionBuffer);
+    this.gl.deleteBuffer(this.indexBuffer);
+    this.textureCoordBuffer = null; 
+    this.positionBuffer = null;
+    this.indexBuffer = null;
+    this.config = null;
+    this.gl = null;
   }
 }

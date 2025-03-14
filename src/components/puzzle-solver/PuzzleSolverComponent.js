@@ -94,6 +94,11 @@ export class PuzzleSolverComponent {
   destroy() {
     this.eventHandlers.removeAllEventListeners();
     this.game.destroy();
+
+    this.eventHandlers = null;
+    this.container = null;
+    this.service = null;
+    this.game = null;
   }
 
   handlePuzzleSolved() {

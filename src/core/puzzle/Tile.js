@@ -234,4 +234,9 @@ export class Tile {
       indexOffset + 3,
     ];
   }
+
+  destroy() {
+    this.texture = null;
+    this.modelMatrix = null;
+  }
 }

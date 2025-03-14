@@ -128,4 +128,14 @@ export class ShaderManager {
       data
     );
   }
+
+  destroy() {
+    this.gl.deleteProgram(this.program);
+    this.attributes.clear();
+    this.uniforms.clear();
+    this.attributes = null;
+    this.uniforms = null;
+    this.program = null;
+    this.gl = null;
+  }
 }

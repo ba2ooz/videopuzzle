@@ -181,4 +181,14 @@ export class PuzzleGameEventsHandler {
       (e.clientY - this.canvasRect.top) / this.canvas.height,
     ];
   }
+
+  destroy() { 
+    this.grid = null;
+    this.canvas = null;
+    this.canvasRect = null;
+    this.upButton = null;
+    this.downButton = null;
+    this.leftButton = null;
+    this.rightButton = null;
+  }
 }

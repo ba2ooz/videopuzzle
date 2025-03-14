@@ -3,7 +3,6 @@ export class VideoManager {
     this.gl = gl;
     this.texture = null;
     this.videoElement = null;
-    this.canCopyVideo = false;
   }
 
   /**
@@ -88,5 +87,12 @@ export class VideoManager {
         this.videoElement
       );
     }
+  }
+
+  destroy() {
+    this.gl.deleteTexture(this.texture);
+    this.videoElement.src = "";
+    this.videoElement = null;
+    this.gl = null;
   }
 }
