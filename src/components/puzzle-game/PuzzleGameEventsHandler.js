@@ -71,8 +71,8 @@ export class PuzzleGameEventsHandler {
       return;
     }
 
-    this.updateTexture(swappedTextures.texture1);
-    this.updateTexture(swappedTextures.texture2);
+    this.notifyTextureSwap(swappedTextures.texture1.data, swappedTextures.texture1.offsetId);
+    this.notifyTextureSwap(swappedTextures.texture2.data, swappedTextures.texture2.offsetId);
 
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
@@ -90,7 +90,7 @@ export class PuzzleGameEventsHandler {
    */
   handleGridButtonPointerDown(handleShift, direction) {
     const gridTextures = handleShift.call(this.grid, direction);
-    this.updateAllTextures(gridTextures);
+    this.notifyTextureSwap(gridTextures);
 
     if (this.grid.isUnshuffled()) {
       this.grid.unshuffledWithSuccess();
@@ -150,27 +150,16 @@ export class PuzzleGameEventsHandler {
   /**
    * Triggers a custom texture update event
    *
-   * @param {Array} textures - The textures array
+   * @param {Array}  data   - An array containing either all textures or one specific texture 
+   * @param {number} offset - The offset id at which data should be inserted - if null, the entire textures array will be replaced
    */
-  updateAllTextures(textures) {
+  notifyTextureSwap(data, offset = null) {
+    const offsetId = offset === null ? -1 : offset;
     document.dispatchEvent(
-      new CustomEvent("update_all_textures", {
-        detail: { textures: textures },
-      })
-    );
-  }
-
-  /**
-   * Triggers a custom texture update event
-   *
-   * @param {Object} texture - texture object holding the data and the offset id at which data should be inserted
-   */
-  updateTexture(texture) {
-    document.dispatchEvent(
-      new CustomEvent("update_texture", {
+      new CustomEvent("texture_swap", {
         detail: {
-          texture: texture.data,
-          offset: texture.offsetId,
+          data: data,
+          offset: offsetId,
         },
       })
     );

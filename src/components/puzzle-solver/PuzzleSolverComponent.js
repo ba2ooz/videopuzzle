@@ -77,12 +77,7 @@ export class PuzzleSolverComponent {
     );
     this.eventHandlers.addAndStoreEventListener(
       document,
-      "update_all_textures",
-      this.handleUpdateMoves.bind(this)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      document,
-      "update_texture",
+      "texture_swap",
       this.handleUpdateMoves.bind(this)
     );
     this.eventHandlers.addAndStoreEventListener(

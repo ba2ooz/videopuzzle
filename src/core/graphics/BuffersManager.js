@@ -18,7 +18,7 @@ export class BuffersManager {
     this.initIndexBuffer(config.indices);
 
     // register the texture update listeners
-    this.addUpdateListeners();
+    this.addListeners();
   }
 
   bindPositionBuffer() {
@@ -112,17 +112,26 @@ export class BuffersManager {
   }
 
   /**
-   * Registers two custom events that:
-   * 1. triggers a replace of the entire buffer textures array
-   * 2. triggers a subarray replace in the buffer textures array
+   * Handles a custom event that:
+   * 1. either triggers a replace of the entire buffer textures array
+   * 2. or triggers a subarray replace in the buffer textures array
    */
-  addUpdateListeners() {
-    document.addEventListener("update_all_textures", (e) =>
-      this.updateTextureBuffer(e.detail.textures)
-    );
+  handleTexturesSwapEvent(e) {
+    if (e.detail.offset === -1) {
+      return this.updateTextureBuffer(e.detail.data);
+    }
 
-    document.addEventListener("update_texture", (e) =>
-      this.updateTextureBufferSubData(e.detail.texture, e.detail.offset)
-    );
+    this.updateTextureBufferSubData(e.detail.data, e.detail.offset);
+  }
+
+  /**
+   * Registers the textures swap event
+   */
+  addListeners() {
+    document.addEventListener("texture_swap", this.handleTexturesSwapEvent.bind(this));
+  }
+
+  destroy() {
+    document.removeEventListener("texture_swap", this.handleTexturesSwapEvent);
   }
 }
