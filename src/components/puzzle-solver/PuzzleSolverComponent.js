@@ -39,12 +39,12 @@ export class PuzzleSolverComponent {
   }
 
   updateClock() {
-    this.hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
-    this.minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
-    this.seconds = String(this.seconds % 60).padStart(2, '0');
+    const hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
+    const minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
+    const seconds = String(this.seconds % 60).padStart(2, '0');
 
     // format the time as HH:MM:SS
-    const timeString = `${this.hours}:${this.minutes}:${this.seconds}`;
+    const timeString = `${hours}:${minutes}:${seconds}`;
 
     // update the clock display
     this.clockElement.textContent = timeString;
@@ -52,13 +52,17 @@ export class PuzzleSolverComponent {
 
   readFinalClock() {
     let timeString = "";
-    if (this.hours > 0) {
-      timeString += `${this.hours} hours, `;
+    const hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
+    const minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
+    const seconds = String(this.seconds % 60).padStart(2, '0');
+
+    if (hours > 0) {
+      timeString += `${hours} hours, `;
     }
-    if (this.minutes > 0) {
-      timeString += `${this.minutes} minutes and `;
+    if (minutes > 0) {
+      timeString += `${minutes} minutes and `;
     }
-    timeString += `${this.seconds} seconds`;
+    timeString += `${seconds} seconds`;
 
     return timeString;
   }
