@@ -14,6 +14,7 @@ import { createDomElementFromHtml } from "../../utils/utils.js";
 export class PuzzleGameComponent {
   constructor(container) {
     this.container = container;
+    this.availableSneakPeeks = 2;
   }
 
   setup(videoUrl) {
@@ -46,7 +47,10 @@ export class PuzzleGameComponent {
     this.sceneManager.initVideoTexture(videoUrl);
 
     // add events listeners on the canvas
-    this.gameEventsHandler = new PuzzleGameEventsHandler(this.glContext.canvas, this.gameGrid);
+    this.gameEventsHandler = new PuzzleGameEventsHandler(
+      this.glContext.canvas,
+      this
+    );
   }
 
   render(gameInfo) {
@@ -66,6 +70,14 @@ export class PuzzleGameComponent {
 
   getMovesCount() {
     return this.gameGrid.getMovesCount();
+  }
+
+  getAvailableSneakPeeks() {
+    return this.availableSneakPeeks;
+  }
+
+  useSneakPeek() {
+    this.availableSneakPeeks--;
   }
 
   destroy() {

@@ -1,3 +1,4 @@
+import { SneakPeekAnimation } from "../../animations/SneakPeekAnimation.js";
 import { TileSwapAnimation } from "../../animations/TileSwapAnimation.js";
 import { TileWinAnimation } from "../../animations/TileWinAnimation.js";
 import { Direction } from "./Direction.js";
@@ -12,6 +13,7 @@ export class Grid {
   highlightedTile = null;
   draggedTile = null;
 
+  originalTextures = [];
   vertices = [];
   indices = [];
   tiles = [];
@@ -46,6 +48,8 @@ export class Grid {
         id++;
       }
     }
+
+    this.originalTextures = this.getTextures();
   }
 
   /**
@@ -82,13 +86,34 @@ export class Grid {
 
       // apply win animation for each tile
       rowTiles.forEach((tile, index) => {
-        const animationDelay = ((row + index) * delay); //ms
-        const animationDuration = delay*this.gridSize*this.gridSize;
+        const animationDelay = (row + index) * delay; //ms
+        const animationDuration = delay * this.gridSize * this.gridSize;
         this.animations.push(
           new TileWinAnimation(tile, animationDuration, animationDelay)
         );
       });
     }
+  }
+
+  sneakPeek() {
+    const delay = 100; // ms
+    let animationDuration = 0;
+
+    for (let row = 0; row < this.gridSize; row++) {
+      // get the tiles on the current row
+      const rowTiles = this.tiles.filter((tile) => tile.row === row);
+
+      // apply sneak peek animation for each tile
+      rowTiles.forEach((tile, index) => {
+        const animationDelay = (index) * delay; //ms
+        animationDuration = delay * this.gridSize * this.gridSize;
+        this.animations.push(
+          new SneakPeekAnimation(tile, animationDuration, animationDelay)
+        );
+      });
+    }
+
+    return { textures: this.originalTextures, delay: animationDuration - 500 };
   }
 
   /**
