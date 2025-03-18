@@ -76,7 +76,7 @@ export class PuzzleSolverComponent {
 
     this.eventHandlers.addAndStoreEventListener(
       this.backToSelectionBtn,
-      "pointerdown",
+      "pointerup",
       this.handleGoBack.bind(this)
     );
     this.eventHandlers.addAndStoreEventListener(

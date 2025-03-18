@@ -98,7 +98,7 @@ export class PuzzleGameEventsHandler {
    *
    * @param {function} handleShift - callback shift textures function
    */
-  handleShiftButtonPointerDown(handleShift, direction) {
+  handleShiftButton(handleShift, direction) {
     const gridTextures = handleShift.call(this.grid, direction);
     this.notifyTextureSwap(gridTextures);
 
@@ -123,7 +123,7 @@ export class PuzzleGameEventsHandler {
    * @async
    * @returns {Promise<void>} Resolves when the sneak peek process is complete.
    */
-  async handleSneakPeekButtonPointerDown() {
+  async handleSneakPeekButton() {
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     if (!this.game.getAvailableSneakPeeks()) {
@@ -215,21 +215,21 @@ export class PuzzleGameEventsHandler {
     this.rightButton = document.getElementById("shift_RIGHT");
     this.sneakPeekButton = document.getElementById("sneak-peak");
 
-    const eventType = "pointerdown";
+    const eventType = "pointerup";
     this.eventHandlers.addAndStoreEventListener(this.upButton, eventType, () =>
-      this.handleShiftButtonPointerDown(this.grid.shiftOnRows, Direction.UP)
+      this.handleShiftButton(this.grid.shiftOnRows, Direction.UP)
     );
     this.eventHandlers.addAndStoreEventListener(
       this.downButton,
       eventType,
       () =>
-        this.handleShiftButtonPointerDown(this.grid.shiftOnRows, Direction.DOWN)
+        this.handleShiftButton(this.grid.shiftOnRows, Direction.DOWN)
     );
     this.eventHandlers.addAndStoreEventListener(
       this.leftButton,
       eventType,
       () =>
-        this.handleShiftButtonPointerDown(
+        this.handleShiftButton(
           this.grid.shiftOnColumns,
           Direction.LEFT
         )
@@ -238,7 +238,7 @@ export class PuzzleGameEventsHandler {
       this.rightButton,
       eventType,
       () =>
-        this.handleShiftButtonPointerDown(
+        this.handleShiftButton(
           this.grid.shiftOnColumns,
           Direction.RIGHT
         )
@@ -246,7 +246,7 @@ export class PuzzleGameEventsHandler {
     this.eventHandlers.addAndStoreEventListener(
       this.sneakPeekButton,
       eventType,
-      this.handleSneakPeekButtonPointerDown.bind(this)
+      this.handleSneakPeekButton.bind(this)
     );
   }
 

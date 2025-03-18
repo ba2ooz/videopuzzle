@@ -29,7 +29,7 @@ export class PuzzleListComponent {
   addListeners(element) {
     this.eventHandlers.addAndStoreEventListener(
       element,
-      "pointerdown",
+      "pointerup",
       this.handleCardSelected.bind(this, element)
     );
   }
