@@ -44,7 +44,13 @@ export class PuzzleGameComponent {
       this.buffersManager
     );
 
-    this.sceneManager.initVideoTexture(videoUrl);
+    this.isReady = this.sceneManager
+      .initVideoTexture(videoUrl)
+      .then((videoElement) => {
+        const loadingSpinner = document.querySelector(".loading-spinner");
+        loadingSpinner.classList.add("inactive");
+        return videoElement;
+      });
 
     // add events listeners on the canvas
     this.gameEventsHandler = new PuzzleGameEventsHandler(this);

@@ -19,7 +19,9 @@ export class PuzzleSolverComponent {
 
     const puzzle = this.service.getPuzzleById(this.puzzleId);
     this.game.render(puzzle);
-    this.startClock();
+    this.game.isReady.then(() => {
+      this.startClock();
+    });
 
     this.addListeners();
   }
