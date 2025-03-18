@@ -1,19 +1,17 @@
 import { Direction } from "../../core/puzzle/Direction.js";
-import { Grid } from "../../core/puzzle/Grid.js";
 import { PuzzleGameComponent } from "./PuzzleGameComponent.js";
 
 export class PuzzleGameEventsHandler {
   /**
    * Handles pointer event listeners on the canvas for grid interactions.
    *
-   * @param     {HTMLCanvasElement}     canvas           - the gl canvas
-   * @param     {PuzzleGameComponent}   game             - Holds the main logic including the grid object that handles drag and swap actions.
+   * @param     {PuzzleGameComponent} game - Holds the main logic including the grid object that handles drag and swap actions.
    */
-  constructor(canvas, game) {
+  constructor(game) {
     this.game = game;
     this.grid = game.gameGrid;
-    this.canvas = canvas;
-    this.canvasRect = canvas.getBoundingClientRect();
+    this.gl = game.glContext.gl;
+    this.canvas = game.glContext.canvas;
     this.eventHandlers = new Map(); // store event handlers for easy removal
 
     // shared state for pointer events
@@ -25,6 +23,7 @@ export class PuzzleGameEventsHandler {
 
     // add event listeners
     this.enableAllGridListeners();
+    this.resizeCanvas();
   }
 
   /**
@@ -199,6 +198,11 @@ export class PuzzleGameEventsHandler {
       "pointerup",
       this.handleGridPointerUp.bind(this)
     );
+    this.eventHandlers.addAndStoreEventListener(
+      window,
+      "resize",
+      this.resizeCanvas.bind(this)
+    );
   }
 
   /**
@@ -294,11 +298,26 @@ export class PuzzleGameEventsHandler {
    * @returns {number[]} An array containing the normalized x and y coordinates of the event.
    */
   getCanvasEventCoords(e) {
+    const canvasRect = this.canvas.getBoundingClientRect();
+
     return [
-      (e.clientX - this.canvasRect.left) / this.canvas.width,
-      (e.clientY - this.canvasRect.top) / this.canvas.height,
+      (e.clientX - canvasRect.left) / this.canvas.width,
+      (e.clientY - canvasRect.top) / this.canvas.height,
     ];
   }
+
+  resizeCanvas() {
+    const canvasRect = this.canvas.getBoundingClientRect();
+
+    // update the canvas width and height to match the CSS
+    this.canvas.width = canvasRect.width;
+    this.canvas.height = canvasRect.height;
+
+    // adjust the viewport for WebGL
+    if (this.gl) {
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
 
   destroy() {
     this.grid = null;

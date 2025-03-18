@@ -47,10 +47,7 @@ export class PuzzleGameComponent {
     this.sceneManager.initVideoTexture(videoUrl);
 
     // add events listeners on the canvas
-    this.gameEventsHandler = new PuzzleGameEventsHandler(
-      this.glContext.canvas,
-      this
-    );
+    this.gameEventsHandler = new PuzzleGameEventsHandler(this);
   }
 
   render(gameInfo) {
