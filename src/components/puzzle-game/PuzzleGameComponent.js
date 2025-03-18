@@ -52,7 +52,7 @@ export class PuzzleGameComponent {
 
   render(gameInfo) {
     this.gameElement = createDomElementFromHtml(gameHTML);
-    this.container.appendChild(this.gameElement);
+    this.container.insertBefore(this.gameElement, this.container.firstChild);
     this.setup(gameInfo.videoUrl);
     this.loop();
   }
