@@ -20,8 +20,8 @@ export class PuzzleGameEventsHandler {
     this.isPointerDown = false;
 
     // set the available sneak peeks
-    this.sneakPeeksAvailable = document.getElementById("sneak-peaks-left");
-    this.sneakPeeksAvailable.textContent = this.game.getAvailableSneakPeeks();
+    this.sneakPeeksMeta = document.getElementById("sneak-peaks-meta");
+    this.sneakPeeksMeta.textContent = this.game.getAvailableSneakPeeks();
 
     // add event listeners
     this.enableAllGridListeners();
@@ -110,6 +110,20 @@ export class PuzzleGameEventsHandler {
     }
   }
 
+  /**
+   * Handles the "Sneak Peek" button pointer down event.
+   * 
+   * This method performs the following actions:
+   * - Disables all interactions with the grid.
+   * - Retrieves the current textures and sneak peek data from the grid.
+   * - Temporarily swaps the grid textures to show the sneak peek textures.
+   * - Starts a countdown for the sneak peek duration.
+   * - Reverts the grid textures back to the original textures after the sneak peek ends.
+   * - Updates the available sneak peeks count and re-enables grid interactions.
+   * 
+   * @async
+   * @returns {Promise<void>} Resolves when the sneak peek process is complete.
+   */
   async handleSneakPeekButtonPointerDown() {
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -117,32 +131,53 @@ export class PuzzleGameEventsHandler {
       return;
     }
 
-    this.game.useSneakPeek();
-    this.sneakPeeksAvailable.textContent = this.game.getAvailableSneakPeeks();
-
-    // get the data
-    const currentTextures = this.grid.getTextures();
-    const sneakPeekData = this.grid.sneakPeek();
-    const sneakPeekEndsIn = 5000;
-
     // disbale any interaction with the grid
     this.disableAllGridListeners();
 
-    // change textures after 500 ms
+    // get the needed data
+    const currentTextures = this.grid.getTextures();
+    const sneakPeekData = this.grid.sneakPeek();
+    const sneakPeekDuration = 8000; // ms
+
+    // change textures after 500 ms and start the countdown
     await delay(500);
     this.notifyTextureSwap(sneakPeekData.textures);
+    this.startSneakPeekCountdown(sneakPeekDuration);
 
-    // wait for four seconds then call sneak peek again to trigger an animation
-    await delay(sneakPeekData.delay + sneakPeekEndsIn);
+    // wait the sneak peek duration then call sneak peek method again to trigger the end animation
+    await delay(sneakPeekData.delay + sneakPeekDuration);
     this.grid.sneakPeek();
 
     // change textures back after 500 ms
     await delay(500);
     this.notifyTextureSwap(currentTextures);
 
-    // register event handlers back once the animation is done
+    // update available sneap peeks and register event handlers back once the animation is done
     await delay(sneakPeekData.delay);
+    this.game.useSneakPeek();
+    this.sneakPeeksMeta.textContent = this.game.getAvailableSneakPeeks();
     this.enableAllGridListeners();
+  }
+
+  /**
+   * Starts a countdown timer for a sneak peek feature and updates the UI with the remaining time.
+   * 
+   * @param {number} duration - The duration of the sneak peek in milliseconds.
+   * 
+   * This method initializes a countdown timer that updates the `textContent` of the 
+   * `sneakPeeksMeta` element every second to display the remaining time in seconds. 
+   * Once the countdown reaches zero, the timer is cleared.
+   */
+  startSneakPeekCountdown(duration) {
+    let sneakPeekEndsInTime = duration / 1000; // seconds
+    const sneakPeekEndsInInterval = setInterval(() => {
+      if (sneakPeekEndsInTime > -1) {
+        this.sneakPeeksMeta.textContent = `ends in ${sneakPeekEndsInTime}s`;
+        sneakPeekEndsInTime--;
+      } else {
+        clearInterval(sneakPeekEndsInInterval);
+      }
+    }, 1000);
   }
 
   /**
