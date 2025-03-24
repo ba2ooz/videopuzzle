@@ -19,7 +19,9 @@ export class PuzzleSolverComponent {
 
     const puzzle = this.service.getPuzzleById(this.puzzleId);
     this.game.render(puzzle);
+    this.game.gameEventsHandler.disableAllGridListeners();
     this.game.isReady.then(() => {
+      this.game.gameEventsHandler.enableAllGridListeners();
       this.startClock();
     });
 
