@@ -14,7 +14,7 @@ export class RouterComponent {
   puzzleGuard = (ctx, next) => {
     const puzzle = this.puzzleService.getPuzzleById(ctx.params.id);
     if (!puzzle) {
-      page.redirect('/404');
+      page.redirect('/*');
     } else {
       ctx.puzzle = puzzle; 
       next(); 
@@ -39,7 +39,7 @@ export class RouterComponent {
       puzzleSolverPage.render();
     });
 
-    page('/404', () => {
+    page('/*', () => {
       const notFoundPage = new NotFoundComponent(this.appContainer);
       notFoundPage.render();
     });
