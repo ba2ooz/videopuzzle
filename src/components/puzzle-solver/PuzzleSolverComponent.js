@@ -4,10 +4,9 @@ import page from "page";
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 
 export class PuzzleSolverComponent {
-  constructor(container, service, puzzleId) {
+  constructor(container, puzzle) {
     this.container = container;
-    this.service = service;
-    this.puzzleId = puzzleId;
+    this.puzzle = puzzle;
     this.eventHandlers = new Map(); // store event handlers for easy removal
   }
 
@@ -16,9 +15,7 @@ export class PuzzleSolverComponent {
 
     const gameContainer = document.querySelector("#solver-container");
     this.game = new PuzzleGameComponent(gameContainer);
-
-    const puzzle = this.service.getPuzzleById(this.puzzleId);
-    this.game.render(puzzle);
+    this.game.render(this.puzzle);
     this.game.gameEventsHandler.disableAllGridListeners();
     this.game.isReady
       .then(() => {
