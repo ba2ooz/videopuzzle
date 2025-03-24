@@ -52,6 +52,7 @@ header p {
 }
 
 .puzzle-card {
+  width: auto;
   background-color: #1f2937;
   border-radius: 0.75rem;
   overflow: hidden;
@@ -65,12 +66,10 @@ header p {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.puzzle-thumbnail {
-  height: 180px;
-  background-color: #2d3748;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#puzzle-thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover; 
 }
 
 .puzzle-details {
@@ -87,6 +86,13 @@ header p {
 .credits {
   font-weight: 500;
   color: #919191;
+  text-decoration: none;
+}
+
+.credits:hover {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* Game screen */

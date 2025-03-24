@@ -3,52 +3,46 @@ export class PuzzleService {
     this.puzzles = [
       {
         id: 1,
-        title: "Title 1",
-        description: "",
-        difficulty: "medium",
-        videoUrl: "https://cdn.pixabay.com/video/2024/03/18/204565-924698132_tiny.mp4",
-        completionTime: "10-15 min",
+        authorName:"Attila Pergel",
+        authorProfileUrl:"https://pixabay.com/users/attilapergel-17025299/",
+        imgUrl: "/images/1.png",
+        videoUrl: "https://cdn.pixabay.com/video/2023/06/21/168271-838656574_tiny.mp4"
       },
       {
         id: 2,
-        title: "Title 2",
-        description: "",
-        difficulty: "easy",
-        videoUrl: "https://cdn.pixabay.com/video/2024/12/29/249475_tiny.mp4",
-        completionTime: "5-10 min",
+        authorName:"Matthias Groeneveld",
+        authorProfileUrl:"https://pixabay.com/users/matthias_groeneveld-4535957/",
+        imgUrl: "/images/2.png",
+        videoUrl: "https://cdn.pixabay.com/video/2024/03/10/203678-922748476_tiny.mp4",
       },
       {
         id: 3,
-        title: "Title 3",
-        description: "",
-        difficulty: "easy",
-        videoUrl: "https://cdn.pixabay.com/video/2024/05/25/213616.mp4",
-        completionTime: "5-8 min",
+        authorName:"Andreas",
+        authorProfileUrl:"https://pixabay.com/users/adege-4994132/",
+        imgUrl: "/images/3.png",
+        videoUrl: "https://cdn.pixabay.com/video/2025/02/23/260397_tiny.mp4",
       },
       {
         id: 4,
-        title: "Title 4",
-        description: "",
-        difficulty: "hard",
-        videoUrl: "https://cdn.pixabay.com/video/2019/02/28/21723-320725678_medium.mp4",
-        completionTime: "15-20 min",
+        authorName:"Joshua Woroniecki",
+        authorProfileUrl:"https://pixabay.com/users/joshuaworoniecki-12734309/",
+        imgUrl: "/images/4.png",
+        videoUrl: "https://cdn.pixabay.com/video/2024/02/24/201766-916357972_tiny.mp4"
       },
       {
         id: 5,
-        title: "Title 5",
-        description: "",
-        difficulty: "hard",
-        videoUrl: "https://cdn.pixabay.com/video/2023/11/28/191159-889246512_tiny.mp4",
-        completionTime: "20-25 min",
+        authorName:"Martin Grabo",
+        authorProfileUrl:"https://pixabay.com/users/martin_grabo-25750775/",
+        imgUrl: "/images/5.png",
+        videoUrl: "https://cdn.pixabay.com/video/2023/06/22/168396-839215134_tiny.mp4"
       },
       {
         id: 6,
-        title: "Title 6",
-        description: "",
-        difficulty: "medium",
-        videoUrl: "https://cdn.pixabay.com/video/2024/06/11/216199_tiny.mp4",
-        completionTime: "8-12 min",
-      },
+        authorName:"Kmeel_com",
+        authorProfileUrl:"https://pixabay.com/users/kmeel_com-5075826/",
+        imgUrl: "/images/6.png",
+        videoUrl: "https://cdn.pixabay.com/video/2021/08/28/86628-594416689_tiny.mp4"
+      }
     ];
   }
 

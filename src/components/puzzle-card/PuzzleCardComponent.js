@@ -10,6 +10,10 @@ export class PuzzleCardComponent {
     const cardElement = this.card.cloneNode(true);
     cardElement.dataset.id = cardInfo.id;
     cardElement.querySelector("#card-number").textContent = cardInfo.id;
+    cardElement.querySelector("#puzzle-thumbnail").src = cardInfo.imgUrl;
+    cardElement.querySelector(".credits").href = cardInfo.authorProfileUrl;
+    cardElement.querySelector(".credits").textContent = cardInfo.authorName;
+
     return cardElement;
   }
 
