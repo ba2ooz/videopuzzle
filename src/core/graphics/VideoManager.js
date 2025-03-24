@@ -20,7 +20,7 @@ export class VideoManager {
     this.videoElement.loop = true;
     this.videoElement.src = url;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // use Promise.all to wait for both events: 'playing' and 'timeupdate'
       const events = [
         new Promise((resolve) => {
@@ -36,13 +36,23 @@ export class VideoManager {
       ];
 
       // the video is ready when both events fired
-      Promise.all(events).then(() => {
-        this.texture = this.initTexture();
-        resolve(this.videoElement);
-      });
+      Promise.all(events)
+        .then(() => {
+          try {
+            this.texture = this.initTexture();
+            resolve(this.videoElement);
+          } catch (error) {
+            reject(
+              new Error("\nTexture initialization failed. " + error.message)
+            );
+          }
+        })
+        .catch(reject);
 
       // start the video
-      this.videoElement.play();
+      this.videoElement.play().catch((error) => {
+        reject(new Error("\nVideo failed to play. " + error.message));
+      });
     });
   }
 

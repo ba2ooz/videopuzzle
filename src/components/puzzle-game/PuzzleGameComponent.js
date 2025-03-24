@@ -50,6 +50,9 @@ export class PuzzleGameComponent {
         const loadingSpinner = document.querySelector(".loading-spinner");
         loadingSpinner.classList.add("inactive");
         return videoElement;
+      })
+      .catch((error) => {
+        throw new Error("\nGame initialization failed. " + error.message);
       });
 
     // add events listeners on the canvas

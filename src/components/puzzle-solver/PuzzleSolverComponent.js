@@ -20,10 +20,14 @@ export class PuzzleSolverComponent {
     const puzzle = this.service.getPuzzleById(this.puzzleId);
     this.game.render(puzzle);
     this.game.gameEventsHandler.disableAllGridListeners();
-    this.game.isReady.then(() => {
-      this.game.gameEventsHandler.enableAllGridListeners();
-      this.startClock();
-    });
+    this.game.isReady
+      .then(() => {
+        this.game.gameEventsHandler.enableAllGridListeners();
+        this.startClock();
+      })
+      .catch((error) => {
+        console.log("Solver component failed to render.", error.message);
+      });
 
     this.addListeners();
   }
