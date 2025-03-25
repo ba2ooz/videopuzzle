@@ -299,19 +299,21 @@ export class PuzzleGameEventsHandler {
    */
   getCanvasEventCoords(e) {
     const canvasRect = this.canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
 
     return [
-      (e.clientX - canvasRect.left) / this.canvas.width,
-      (e.clientY - canvasRect.top) / this.canvas.height,
+      (e.clientX - canvasRect.left) * dpr / this.canvas.width,
+      (e.clientY - canvasRect.top) * dpr / this.canvas.height,
     ];
   }
 
   resizeCanvas() {
     const canvasRect = this.canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
 
-    // update the canvas width and height to match the CSS
-    this.canvas.width = canvasRect.width;
-    this.canvas.height = canvasRect.height;
+    // update the canvas width and height to match the CSS and the screen density
+    this.canvas.width = canvasRect.width * dpr;  
+    this.canvas.height = canvasRect.height * dpr;
 
     // adjust the viewport for WebGL
     if (this.gl) {
@@ -320,6 +322,8 @@ export class PuzzleGameEventsHandler {
 }
 
   destroy() {
+    this.eventHandlers.removeAllEventListeners();
+    this.eventHandlers = null;
     this.grid = null;
     this.canvas = null;
     this.canvasRect = null;

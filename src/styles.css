@@ -23,6 +23,8 @@ canvas {
   height: 100%;
   display: block;
   touch-action: none;
+  max-width: 640px;
+  max-height: 480px;
 }
 
 /* Header styles */
