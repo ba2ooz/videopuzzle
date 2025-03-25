@@ -12,6 +12,7 @@ export class PuzzleGameEventsHandler {
     this.grid = game.gameGrid;
     this.gl = game.glContext.gl;
     this.canvas = game.glContext.canvas;
+    this.canvasAspectRatio = this.canvas.height / this.canvas.width;
     this.eventHandlers = new Map(); // store event handlers for easy removal
 
     // shared state for pointer events
@@ -308,8 +309,11 @@ export class PuzzleGameEventsHandler {
   }
 
   resizeCanvas() {
-    const canvasRect = this.canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
+    const canvasRect = this.canvas.getBoundingClientRect();
+    // override the css height of the canvas
+    // this is needed to fix the squash effect of the canvas height as a result of the resize event
+    canvasRect.height = canvasRect.width * this.canvasAspectRatio;
 
     // update the canvas width and height to match the CSS and the screen density
     this.canvas.width = canvasRect.width * dpr;  
