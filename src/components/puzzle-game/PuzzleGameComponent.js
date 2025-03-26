@@ -25,6 +25,9 @@ export class PuzzleGameComponent {
       indices: this.gameGrid.getIndices(),
     });
 
+    // add events listeners on the canvas
+    this.gameEventsHandler = new PuzzleGameEventsHandler(this);
+
     // remove the loading spinner once video loaded and store the promise for later use
     this.isReady = this.glContext.sceneManager
       .initVideoTexture(videoUrl)
@@ -36,9 +39,6 @@ export class PuzzleGameComponent {
       .catch((error) => {
         throw new Error("\nGame initialization failed. " + error.message);
       });
-
-    // add events listeners on the canvas
-    this.gameEventsHandler = new PuzzleGameEventsHandler(this);
   }
 
   render(gameInfo) {

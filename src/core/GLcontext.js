@@ -103,7 +103,7 @@ export class GLContext {
     this.buffersManager.destroy();
     this.shaderManager.destroy();
     this.sceneManager.destroy();
-    this.cleanUpWebGLResources(this.gl);
+    this.cleanUpWebGLResources();
     this.buffersManager = null;
     this.shaderManager = null;
     this.sceneManager = null;

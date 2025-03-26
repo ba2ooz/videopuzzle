@@ -18,6 +18,7 @@ export class BuffersManager {
     this.initIndexBuffer(config.indices);
 
     // register the texture update listeners
+    this.eventHandlers = new Map();
     this.addListeners();
   }
 
@@ -128,11 +129,15 @@ export class BuffersManager {
    * Registers the textures swap event
    */
   addListeners() {
-    document.addEventListener("texture_swap", this.handleTexturesSwapEvent.bind(this));
+    this.eventHandlers.addAndStoreEventListener(
+      document,
+      "texture_swap",
+      this.handleTexturesSwapEvent.bind(this)
+    );
   }
 
   destroy() {
-    document.removeEventListener("texture_swap", this.handleTexturesSwapEvent);
+    this.eventHandlers.removeAllEventListeners();
     this.gl.deleteBuffer(this.textureCoordBuffer);
     this.gl.deleteBuffer(this.positionBuffer);
     this.gl.deleteBuffer(this.indexBuffer);

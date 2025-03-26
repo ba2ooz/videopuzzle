@@ -41,7 +41,7 @@ export class PuzzleListComponent {
   }
 
   destroy() {
-    this.eventHandlers.forEach(({}, element) => {
+    this.eventHandlers.forEach(({element}) => {
       this.cardListContainer.removeChild(element);
     });
     this.eventHandlers.removeAllEventListeners();

@@ -13,7 +13,9 @@ export function createDomElementFromHtml(htmlString) {
  */
 Map.prototype.addAndStoreEventListener = function (element, eventType, handler) {
   const boundHandler = handler.bind(this);
-  this.set(element, { eventType, boundHandler });
+  // create a unique key for each event in case they are on the same element with same event type
+  const key = `${eventType}_${this.size}`;
+  this.set(key, { element, eventType, boundHandler });
   element.addEventListener(eventType, boundHandler);
 }
 
@@ -21,7 +23,7 @@ Map.prototype.addAndStoreEventListener = function (element, eventType, handler) 
  * Removes all the event listeners from a given map.
  */
 Map.prototype.removeAllEventListeners = function () {
-  this.forEach(({ eventType, boundHandler }, element) => {
+  this.forEach(({ element, eventType, boundHandler }, key) => {
     element.removeEventListener(eventType, boundHandler);
   });
   this.clear();
