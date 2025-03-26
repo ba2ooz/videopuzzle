@@ -1,26 +1,30 @@
+import fragmentShader from "bundle-text:./shader.frag?raw";
+import vertexShader from "bundle-text:./shader.vert?raw";
+
+import { BuffersManager } from "./graphics/BuffersManager.js";
+import { ShaderManager } from "./graphics/ShaderManager.js";
+import { SceneManager } from "./graphics/SceneManager.js";
+
 export class GLContext {
-  static instance = null;
 
   /**
    * Creates an instance of GLContext.
-   * If an instance already exists, it returns the existing instance.
    *
-   * @param {string} canvasSelector - The CSS selector for the canvas element.
-   * @throws {Error} If the WebGL context is not initialized.
+   * @param  {ELement} canvasElement - The canvas element.
+   * @param  {Object}  buffersConfig - Buffers config object.
+   * @throws {Error}                   If the WebGL context is not initialized.
    */
-  constructor(canvasSelector) {
-    if (GLContext.instance) {
-      return GLContext.instance;
-    }
-
-    this.canvas = document.querySelector(canvasSelector);
+  constructor(canvasElement, buffersConfig) {
+    this.canvas = canvasElement;
     this.gl = this.canvas.getContext("webgl2");
-
     if (!this.gl) {
       throw new Error("WebGL context is not initialized");
     }
 
-    GLContext.instance = this;
+    // init the buffers, shader program and the rendering scene
+    this.buffersManager = new BuffersManager(this.gl, buffersConfig);
+    this.shaderManager = new ShaderManager(this.gl, vertexShader, fragmentShader);
+    this.sceneManager = new SceneManager(this.gl, this.shaderManager, this.buffersManager);
   }
 
   cleanUpWebGLResources() {
@@ -51,7 +55,6 @@ export class GLContext {
 
   reset() {
     this.cleanup.forEach((kind) => {
-      console.log(kind);
       kind.handles.forEach((handle) => this.gl[kind.remove](handle));
       kind.handles.length = 0; // Clear the array after deletion
     });
@@ -60,7 +63,6 @@ export class GLContext {
     const tmp = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tmp);
     for (let i = 0; i < numAttribs; i++) {
-      console.log("buff", i);
       this.gl.disableVertexAttribArray(i);
       this.gl.vertexAttribPointer(i, 4, this.gl.FLOAT, false, 0, 0);
       this.gl.vertexAttrib1f(i, 0);
@@ -71,8 +73,6 @@ export class GLContext {
       this.gl.MAX_TEXTURE_IMAGE_UNITS
     );
     for (let i = 0; i < numTextureUnits; i++) {
-      console.log("tex", i);
-
       this.gl.activeTexture(this.gl.TEXTURE0 + i);
       this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, null);
       this.gl.bindTexture(this.gl.TEXTURE_2D, null);
@@ -90,7 +90,7 @@ export class GLContext {
     this.gl.disable(this.gl.DEPTH_TEST);
     this.gl.disable(this.gl.DITHER);
     this.gl.disable(this.gl.SCISSOR_TEST);
-    
+
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(
       this.gl.COLOR_BUFFER_BIT |
@@ -100,9 +100,14 @@ export class GLContext {
   }
 
   destroy() {
+    this.buffersManager.destroy();
+    this.shaderManager.destroy();
+    this.sceneManager.destroy();
     this.cleanUpWebGLResources(this.gl);
-    this.gl = null;
+    this.buffersManager = null;
+    this.shaderManager = null;
+    this.sceneManager = null;
     this.canvas = null;
-    GLContext.instance = null;
+    this.gl = null;
   }
 }
