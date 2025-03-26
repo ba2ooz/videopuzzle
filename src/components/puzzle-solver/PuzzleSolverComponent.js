@@ -2,6 +2,7 @@ import puzzleSolverHTML from "bundle-text:./puzzle-solver.html?raw";
 import page from "page";
 
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
+import { ErrorHandler } from "../error/ErrorHandler.js";
 
 export class PuzzleSolverComponent {
   constructor(container, puzzle) {
@@ -23,7 +24,7 @@ export class PuzzleSolverComponent {
         this.startClock();
       })
       .catch((error) => {
-        console.log("Solver component failed to render.", error.message);
+        ErrorHandler.handle(error, "render");
       });
 
     this.addListeners();
