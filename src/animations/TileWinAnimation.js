@@ -1,4 +1,5 @@
 import { TileAnimation } from "./TileAnimation";
+import { AnimationUtils } from "./AnimationUtils";
 
 export class TileWinAnimation extends TileAnimation {
   constructor(tile, totalDuration, delay = 0) {
@@ -21,7 +22,7 @@ export class TileWinAnimation extends TileAnimation {
     const scale = this.lerp(
       this.targetScale,
       this.initialScale,
-      this.easeOutBackTwiceStylized(tileProgress)
+      AnimationUtils.easeOutBackTwiceStylized(tileProgress, 0.25, 0.1)
     );
 
     this.tile.currentZ = 0.01;
@@ -31,38 +32,5 @@ export class TileWinAnimation extends TileAnimation {
   complete() {
     this.tile.setScale(this.initialScale);
     this.tile.currentZ = this.initialZ;
-  }
-
-  easeOutBackTwiceStylized(x) {
-    const phaseThreshold = 0.25;
-    const lingerDuration = 0.1;
-
-    if (x < phaseThreshold) {
-      // first phase
-      x = this.easeInOutSine(x / lingerDuration);
-      return 0.5 * this.easeOutBackModified(x);
-    } else {
-      // second phase
-      x = (x - lingerDuration) / (1 - lingerDuration); // normalize to 0 - 1
-      x = this.easeOutCubic(x); // speed up return
-      return 0.5 + 0.5 * this.easeOutBackModified(x, true);
-    }
-  }
-
-  easeOutBackModified(x, stronger = false) {
-    const c1 = stronger ? 2.5 : 2.0; // second phase is snappier
-    const c2 = c1 * 1.7;
-
-    return 1 + c2 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-  }
-
-  // slow down in the middle
-  easeInOutSine(x) {
-    return -(Math.cos(Math.PI * x) - 1) / 2;
-  }
-
-  // speed up return
-  easeOutCubic(x) {
-    return 1 - Math.pow(1 - x, 3);
   }
 }
