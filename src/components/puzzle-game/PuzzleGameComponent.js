@@ -5,6 +5,7 @@ import { GLContext } from "../../core/GLcontext.js";
 import { Grid } from "../../core/puzzle/Grid.js";
 
 import { createDomElementFromHtml } from "../../utils/utils.js";
+import { GridAnimationController } from "../../animations/GridAnimationController.js";
 
 export class PuzzleGameComponent {
   constructor(container) {
@@ -16,6 +17,7 @@ export class PuzzleGameComponent {
     // create the game logical grid
     const puzzleSize = 4;
     this.gameGrid = new Grid(puzzleSize);
+    this.animationController = new GridAnimationController(puzzleSize);
 
     // get a WebGLRenderingContext to render the grid
     const canvasEl = document.getElementById("video-canvas");
@@ -50,8 +52,8 @@ export class PuzzleGameComponent {
 
   loop = () => {
     const tiles = this.gameGrid.getTiles();
-    this.glContext.sceneManager.render(tiles, (delta) =>
-      this.gameGrid.updateAnimations(delta)
+    this.glContext.sceneManager.render(tiles, (deltaTime) =>
+      this.animationController.updateAnimations(deltaTime)
     );
     this.animationFrameId = requestAnimationFrame(this.loop);
   };

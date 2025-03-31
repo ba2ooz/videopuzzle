@@ -18,14 +18,13 @@ export class Grid {
   indices = [];
   tiles = [];
 
-  animations = [];
-
   moves = 0;
 
   constructor(gridSize) {
     this.gridSize = gridSize;
     this.generateGrid();
     this.shuffleTextures();
+    console.log("after shuffle", this.tiles[0]);
   }
 
   /**
@@ -72,48 +71,6 @@ export class Grid {
    */
   isUnshuffled() {
     return this.tiles.every((tile) => tile.checkIdentity());
-  }
-
-  /**
-   * Creates a win animation for each tile of the grid.
-   */
-  unshuffledWithSuccess() {
-    const delay = 100; // ms
-
-    for (let row = 0; row < this.gridSize; row++) {
-      // get the tiles on the current row
-      const rowTiles = this.tiles.filter((tile) => tile.row === row);
-
-      // apply win animation for each tile
-      rowTiles.forEach((tile, index) => {
-        const animationDelay = (row + index) * delay; //ms
-        const animationDuration = delay * this.gridSize * this.gridSize;
-        this.animations.push(
-          new TileWinAnimation(tile, animationDuration, animationDelay)
-        );
-      });
-    }
-  }
-
-  sneakPeek() {
-    const delay = 100; // ms
-    let animationDuration = 0;
-
-    for (let row = 0; row < this.gridSize; row++) {
-      // get the tiles on the current row
-      const rowTiles = this.tiles.filter((tile) => tile.row === row);
-
-      // apply sneak peek animation for each tile
-      rowTiles.forEach((tile, index) => {
-        const animationDelay = (index) * delay; //ms
-        animationDuration = delay * this.gridSize * this.gridSize;
-        this.animations.push(
-          new SneakPeekAnimation(tile, animationDuration, animationDelay)
-        );
-      });
-    }
-
-    return { textures: this.originalTextures, delay: animationDuration - 500 };
   }
 
   /**
@@ -206,22 +163,21 @@ export class Grid {
   }
 
   /**
-   * Handles the swap action between two tiles.
-   *
-   * This method performs the following steps:
-   * 1. Checks if the dragged tile and highlighted tile are valid.
-   * 2. Ensures the tiles are not pointing to the same location.
-   * 3. Swaps the textures of the dragged tile and highlighted tile.
-   * 4. Returns the offset IDs and texture data for both tiles.
-   *
-   * @returns  {Object|null}               An object containing the two texture objects:
-   * @property {Object} texture1          - The first texture object.
-   * @property {number} texture1.offsetId - The offset ID for the dragged tile's texture.
-   * @property {Array}  texture1.data     - The texture data for the dragged tile.
-   *
-   * @property {Object} texture2          - The second texture object.
-   * @property {number} texture2.offsetId - The offset ID for the highlighted tile's texture.
-   * @property {Array}  texture2.data     - The texture data for the highlighted tile.
+   * Handles the swap action between two tiles in the puzzle grid.
+   * Only executes if there are valid dragged and highlighted tiles.
+   * Updates the moves counter and swaps the textures between tiles.
+   * 
+   * @returns {Object|null} Returns null if swap is invalid. Otherwise returns an object containing:
+   *   - source: {Object} Data for the dragged tile
+   *     - tile: {Tile} The dragged tile object
+   *     - texture: {Object} Texture information
+   *       - offsetId: {number} Offset ID for the dragged texture
+   *       - data: {*} Texture data for the dragged tile
+   *   - target: {Object} Data for the highlighted tile
+   *     - tile: {Tile} The highlighted tile object
+   *     - texture: {Object} Texture information
+   *       - offsetId: {number} Offset ID for the highlighted texture
+   *       - data: {*} Texture data for the highlighted tile
    */
   handleSwapAction() {
     // can't swap when tiles coords are not valid
@@ -242,25 +198,23 @@ export class Grid {
     const draggedTexture = this.draggedTile.getTexture();
     const highlightedTexture = this.highlightedTile.getTexture();
 
-    // create animation for the swap
-    this.animations.push(
-      new TileSwapAnimation(
-        this.draggedTile,
-        this.highlightedTile.getInitialPosition()
-      )
-    );
-
     // return offset ids for both textures and the respective data
     return {
-      texture1: {
-        offsetId: this.tiles.indexOf(this.draggedTile) * draggedTexture.length,
-        data: draggedTexture,
+      source: {
+        tile: this.draggedTile,
+        texture: {
+          offsetId: this.tiles.indexOf(this.draggedTile) * draggedTexture.length,
+          data: draggedTexture,
+        },
       },
-      texture2: {
-        offsetId:
-          this.tiles.indexOf(this.highlightedTile) * highlightedTexture.length,
-        data: highlightedTexture,
-      },
+      target: {
+        tile: this.highlightedTile,
+        texture: {
+          offsetId:
+            this.tiles.indexOf(this.highlightedTile) * highlightedTexture.length,
+          data: highlightedTexture,
+        },
+      }
     };
   }
 
@@ -269,12 +223,16 @@ export class Grid {
    *
    * @param {Direction} direction - The direction to shift the textures.
    *                                Use `Direction.LEFT` to shift left and `Direction.RIGHT` to shift right.
-   * @returns {Array} The updated textures of the grid after the shift.
+   * @returns {Array<{tilesBeforeShift: Array<Tile>, tilesAfterShift: Array<Object>}>|null} An array containing the before and after states of tiles for each column, or null if invalid direction
+   * @description
+   * For each column in the grid:
+   * - Filters tiles belonging to that column
+   * - Creates copies of tiles with updated initial Z positions
+   * - Shifts the tiles left or right by one position
+   * - Swaps textures between tiles based on new positions
+   * - Increments the total moves counter
    */
   shiftOnColumns(direction) {
-    // update moves counter
-    this.moves++;
-
     let shiftOffset;
     if (direction === Direction.LEFT) {
       shiftOffset = 1;
@@ -284,19 +242,19 @@ export class Grid {
       return null;
     }
 
+    // update moves counter
+    this.moves++;
+
+    let shiftResult = [];
+
     for (let col = 0; col < this.gridSize; col++) {
       // get the tiles on the current column
       const colTiles = this.tiles.filter((tile) => tile.col === col);
 
-      const colTilesCopy = colTiles.map((tile) => {
-        let tileCopy = { ...tile }; // create a shallow copy of the current tile
-        // this is to ensure correct z value during shifting animation for the first row tiles
-        if (tileCopy.row === 0) {
-          tileCopy.initialZ = shiftOffset;
-        }
-
-        return tileCopy;
-      });
+      const colTilesCopy = colTiles.map((tile) => ({
+        ...tile,
+        initialZ: tile.row === 0 ? shiftOffset : tile.initialZ,
+      }));
 
       // shift tiles
       const slice1 = colTilesCopy.slice(shiftOffset);
@@ -306,20 +264,12 @@ export class Grid {
       // apply the shifted textures to their respective tiles
       colTiles.forEach((tile, index) => {
         tile.swapTexture(shiftedTilesCopy[index]);
-
-        // create animation for the shift
-        const shiftedTilePos = {
-          x: shiftedTilesCopy[index].initialX,
-          y: shiftedTilesCopy[index].initialY,
-          z: shiftedTilesCopy[index].initialZ,
-        };
-        this.animations.push(
-          new TileSwapAnimation(tile, shiftedTilePos, shiftedTilePos.z)
-        );
       });
+
+      shiftResult.push({tilesBeforeShift: colTiles, tilesAfterShift: shiftedTilesCopy})
     }
 
-    return this.getTextures();
+    return shiftResult;
   }
 
   /**
@@ -327,12 +277,16 @@ export class Grid {
    *
    * @param {Direction} direction - The direction to shift the textures.
    *                                Use `Direction.UP` to shift up and `Direction.DOWN` to shift down.
-   * @returns {Array} The updated textures of the grid after the shift.
+   * @returns {Array<{tilesBeforeShift: Array<Tile>, tilesAfterShift: Array<Object>}>|null} An array containing the before and after states of tiles for each row, or null if invalid direction
+   * @description
+   * For each row in the grid:
+   * - Filters tiles belonging to that row
+   * - Creates copies of tiles with updated initial Z positions
+   * - Shifts the tiles up or down by one position
+   * - Swaps textures between tiles based on new positions
+   * - Increments the total moves counter
    */
   shiftOnRows(direction) {
-    // update moves counter
-    this.moves++;
-
     let shiftOffset;
     if (direction === Direction.UP) {
       shiftOffset = 1;
@@ -342,21 +296,20 @@ export class Grid {
       return null;
     }
 
+    // update moves counter
+    this.moves++;
+
+    let shiftResult = [];
+
     for (let row = 0; row < this.gridSize; row++) {
       // get the tiles on the current row
       const rowTiles = this.tiles.filter((tile) => tile.row === row);
 
       // extract the textures
-      const rowTilesCopy = rowTiles.map((tile) => {
-        // first col tiles should appear behind all the others during shift animation
-        // z should be negative when shifting up, and positive otherwise
-        let tileCopy = { ...tile };
-        if (tileCopy.col === 0) {
-          tileCopy.initialZ = shiftOffset;
-        }
-
-        return tileCopy;
-      });
+      const rowTilesCopy = rowTiles.map((tile) => ({
+        ...tile,
+        initialZ: tile.col === 0 ? shiftOffset : tile.initialZ
+      }));
 
       // shift tiles
       const slice1 = rowTilesCopy.slice(shiftOffset); // copy from offset index to the end
@@ -366,20 +319,12 @@ export class Grid {
       // apply shifted textures to their respective tiles and apply animations
       rowTiles.forEach((tile, index) => {
         tile.swapTexture(shiftedTilesCopy[index]);
-
-        // create animation for the shift
-        const shiftedTilePos = {
-          x: shiftedTilesCopy[index].initialX,
-          y: shiftedTilesCopy[index].initialY,
-          z: shiftedTilesCopy[index].initialZ,
-        };
-        this.animations.push(
-          new TileSwapAnimation(tile, shiftedTilePos, shiftedTilePos.z)
-        );
       });
+
+      shiftResult.push({tilesBeforeShift: rowTiles, tilesAfterShift: shiftedTilesCopy})
     }
 
-    return this.getTextures();
+    return shiftResult;
   }
 
   /**
@@ -387,11 +332,11 @@ export class Grid {
    *
    * @param {number} deltaTime - The time elapsed since the last update, in milliseconds.
    */
-  updateAnimations(deltaTime) {
-    this.animations = this.animations.filter((animation) =>
-      animation.update(deltaTime)
-    );
-  }
+  // updateAnimations(deltaTime) {
+  //   this.animations = this.animations.filter((animation) =>
+  //     animation.update(deltaTime)
+  //   );
+  // }
 
   /**
    * Retrieves the tile at the specified pointer coordinates.
@@ -420,6 +365,10 @@ export class Grid {
     });
 
     return textures;
+  }
+
+  getOriginalTextures() {
+    return this.originalTextures;
   }
 
   /**

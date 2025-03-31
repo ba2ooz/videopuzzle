@@ -67,29 +67,27 @@ export class PuzzleGameEventsHandler {
     // pointerdown released, update the state
     this.isPointerDown = false;
 
-    const swappedTextures = this.grid.handleSwapAction();
+    const swappedData = this.grid.handleSwapAction();
     // reset the grid state. This has to happen even if no swap occured
     this.grid.clearDragState();
 
     // no swap occurred, do nothing
-    if (!swappedTextures) {
+    if (!swappedData) {
       return;
     }
 
+    this.game.animationController.createSwapAnimation(swappedData.source.tile, swappedData.target.tile);
+
     this.notifyTextureSwap(
-      swappedTextures.texture1.data,
-      swappedTextures.texture1.offsetId
+      swappedData.source.texture.data,
+      swappedData.source.texture.offsetId
     );
     this.notifyTextureSwap(
-      swappedTextures.texture2.data,
-      swappedTextures.texture2.offsetId
+      swappedData.target.texture.data,
+      swappedData.target.texture.offsetId
     );
 
-    if (this.grid.isUnshuffled()) {
-      this.grid.unshuffledWithSuccess();
-      this.notifyUnshuffled();
-      this.disableAllGridListeners();
-    }
+    this.handleCheckWin();
   }
 
   /**
@@ -100,19 +98,17 @@ export class PuzzleGameEventsHandler {
    * @param {function} handleShift - callback shift textures function
    */
   handleShiftButton(handleShift, direction) {
-    const gridTextures = handleShift.call(this.grid, direction);
+    const shiftResult = handleShift.call(this.grid, direction);
+    this.game.animationController.createShiftAnimations(shiftResult);
+    const gridTextures = this.grid.getTextures();
     this.notifyTextureSwap(gridTextures);
 
-    if (this.grid.isUnshuffled()) {
-      this.grid.unshuffledWithSuccess();
-      this.notifyUnshuffled();
-      this.disableAllGridListeners();
-    }
+    this.handleCheckWin();
   }
 
   /**
    * Handles the "Sneak Peek" button pointer down event.
-   * 
+   *
    * This method performs the following actions:
    * - Disables all interactions with the grid.
    * - Retrieves the current textures and sneak peek data from the grid.
@@ -120,7 +116,7 @@ export class PuzzleGameEventsHandler {
    * - Starts a countdown for the sneak peek duration.
    * - Reverts the grid textures back to the original textures after the sneak peek ends.
    * - Updates the available sneak peeks count and re-enables grid interactions.
-   * 
+   *
    * @async
    * @returns {Promise<void>} Resolves when the sneak peek process is complete.
    */
@@ -135,25 +131,32 @@ export class PuzzleGameEventsHandler {
     this.disableAllGridListeners();
 
     // get the needed data
+    const unshuffledTextures = this.grid.getOriginalTextures();
     const currentTextures = this.grid.getTextures();
-    const sneakPeekData = this.grid.sneakPeek();
+    const sneakPeekDelay =
+    this.game.animationController.createSneakPeekAnimations(
+      this.grid.getTiles()
+    );
+    
     const sneakPeekDuration = 8000; // ms
 
     // change textures after 500 ms and start the countdown
     await delay(500);
-    this.notifyTextureSwap(sneakPeekData.textures);
+    this.notifyTextureSwap(unshuffledTextures);
     this.startSneakPeekCountdown(sneakPeekDuration);
 
     // wait the sneak peek duration then call sneak peek method again to trigger the end animation
-    await delay(sneakPeekData.delay + sneakPeekDuration);
-    this.grid.sneakPeek();
+    await delay(sneakPeekDelay + sneakPeekDuration);
+    this.game.animationController.createSneakPeekAnimations(
+      this.grid.getTiles()
+    );
 
     // change textures back after 500 ms
     await delay(500);
     this.notifyTextureSwap(currentTextures);
 
     // update available sneap peeks and register event handlers back once the animation is done
-    await delay(sneakPeekData.delay);
+    await delay(sneakPeekDelay);
     this.game.useSneakPeek();
     this.sneakPeeksMeta.textContent = this.game.getAvailableSneakPeeks();
     this.enableAllGridListeners();
@@ -178,6 +181,14 @@ export class PuzzleGameEventsHandler {
         clearInterval(sneakPeekEndsInInterval);
       }
     }, 1000);
+  }
+
+  handleCheckWin() {
+    if (this.grid.isUnshuffled()) {
+      this.game.animationController.createWinAnimations(this.grid.getTiles());
+      this.notifyUnshuffled();
+      this.disableAllGridListeners();
+    }
   }
 
   /**
@@ -223,26 +234,17 @@ export class PuzzleGameEventsHandler {
     this.eventHandlers.addAndStoreEventListener(
       this.downButton,
       eventType,
-      () =>
-        this.handleShiftButton(this.grid.shiftOnRows, Direction.DOWN)
+      () => this.handleShiftButton(this.grid.shiftOnRows, Direction.DOWN)
     );
     this.eventHandlers.addAndStoreEventListener(
       this.leftButton,
       eventType,
-      () =>
-        this.handleShiftButton(
-          this.grid.shiftOnColumns,
-          Direction.LEFT
-        )
+      () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.LEFT)
     );
     this.eventHandlers.addAndStoreEventListener(
       this.rightButton,
       eventType,
-      () =>
-        this.handleShiftButton(
-          this.grid.shiftOnColumns,
-          Direction.RIGHT
-        )
+      () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.RIGHT)
     );
     this.eventHandlers.addAndStoreEventListener(
       this.sneakPeekButton,
