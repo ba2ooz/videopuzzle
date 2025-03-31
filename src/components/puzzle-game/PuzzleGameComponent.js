@@ -72,11 +72,13 @@ export class PuzzleGameComponent {
 
   destroy() {
     cancelAnimationFrame(this.animationFrameId);
+    this.animationController.destroy();
     this.gameEventsHandler.destroy();
     this.gameElement.remove();
     this.glContext.destroy();
     this.gameGrid.destroy();
 
+    this.animationController = null;
     this.gameEventsHandler = null;
     this.animationFrameId = null;
     this.buffersManager = null;

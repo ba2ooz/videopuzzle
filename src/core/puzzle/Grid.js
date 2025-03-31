@@ -1,6 +1,3 @@
-import { SneakPeekAnimation } from "../../animations/SneakPeekAnimation.js";
-import { TileSwapAnimation } from "../../animations/TileSwapAnimation.js";
-import { TileWinAnimation } from "../../animations/TileWinAnimation.js";
 import { Direction } from "./Direction.js";
 import { Tile } from "./Tile.js";
 
@@ -24,7 +21,6 @@ export class Grid {
     this.gridSize = gridSize;
     this.generateGrid();
     this.shuffleTextures();
-    console.log("after shuffle", this.tiles[0]);
   }
 
   /**
@@ -328,17 +324,6 @@ export class Grid {
   }
 
   /**
-   * Updates the animations by filtering out those that have completed.
-   *
-   * @param {number} deltaTime - The time elapsed since the last update, in milliseconds.
-   */
-  // updateAnimations(deltaTime) {
-  //   this.animations = this.animations.filter((animation) =>
-  //     animation.update(deltaTime)
-  //   );
-  // }
-
-  /**
    * Retrieves the tile at the specified pointer coordinates.
    *
    * @param   {number}          pointerX - The X coordinate of the pointer.
@@ -406,7 +391,6 @@ export class Grid {
     this.tiles.forEach((tile) => tile.destroy());
     this.highlightedTile = null;
     this.draggedTile = null;
-    this.animations = null;
     this.vertices = null;
     this.indices = null;
     this.tiles = null;

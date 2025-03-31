@@ -76,4 +76,8 @@ export class GridAnimationController {
       animation.update(deltaTime)
     );
   }
+
+  destroy() {
+    this.animations = null;
+  }
 }
