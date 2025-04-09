@@ -18,7 +18,7 @@ export class PuzzleListComponent {
     // create the card list
     this.cardListContainer = this.container.querySelector(".puzzles-grid");
 
-    const puzzles = await this.service.getAllPuzzles();
+    const puzzles = await this.service.getUserPuzzles();
     puzzles.forEach((puzzle) => {
       const card = this.puzzleCard.render(puzzle);
       this.cardListContainer.appendChild(card);

@@ -1,13 +1,24 @@
 import { PuzzleSolverComponent } from "../puzzle-solver/PuzzleSolverComponent.js";
 import { PuzzleListComponent } from "../puzzle-list/PuzzleListComponent.js";
 import { NotFoundComponent } from "../not-found/NotFoundComponent.js";
+
+import { PuzzleSolveService } from "../../services/PuzzleSolveService.js";
 import { PuzzleService } from "../../services/PuzzleService.js";
+import { UserPuzzleService } from "../../services/UserPuzzleService.js";
+import { UserService } from "../../services/UserService.js";
+
 import page from "page";
 
 export class RouterComponent {
+
   constructor(appContainer) {
     this.appContainer = appContainer;
     this.puzzleService = new PuzzleService();
+    this.userPuzzleService = new UserPuzzleService(
+      this.puzzleService,
+      new PuzzleSolveService(),
+      new UserService()
+    );
   }
 
   // Middleware to check if the puzzle exists
@@ -26,7 +37,7 @@ export class RouterComponent {
     page("/", () => {
       const puzzleListPage = new PuzzleListComponent(
         this.appContainer,
-        this.puzzleService
+        this.userPuzzleService
       );
       puzzleListPage.render();
     });
