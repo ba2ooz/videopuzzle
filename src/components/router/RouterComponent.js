@@ -11,8 +11,8 @@ export class RouterComponent {
   }
 
   // Middleware to check if the puzzle exists
-  puzzleGuard = (ctx, next) => {
-    const puzzle = this.puzzleService.getPuzzleById(ctx.params.id);
+  puzzleGuard = async (ctx, next) => {
+    const puzzle = await this.puzzleService.getPuzzleById(ctx.params.id);
     if (!puzzle) {
       page.redirect('/*');
     } else {

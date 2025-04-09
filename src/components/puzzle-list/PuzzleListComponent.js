@@ -11,14 +11,14 @@ export class PuzzleListComponent {
     this.eventHandlers = new Map();
   }
 
-  render() {
+  async render() {
     // append this component html to the container
     this.container.innerHTML = cardListHTML;
 
     // create the card list
     this.cardListContainer = this.container.querySelector(".puzzles-grid");
 
-    const puzzles = this.service.getAllPuzzles();
+    const puzzles = await this.service.getAllPuzzles();
     puzzles.forEach((puzzle) => {
       const card = this.puzzleCard.render(puzzle);
       this.cardListContainer.appendChild(card);
