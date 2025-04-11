@@ -5,8 +5,9 @@ import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 import { ErrorHandler } from "../error/ErrorHandler.js";
 
 export class PuzzleSolverComponent {
-  constructor(container, puzzle) {
+  constructor(container, userPuzzleService, puzzle) {
     this.container = container;
+    this.userPuzzleService = userPuzzleService; // Placeholder for user puzzle service
     this.puzzle = puzzle;
     this.eventHandlers = new Map(); // store event handlers for easy removal
   }
@@ -107,12 +108,18 @@ export class PuzzleSolverComponent {
     this.game = null;
   }
 
-  handlePuzzleSolved() {
+  async handlePuzzleSolved() {
     this.clockStop = true;
     clearInterval(this.clockIntervalId);
-    this.finalMoves.textContent = this.game.getMovesCount();
+    const finalMoves = this.game.getMovesCount();
+    this.finalMoves.textContent = finalMoves;
     this.finalClock.textContent = this.readFinalClock();
     this.successMessage.classList.add("visible");
+
+    await this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, {
+      moves: finalMoves,
+      time: this.seconds,
+    });
   }
 
   handleUpdateMoves() {

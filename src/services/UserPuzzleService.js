@@ -20,4 +20,35 @@ export class UserPuzzleService {
 
     return allPuzzlesMapped;
   }
+
+  async saveSolvedPuzzleForUser(puzzleId, puzzleData) {
+    const userId = await this.userService.getOrCreateGuestUser();
+    const puzzleAlreadySolved = await this.solvedPuzzleService.getSolvedPuzzleForUser(
+      userId,
+      puzzleId
+    );
+
+    if (puzzleAlreadySolved) {
+      const updatedPuzzle = {
+        ...puzzleAlreadySolved,
+        user_id: userId,
+        moves: puzzleData.moves,
+        time: puzzleData.time,
+      };
+
+      return await this.solvedPuzzleService.updateSolvedPuzzle(
+        puzzleAlreadySolved.id,
+        updatedPuzzle
+      );
+    }
+
+    const newPuzzle = {
+      user_id: userId,
+      puzzle_id: puzzleId,
+      moves: puzzleData.moves,
+      time: puzzleData.time,
+    };
+
+    return await this.solvedPuzzleService.createSolvedPuzzle(newPuzzle);
+  }
 }

@@ -45,6 +45,7 @@ export class RouterComponent {
     page("/puzzle/:id", this.puzzleGuard, (ctx) => {
       const puzzleSolverPage = new PuzzleSolverComponent(
         this.appContainer,
+        this.userPuzzleService,
         ctx.puzzle
       );
       puzzleSolverPage.render();
