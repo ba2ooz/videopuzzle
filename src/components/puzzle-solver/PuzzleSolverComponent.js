@@ -3,6 +3,7 @@ import page from "page";
 
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 import { ErrorHandler } from "../error/ErrorHandler.js";
+import { catchError } from "../../utils/utils.js";
 
 export class PuzzleSolverComponent {
   constructor(container, userPuzzleService, puzzle) {
@@ -12,21 +13,23 @@ export class PuzzleSolverComponent {
     this.eventHandlers = new Map(); // store event handlers for easy removal
   }
 
-  render() {
+  async render() {
     this.container.innerHTML = puzzleSolverHTML;
 
     const gameContainer = document.querySelector("#solver-container");
     this.game = new PuzzleGameComponent(gameContainer);
     this.game.render(this.puzzle);
     this.game.gameEventsHandler.disableAllGridListeners();
-    this.game.isReady
-      .then(() => {
-        this.game.gameEventsHandler.enableAllGridListeners();
-        this.startClock();
-      })
-      .catch((error) => {
-        ErrorHandler.handle(error, "render");
-      });
+
+    const [error, _] = await catchError(this.game.isReady);
+    if (error) {
+      ErrorHandler.handle(error, `[${this.constructor.name}][${this.render.name}]`);
+      this.handleGoBack();
+      return;
+    }
+
+    this.game.gameEventsHandler.enableAllGridListeners();
+    this.startClock();
 
     this.addListeners();
   }

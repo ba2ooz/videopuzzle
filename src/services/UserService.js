@@ -1,3 +1,5 @@
+import { interceptErrors } from "./errors/middleware/ErrorInterceptorDecorator";
+import { NotFoundError } from "./errors/ServiceError";
 import { catchError } from "../utils/utils";
 import pb from "./PocketBaseClient";
 
@@ -8,8 +10,15 @@ export class UserService {
 
   async getOrCreateGuestUser() {
     const storedUserId = localStorage.getItem(this.STORAGE_USER_KEY);
-    const storedUser = await this.getUserById(storedUserId);
-    if (storedUser) 
+    
+    const [error, existingUser] = await catchError(this.getUserById(storedUserId));
+    
+    // If the user is not found, we can ignore the error
+    // because we will create a new guest user
+    if (error && !(error instanceof NotFoundError)) 
+      throw error;
+
+    if (existingUser) 
       return storedUserId;
 
     const guestUser = await this.createGuestUser();
@@ -18,31 +27,16 @@ export class UserService {
     return guestUser.id;
   }
 
+  @interceptErrors
   async createGuestUser() {
-    const [error, guestUser] = await catchError(
-      pb.collection("users").create(this.generateGuestUserRecord())
-    );
-
-    if (error) 
-      throw new Error("Failed to create guest user");
-
-    return guestUser;
+    return await pb.collection("users").create(this.generateGuestUserRecord())
   }
 
+  @interceptErrors
   async getUserById(userId) {
     if (!userId?.trim()) return null;
 
-    const [error, user] = await catchError(
-      pb.collection("users").getOne(userId.trim())
-    );
-
-    if (error) {
-      if (error.response.status === 404) return null;
-
-      throw new Error("Failed to fetch user");
-    }
-
-    return user;
+    return await pb.collection("users").getOne(userId.trim())
   }
 
   generateGuestUserRecord() {

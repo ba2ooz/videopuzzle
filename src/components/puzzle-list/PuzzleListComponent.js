@@ -2,6 +2,8 @@ import cardListHTML from "bundle-text:./puzzle-list.html?raw";
 import page from "page";
 
 import { PuzzleCardComponent } from "../puzzle-card/PuzzleCardComponent.js";
+import { ErrorHandler } from "../error/ErrorHandler.js";
+import { catchError } from "../../utils/utils.js";
 
 export class PuzzleListComponent {
   constructor(container, service) {
@@ -18,7 +20,13 @@ export class PuzzleListComponent {
     // create the card list
     this.cardListContainer = this.container.querySelector(".puzzles-grid");
 
-    const puzzles = await this.service.getUserPuzzles();
+    const [error, puzzles] = await catchError(this.service.getUserPuzzles());
+    if (error) {
+      ErrorHandler.handle(error, error.metadata.context);
+      this.destroy();
+      return;
+    }
+
     puzzles.forEach((puzzle) => {
       const card = this.puzzleCard.render(puzzle);
       this.cardListContainer.appendChild(card);

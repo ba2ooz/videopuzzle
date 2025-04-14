@@ -1,3 +1,6 @@
+import { NotFoundError } from "./errors/ServiceError";
+import { catchError } from "../utils/utils";
+
 export class UserPuzzleService {
   constructor(puzzleService, solvedPuzzleService, userService) {
     this.puzzleService = puzzleService;
@@ -23,10 +26,15 @@ export class UserPuzzleService {
 
   async saveSolvedPuzzleForUser(puzzleId, puzzleData) {
     const userId = await this.userService.getOrCreateGuestUser();
-    const puzzleAlreadySolved = await this.solvedPuzzleService.getSolvedPuzzleForUser(
-      userId,
-      puzzleId
+    
+    const [error, puzzleAlreadySolved] = await catchError(
+      this.solvedPuzzleService.getSolvedPuzzleForUser(userId, puzzleId)
     );
+
+    // If the puzzle is not found, we ignore the error
+    // because we will create a new solved puzzle
+    if (error && !(error instanceof NotFoundError)) 
+      throw error;
 
     if (puzzleAlreadySolved) {
       const updatedPuzzle = {

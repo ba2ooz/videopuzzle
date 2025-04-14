@@ -8,9 +8,11 @@ import { UserPuzzleService } from "../../services/UserPuzzleService.js";
 import { UserService } from "../../services/UserService.js";
 
 import page from "page";
+import { catchError } from "../../utils/utils.js";
+import { ErrorHandler } from "../error/ErrorHandler.js";
+import { NotFoundError } from "../../services/errors/ServiceError.js";
 
 export class RouterComponent {
-
   constructor(appContainer) {
     this.appContainer = appContainer;
     this.puzzleService = new PuzzleService();
@@ -23,13 +25,22 @@ export class RouterComponent {
 
   // Middleware to check if the puzzle exists
   puzzleGuard = async (ctx, next) => {
-    const puzzle = await this.puzzleService.getPuzzleById(ctx.params.id);
-    if (!puzzle) {
-      page.redirect('/*');
-    } else {
-      ctx.puzzle = puzzle; 
-      next(); 
+    const [error, puzzle] = await catchError(
+      this.puzzleService.getPuzzleById(ctx.params.id)
+    );
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        page.redirect("/*");
+      } else {
+        ErrorHandler.handle(error, error.metadata.context);
+      } 
+
+      return;
     }
+
+    ctx.puzzle = puzzle;
+    next();
   };
 
   start() {
@@ -51,7 +62,7 @@ export class RouterComponent {
       puzzleSolverPage.render();
     });
 
-    page('/*', () => {
+    page("/*", () => {
       const notFoundPage = new NotFoundComponent(this.appContainer);
       notFoundPage.render();
     });

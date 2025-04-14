@@ -1,26 +1,16 @@
-import { catchError } from "../utils/utils";
+import { interceptErrors } from "./errors/middleware/ErrorInterceptorDecorator";
 import pb from "./PocketBaseClient";
 
 export class PuzzleService {
   constructor() {}
 
-  // Get all puzzles
+  @interceptErrors
   async getAllPuzzles() {
-    const [error, puzzles] = await catchError(pb.collection('puzzles').getFullList());
-    if (error) {
-      throw new Error("Failed to fetch puzzles");
-    }
-
-    return puzzles;
+    return await pb.collection('puzzles').getFullList();
   }
 
-  // Get puzzle by ID
+  @interceptErrors
   async getPuzzleById(id) {
-    const [error, puzzle] = await catchError(pb.collection('puzzles').getOne(id));
-    if (error) {
-      throw new Error("Failed to fetch puzzle");
-    }
-
-    return puzzle;
+    return await pb.collection('puzzles').getOne(id);
   }
 }
