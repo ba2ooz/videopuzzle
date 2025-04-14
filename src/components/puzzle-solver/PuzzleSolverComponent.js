@@ -119,10 +119,13 @@ export class PuzzleSolverComponent {
     this.finalClock.textContent = this.readFinalClock();
     this.successMessage.classList.add("visible");
 
-    await this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, {
+    const [error, _] = await catchError(this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, {
       moves: finalMoves,
       time: this.seconds,
-    });
+    }));
+
+    if (error) 
+      ErrorHandler.handle(error, error.metadata.context);
   }
 
   handleUpdateMoves() {
