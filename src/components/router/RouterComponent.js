@@ -2,25 +2,17 @@ import { PuzzleSolverComponent } from "../puzzle-solver/PuzzleSolverComponent.js
 import { PuzzleListComponent } from "../puzzle-list/PuzzleListComponent.js";
 import { NotFoundComponent } from "../not-found/NotFoundComponent.js";
 
-import { PuzzleSolveService } from "../../services/PuzzleSolveService.js";
-import { PuzzleService } from "../../services/PuzzleService.js";
-import { UserPuzzleService } from "../../services/UserPuzzleService.js";
-import { UserService } from "../../services/UserService.js";
+import { NotFoundError } from "../../services/errors/ServiceError.js";
+import { ErrorHandler } from "../error/ErrorHandler.js";
+import { catchError } from "../../utils/utils.js";
 
 import page from "page";
-import { catchError } from "../../utils/utils.js";
-import { ErrorHandler } from "../error/ErrorHandler.js";
-import { NotFoundError } from "../../services/errors/ServiceError.js";
 
 export class RouterComponent {
-  constructor(appContainer) {
+  constructor(appContainer, services) {
     this.appContainer = appContainer;
-    this.puzzleService = new PuzzleService();
-    this.userPuzzleService = new UserPuzzleService(
-      this.puzzleService,
-      new PuzzleSolveService(),
-      new UserService()
-    );
+    this.puzzleService = services.get("puzzleService");
+    this.userPuzzleService = services.get("userPuzzleService");
   }
 
   // Middleware to check if the puzzle exists

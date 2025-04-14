@@ -1,10 +1,13 @@
 import { RouterComponent } from "./components/router/RouterComponent.js";
 import { ErrorHandler } from "./components/error/ErrorHandler.js";
 import { ErrorToast } from "./components/error/ErrorToast.js";
+import { ServiceContainer } from "./services/ServiceContainer.js";
 
+const serviceContainer = new ServiceContainer();
+serviceContainer.initialize();
 
 const appContainer = document.getElementById("app-container");
-const router = new RouterComponent(appContainer);
+const router = new RouterComponent(appContainer, serviceContainer);
 router.start();
 
 // add global error listener
