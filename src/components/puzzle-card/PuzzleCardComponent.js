@@ -9,7 +9,9 @@ export class PuzzleCardComponent {
   render(cardInfo) {
     const cardElement = this.card.cloneNode(true);
     cardElement.dataset.id = cardInfo.id;
-    cardElement.querySelector("#card-number").textContent = cardInfo.isSolved;
+    if (cardInfo.isSolved)
+      cardElement.querySelector(".checkmark").classList.add("visible")
+    
     cardElement.querySelector("#puzzle-thumbnail").src = cardInfo.imgUrl;
     cardElement.querySelector(".credits").href = cardInfo.authorProfileUrl;
     cardElement.querySelector(".credits").textContent = cardInfo.authorName;

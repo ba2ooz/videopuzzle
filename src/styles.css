@@ -97,6 +97,20 @@ header p {
   cursor: pointer;
 }
 
+.checkmark {
+  display: none;
+}
+
+.checkmark.visible {
+  display: inline-flex; 
+  justify-content: center;
+  align-items: center;
+  background-color: #10b981;
+  color: #fff;
+  padding: 0rem 1.5rem;
+  border-radius: 0.75rem;
+}
+
 /* Game screen */
 .game-header {
   display: flex;
