@@ -1,0 +1,94 @@
+/* Header styles */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #a78bfa;
+  margin-bottom: var(--spacing-2);
+  letter-spacing: 1px;
+}
+
+header p {
+  color: #9ca3af;
+  font-size: var(--spacing-4);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-8);
+}
+
+.action-button {
+  background-color: var(--color-bg-surface);
+  border: none;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--spacing-2);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: var(--color-border);
+}
+
+.action-button.inactive {
+  background-color: #6b7280;
+  color: #e5e7eb;
+  opacity: 0.7;
+}
+
+.action-button.inactive:hover {
+  background-color: #6b7280;
+}
+
+.action-button.primary {
+  background-color: #7c3aed;
+}
+
+.action-button.primary:hover {
+  background-color: var(--color-primary-600);
+}
+
+.action-button.primary.inactive {
+  background-color: var(--color-primary-700);
+  color: #ddd6fe;
+}
+
+.action-button.primary.inactive:hover {
+  background-color: var(--color-primary-700);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .puzzles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    padding: var(--spacing-2);
+  }
+
+  .game-header {
+    flex-direction: column;
+    gap: var(--spacing-4);
+    align-items: flex-start;
+  }
+
+  .move-counter {
+    align-self: flex-end;
+    margin-top: -3.5rem;
+    margin-right: var(--spacing-4);
+  }
+
+  .container {
+    padding: var(--spacing-8) var(--spacing-0);
+  }
+
+  .back-button {
+    margin-left: var(--spacing-2);
+  }
+}
