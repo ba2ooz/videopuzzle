@@ -2,6 +2,8 @@ import { PuzzleSolveService } from "./PuzzleSolveService.js";
 import { UserPuzzleService } from "./UserPuzzleService.js";
 import { PuzzleService } from "./PuzzleService.js";
 import { UserService } from "./UserService.js";
+import { RankService } from "./RankService.js";
+
 
 export class ServiceContainer {
   constructor() {
@@ -20,11 +22,13 @@ export class ServiceContainer {
     const puzzleService = new PuzzleService();
     const userService = new UserService();
     const puzzleSolveService = new PuzzleSolveService();
-    const userPuzzleService = new UserPuzzleService(puzzleService, puzzleSolveService, userService);
+    const rankService = new RankService();
+    const userPuzzleService = new UserPuzzleService(puzzleService, puzzleSolveService, userService, rankService);
 
     this.set("puzzleService", puzzleService);
     this.set("userService", userService);
     this.set("puzzleSolveService", puzzleSolveService);
+    this.set("rankService", rankService);
     this.set("userPuzzleService", userPuzzleService);
   }
 }

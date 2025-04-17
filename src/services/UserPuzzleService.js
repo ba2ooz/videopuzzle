@@ -2,10 +2,11 @@ import { NotFoundError } from "./errors/ServiceError";
 import { catchError } from "../utils/utils";
 
 export class UserPuzzleService {
-  constructor(puzzleService, solvedPuzzleService, userService) {
+  constructor(puzzleService, solvedPuzzleService, userService, rankService) {
     this.puzzleService = puzzleService;
     this.solvedPuzzleService = solvedPuzzleService;
     this.userService = userService;
+    this.rankService = rankService;
   }
 
   async getUserPuzzles() {
@@ -35,9 +36,24 @@ export class UserPuzzleService {
     if (error && !(error instanceof NotFoundError)) 
       throw error;
 
+    if (!puzzleSolved) {
+      return { 
+        ...puzzle,
+        isSolved: false 
+      };
+    }
+
+    const ranks = await this.rankService.getPuzzleRankForUser(userId, puzzleId);
+
     return { 
       ...puzzle, 
-      isSolved: !!puzzleSolved 
+      isSolved: true,
+      stats: {
+        moves: puzzleSolved.moves,
+        time: puzzleSolved.time,
+        movesRank: ranks.movesRank, 
+        timeRank: ranks.timeRank, 
+      }
     };
   }
 

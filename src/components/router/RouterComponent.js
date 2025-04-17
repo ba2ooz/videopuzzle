@@ -48,7 +48,8 @@ export class RouterComponent {
       const puzzleSolverPage = new PuzzleSolverComponent(
         this.appContainer,
         this.userPuzzleService,
-        ctx.puzzle
+        ctx.puzzle,
+        ctx.querystring === 'retry=true'
       );
       puzzleSolverPage.render();
     });

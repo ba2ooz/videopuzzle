@@ -7,29 +7,29 @@
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-title">Best Moves</div>
-        <div class="stat-value">42</div>
-        <div class="rank">Rank: #3</div>
+        <div class="stat-value current-moves">42</div>
+        <div class="rank">Rank: #<span class="moves-rank">3</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-title">Best Time</div>
-        <div class="stat-value">1:24.56</div>
-        <div class="rank">Rank: #5</div>
+        <div class="stat-value current-time">1:24.56</div>
+        <div class="rank">Rank: #<span class="time-rank">5</span></div>
       </div>
     </div>
 
-    <div class="new-stats invisible">
+    <div class="new-stats hidden">
       <div class="new-stat">
         <div class="new-stat-title">NEW MOVES</div>
-        <div class="new-stat-value">38</div>
+        <div class="new-stat-value new-moves">38</div>
       </div>
       <div class="new-stat">
         <div class="new-stat-title">NEW TIME</div>
-        <div class="new-stat-value">1:12.34</div>
+        <div class="new-stat-value new-time">1:12.34</div>
       </div>
     </div>
 
     <div class="button-group">
-      <button class="button secondary-button">
+      <button id="try-again" class="button secondary-button">
         <svg
           class="icon"
           viewBox="0 0 24 24"
@@ -46,7 +46,7 @@
         </svg>
         Try Again
       </button>
-      <button class="button primary-button invisible">
+      <button id="save" class="button primary-button hidden">
         <svg
           class="icon"
           viewBox="0 0 24 24"
