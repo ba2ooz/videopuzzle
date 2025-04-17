@@ -24,6 +24,23 @@ export class UserPuzzleService {
     return allPuzzlesMapped;
   }
 
+  async getPuzzleForUser(puzzleId) {
+    const userId = await this.userService.getOrCreateGuestUser();
+    const puzzle = await this.puzzleService.getPuzzleById(puzzleId);
+    const [error, puzzleSolved] = await catchError(
+      this.solvedPuzzleService.getSolvedPuzzleForUser(userId, puzzleId)
+    );
+
+    // ignore puzzle not found error
+    if (error && !(error instanceof NotFoundError)) 
+      throw error;
+
+    return { 
+      ...puzzle, 
+      isSolved: !!puzzleSolved 
+    };
+  }
+
   async saveSolvedPuzzleForUser(puzzleId, puzzleData) {
     const userId = await this.userService.getOrCreateGuestUser();
     

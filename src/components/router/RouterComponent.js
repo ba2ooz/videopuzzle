@@ -11,14 +11,13 @@ import page from "page";
 export class RouterComponent {
   constructor(appContainer, services) {
     this.appContainer = appContainer;
-    this.puzzleService = services.get("puzzleService");
     this.userPuzzleService = services.get("userPuzzleService");
   }
 
   // Middleware to check if the puzzle exists
   puzzleGuard = async (ctx, next) => {
     const [error, puzzle] = await catchError(
-      this.puzzleService.getPuzzleById(ctx.params.id)
+      this.userPuzzleService.getPuzzleForUser(ctx.params.id)
     );
 
     if (error) {
