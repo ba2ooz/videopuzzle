@@ -50,7 +50,7 @@ export class PuzzleStatsComponent {
       this.save,
       "pointerup",
       async () => {
-        await this.onSave(this.data.newStats)
+        await this.onSave();
         this.destroy();
       }
     )

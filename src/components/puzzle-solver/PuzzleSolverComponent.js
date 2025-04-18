@@ -55,32 +55,24 @@ export class PuzzleSolverComponent {
   }
 
   updateClock() {
-    const hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
-    const minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
-    const seconds = String(this.seconds % 60).padStart(2, '0');
-
-    // format the time as HH:MM:SS
-    const timeString = `${hours}:${minutes}:${seconds}`;
-
     // update the clock display
-    this.clockElement.textContent = timeString;
+    this.clockElement.textContent = this.formatClock(this.seconds);
   }
 
-  readFinalClock() {
-    let timeString = "";
-    const hours = String(Math.floor(this.seconds / 3600)).padStart(2, '0'); 
-    const minutes = String(Math.floor((this.seconds % 3600) / 60)).padStart(2, '0'); 
-    const seconds = String(this.seconds % 60).padStart(2, '0');
+  formatClock(seconds, short = false) {
+    const h = String(Math.floor(seconds / 3600)).padStart(2, '0'); 
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0'); 
+    const s = String(seconds % 60).padStart(2, '0');
 
-    if (hours > 0) {
-      timeString += `${hours} hours, `;
+    if(short) {
+      let timeString = "";
+      if (h > 0) timeString += `${h}h`;
+      if (m > 0) timeString += `${m}m`;
+      if (s > 0) timeString += `${s}s`;
+      return timeString;
     }
-    if (minutes > 0) {
-      timeString += `${minutes} minutes and `;
-    }
-    timeString += `${seconds} seconds`;
 
-    return timeString;
+    return `${h}:${m}:${s}`;
   }
 
   addListeners() {
@@ -119,7 +111,6 @@ export class PuzzleSolverComponent {
   async handlePuzzleSolved() {
     this.clockStop = true;
     clearInterval(this.clockIntervalId);
-    // this.readFinalClock();
 
     let newStats = {
       moves: this.game.getMovesCount(),
@@ -137,8 +128,16 @@ export class PuzzleSolverComponent {
   }
 
   async showSolvedModal(currentStats, newStats = undefined) {
+    const currentTime = this.formatClock(currentStats.time, true);
+    if (newStats) {
+      newStats.time = this.formatClock(newStats.time, true);
+    }
+
     const stats = {
-      currentStats: currentStats,
+      currentStats: {
+        ...currentStats,
+        time: currentTime,
+      },
       newStats: newStats,
     }
 
@@ -157,9 +156,13 @@ export class PuzzleSolverComponent {
     page(`/puzzle/${this.puzzle.id}?retry=true`);
   }
 
-  async handleSave(stats) {
+  async handleSave() {
+    console.log(this.seconds);
     const [error, _] = await catchError(
-      this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, stats));
+      this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, {
+        moves: this.game.getMovesCount(),
+        time: this.seconds,
+      }));
 
     if (error) 
       ErrorHandler.handle(error, error.metadata.context);
