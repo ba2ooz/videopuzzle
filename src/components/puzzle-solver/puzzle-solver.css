@@ -35,3 +35,9 @@
   border-radius: 9999px;
   font-size: 0.875rem;
 }
+
+#solver-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

@@ -18,10 +18,6 @@ export class PuzzleSolverComponent {
   async render() {
     this.container.innerHTML = puzzleSolverHTML;
 
-    if(this.puzzle.isSolved && !this.retry) {
-      this.showSolvedModal(this.puzzle.stats);
-    }
-    
     const gameContainer = document.querySelector("#solver-container");
     this.game = new PuzzleGameComponent(gameContainer);
     this.game.render(this.puzzle);
@@ -34,10 +30,16 @@ export class PuzzleSolverComponent {
       return;
     }
 
-    this.game.gameEventsHandler.enableAllGridListeners();
-    this.startClock();
-
     this.addListeners();
+
+    if(this.puzzle.isSolved && !this.retry) {
+      this.game.gameEventsHandler.showSolvedPuzzle();
+      this.showSolvedModal(this.puzzle.stats);
+    } else {
+      this.game.gameEventsHandler.enableAllGridListeners();
+      this.game.gameEventsHandler.showControls();
+      this.startClock();
+    }
   }
 
   startClock() {
@@ -77,8 +79,14 @@ export class PuzzleSolverComponent {
 
   addListeners() {
     this.backToSelectionBtn = document.getElementById("back-to-selection");
+    this.showResult = document.querySelector("#show-result");
     this.moves = document.getElementById("move-count");
 
+    this.eventHandlers.addAndStoreEventListener(
+      this.showResult,
+      "pointerup",
+      () => this.showSolvedModal(this.puzzle.stats, this.newStats)
+    );
     this.eventHandlers.addAndStoreEventListener(
       this.backToSelectionBtn,
       "pointerup",
@@ -112,40 +120,42 @@ export class PuzzleSolverComponent {
     this.clockStop = true;
     clearInterval(this.clockIntervalId);
 
-    let newStats = {
+    this.newStats = {
       moves: this.game.getMovesCount(),
       time: this.seconds,
     }
 
-    if (!this.puzzle.isSolved) {
-      await this.handleSave(newStats)
-      this.puzzle.stats = 
-        (await this.userPuzzleService.getPuzzleForUser(this.puzzle.id)).stats;
-      newStats = undefined;
-    }
+    if (!this.puzzle.isSolved) 
+      await this.handleSave(this.newStats);
 
-    await this.showSolvedModal(this.puzzle.stats, newStats);
+    this.showSolvedModal(this.puzzle.stats, this.newStats);
   }
 
-  async showSolvedModal(currentStats, newStats = undefined) {
+  showSolvedModal(currentStats, newStats = undefined) {
+    this.game.gameEventsHandler.hideControls();
+    this.showResult.classList.remove("hidden"); 
+    this.eventHandlers?.removeAllEventListeners();
+    
     const currentTime = this.formatClock(currentStats.time, true);
-    if (newStats) {
-      newStats.time = this.formatClock(newStats.time, true);
-    }
+    const newTime = newStats ? this.formatClock(newStats.time, true) : undefined;
 
     const stats = {
       currentStats: {
         ...currentStats,
         time: currentTime,
       },
-      newStats: newStats,
+      newStats: newStats ? { 
+        ...newStats, 
+        time: newTime 
+      } : undefined,
     }
 
     this.modal = new PuzzleStatsComponent(
       this.container.querySelector(".container"), 
       stats,
       this.handleTryAgain.bind(this),
-      this.handleSave.bind(this)
+      this.handleSave.bind(this),
+      this.addListeners.bind(this),
     );
 
     this.modal.render();
@@ -157,15 +167,16 @@ export class PuzzleSolverComponent {
   }
 
   async handleSave() {
-    console.log(this.seconds);
     const [error, _] = await catchError(
-      this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, {
-        moves: this.game.getMovesCount(),
-        time: this.seconds,
-      }));
+      this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, this.newStats));
 
     if (error) 
       ErrorHandler.handle(error, error.metadata.context);
+
+    // refresh stats state after saving
+    this.puzzle.stats = 
+      (await this.userPuzzleService.getPuzzleForUser(this.puzzle.id)).stats;
+    this.newStats = undefined;
   }
 
   handleUpdateMoves() {

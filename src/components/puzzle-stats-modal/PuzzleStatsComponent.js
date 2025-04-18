@@ -2,11 +2,12 @@ import modalHTML from "bundle-text:./puzzle-stats-modal.html?raw";
 import { createDomElementFromHtml } from "../../utils/utils.js";
 
 export class PuzzleStatsComponent {
-  constructor(container, data, onTryAgain, onSave) {
+  constructor(container, data, onTryAgain, onSave, onClose) {
     this.data = data;
     this.container = container;
     this.onTryAgain = onTryAgain;
     this.onSave = onSave;
+    this.onClose = onClose;
     this.eventHandlers = new Map(); 
   }
 
@@ -37,7 +38,10 @@ export class PuzzleStatsComponent {
     this.eventHandlers.addAndStoreEventListener(
       this.closeModal,
       "pointerup",
-      this.destroy.bind(this)
+      () => {
+        this.destroy();
+        this.onClose(); 
+      }
     )
 
     this.eventHandlers.addAndStoreEventListener(
@@ -52,6 +56,7 @@ export class PuzzleStatsComponent {
       async () => {
         await this.onSave();
         this.destroy();
+        this.onClose();
       }
     )
   }

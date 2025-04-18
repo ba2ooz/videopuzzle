@@ -272,6 +272,27 @@ export class PuzzleGameEventsHandler {
     this.sneakPeekButton.classList.add("inactive");
   }
 
+  showControls() {
+    this.upButton.classList.remove("hidden");
+    this.downButton.classList.remove("hidden");
+    this.leftButton.classList.remove("hidden");
+    this.rightButton.classList.remove("hidden");
+    this.sneakPeekButton.classList.remove("hidden");
+  }
+
+  hideControls() {
+    this.upButton.classList.add("hidden");
+    this.downButton.classList.add("hidden");
+    this.leftButton.classList.add("hidden");
+    this.rightButton.classList.add("hidden");
+    this.sneakPeekButton.classList.add("hidden");
+  }
+
+  showSolvedPuzzle() {
+    const unshuffledTextures = this.grid.getOriginalTextures();
+    this.notifyTextureSwap(unshuffledTextures);
+  }
+
   /**
    * Triggers a custom texture update event
    *
