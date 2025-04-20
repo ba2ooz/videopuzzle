@@ -33,6 +33,9 @@ export class PuzzleSolverComponent {
     this.addListeners();
 
     if(this.puzzle.isSolved && !this.retry) {
+      document.querySelector(".game-clock").classList.add("hidden");
+      document.querySelector(".move-counter").classList.add("hidden");
+
       this.game.gameEventsHandler.showSolvedPuzzle();
       this.showSolvedModal(this.puzzle.stats);
     } else {

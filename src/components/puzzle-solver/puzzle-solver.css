@@ -29,8 +29,8 @@
 }
 
 .move-counter {
-  background-color: var(--color-primary-800);
-  color: #e9d5ff;
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-secondary);
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: 9999px;
   font-size: 0.875rem;

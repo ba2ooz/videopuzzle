@@ -186,7 +186,7 @@ export class PuzzleGameEventsHandler {
   handleCheckWin() {
     if (this.grid.isUnshuffled()) {
       this.game.animationController.createWinAnimations(this.grid.getTiles());
-      this.notifyUnshuffled();
+      setTimeout(this.notifyUnshuffled, 1600); // allow the animation to finish before notifying listeners
       this.disableAllGridListeners();
     }
   }
