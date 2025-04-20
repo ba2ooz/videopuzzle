@@ -167,15 +167,22 @@ export class PuzzleSolverComponent {
   }
 
   async handleSave() {
-    const [error, _] = await catchError(
+    const [saveError, _] = await catchError(
       this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, this.newStats));
 
-    if (error) 
-      ErrorHandler.handle(error, error.metadata.context);
+      if (saveError) {
+      ErrorHandler.handle(saveError, saveError.metadata.context);
+      return;
+    }
+
+    const [refreshError, updatedPuzzle] = await catchError(this.userPuzzleService.getPuzzleForUser(this.puzzle.id));
+    if (refreshError) {
+      ErrorHandler.handle(refreshError, refreshError.metadata.context);
+      return;
+    }
 
     // refresh stats state after saving
-    this.puzzle.stats = 
-      (await this.userPuzzleService.getPuzzleForUser(this.puzzle.id)).stats;
+    this.puzzle.stats = updatedPuzzle.stats;
     this.newStats = undefined;
   }
 
