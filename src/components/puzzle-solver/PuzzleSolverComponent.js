@@ -5,6 +5,7 @@ import { PuzzleStatsComponent } from "../puzzle-stats-modal/PuzzleStatsComponent
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 import { ErrorHandler } from "../error/ErrorHandler.js";
 import { catchError } from "../../utils/utils.js";
+import { Clock } from "../shared/ui/Clock.js";
 
 export class PuzzleSolverComponent {
   constructor(container, userPuzzleService, puzzle, retry) {
@@ -17,6 +18,9 @@ export class PuzzleSolverComponent {
 
   async render() {
     this.container.innerHTML = puzzleSolverHTML;
+    
+    const clockElement = document.querySelector(".game-clock");
+    this.clock = new Clock(clockElement);
 
     const gameContainer = document.querySelector("#solver-container");
     this.game = new PuzzleGameComponent(gameContainer);
@@ -41,43 +45,8 @@ export class PuzzleSolverComponent {
     } else {
       this.game.gameEventsHandler.enableAllGridListeners();
       this.game.gameEventsHandler.showControls();
-      this.startClock();
+      this.clock.start();
     }
-  }
-
-  startClock() {
-    this.seconds = 0;
-    this.clockStop = false;
-    this.clockElement = document.querySelector(".game-clock")
-
-    this.updateClock(); 
-    this.clockIntervalId = setInterval(() => {
-      if (!this.clockStop) {
-        this.seconds++;
-        this.updateClock(); // update the clock every second
-      }
-    }, 1000);
-  }
-
-  updateClock() {
-    // update the clock display
-    this.clockElement.textContent = this.formatClock(this.seconds);
-  }
-
-  formatClock(seconds, short = false) {
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0'); 
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0'); 
-    const s = String(seconds % 60).padStart(2, '0');
-
-    if(short) {
-      let timeString = "";
-      if (h > 0) timeString += `${h}h`;
-      if (m > 0) timeString += `${m}m`;
-      if (s > 0) timeString += `${s}s`;
-      return timeString;
-    }
-
-    return `${h}:${m}:${s}`;
   }
 
   addListeners() {
@@ -111,21 +80,22 @@ export class PuzzleSolverComponent {
     this.eventHandlers?.removeAllEventListeners();
     this.game?.destroy();
     this.modal?.destroy();
+    this.clock?.destroy();
 
     this.eventHandlers = null;
     this.container = null;
     this.service = null;
     this.game = null;
     this.modal = null;
+    this.clock = null;
   }
 
   async handlePuzzleSolved() {
-    this.clockStop = true;
-    clearInterval(this.clockIntervalId);
+    this.clock.stop();
 
     this.newStats = {
       moves: this.game.getMovesCount(),
-      time: this.seconds,
+      time: this.clock.getSeconds(),
     }
 
     if (!this.puzzle.isSolved) 
@@ -139,8 +109,8 @@ export class PuzzleSolverComponent {
     this.showResult.classList.remove("hidden"); 
     this.eventHandlers?.removeAllEventListeners();
     
-    const currentTime = this.formatClock(currentStats.time, true);
-    const newTime = newStats ? this.formatClock(newStats.time, true) : undefined;
+    const currentTime = this.clock.format(currentStats.time, true);
+    const newTime = newStats ? this.clock.format(newStats.time, true) : undefined;
 
     const stats = {
       currentStats: {
