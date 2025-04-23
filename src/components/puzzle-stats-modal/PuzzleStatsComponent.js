@@ -52,8 +52,8 @@ export class PuzzleStatsComponent {
     this.eventHandlers.addAndStoreEventListener(
       this.ui.closeModalBtn, "pointerup",
       () => {
-        this.destroy();
         this.onClose(); 
+        this.destroy();
       }
     )
 
@@ -65,14 +65,16 @@ export class PuzzleStatsComponent {
       this.ui.saveBtn, "pointerup",
       async () => {
         await this.onSave();
-        this.destroy();
         this.onClose();
+        this.destroy();
       }
     )
   }
 
   destroy() {
-    this.eventHandlers.removeAllEventListeners();
-    this.modal.remove();
+    this.eventHandlers?.removeAllEventListeners();
+    this.modal?.remove();
+
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

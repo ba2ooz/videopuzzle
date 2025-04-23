@@ -6,58 +6,62 @@ import { ErrorHandler } from "../error/ErrorHandler.js";
 import { catchError } from "../../utils/utils.js";
 
 export class PuzzleListComponent {
-  constructor(container, service) {
-    this.puzzleCard = new PuzzleCardComponent();
+  constructor(container, userPuzzleService) {
     this.container = container;
-    this.service = service;
+    this.userPuzzleService = userPuzzleService;
+    this.puzzleCard = new PuzzleCardComponent();
     this.eventHandlers = new Map();
   }
 
   async render() {
-    // append this component html to the container
+    this.ui = this.getUIElements();
+    await this.getAndRenderPuzzles();
+  }
+
+  getUIElements() {
     this.container.innerHTML = cardListHTML;
+    return {
+      cardListContainer: this.container.querySelector(".puzzles-grid")
+    }
+  }
 
-    // create the card list
-    this.cardListContainer = this.container.querySelector(".puzzles-grid");
+  async getAndRenderPuzzles() {
+    const [error, puzzles] = await catchError(
+      this.userPuzzleService.getUserPuzzles()
+    );
 
-    const [error, puzzles] = await catchError(this.service.getUserPuzzles());
     if (error) {
       ErrorHandler.handle(error, error.metadata.context);
       this.destroy();
       return;
     }
 
-    puzzles.forEach((puzzle) => {
-      const card = this.puzzleCard.render(puzzle);
-      this.cardListContainer.appendChild(card);
-      this.addListeners(card);
-    });
+    puzzles.forEach(puzzle => this.renderPuzzleCard(puzzle));
+  }
+
+  renderPuzzleCard(puzzle) {
+    const card = this.puzzleCard.render(puzzle);
+    this.ui.cardListContainer.appendChild(card);
+    this.addListeners(card);
   }
 
   addListeners(element) {
     this.eventHandlers.addAndStoreEventListener(
-      element,
-      "pointerup",
-      this.handleCardSelected.bind(this, element)
+      element, "pointerup", this.handleCardSelection.bind(this, element)
     );
   }
 
-  handleCardSelected(element) {
-    this.destroy();
+  handleCardSelection(element) {
     const puzzleId = element.dataset.id;
     page.redirect(`/puzzle/${puzzleId}`);
+    this.destroy();
   }
 
   destroy() {
-    this.eventHandlers.forEach(({element}) => {
-      this.cardListContainer.removeChild(element);
-    });
-    this.eventHandlers.removeAllEventListeners();
-    this.eventHandlers = null;
-    
-    this.puzzleCard.destroy();
-    this.puzzleCard = null;
-    this.container = null;
-    this.service = null;
+    this.eventHandlers?.forEach(({ element }) => element.remove());
+    this.eventHandlers?.removeAllEventListeners();
+    this.puzzleCard?.destroy();
+
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }
