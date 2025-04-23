@@ -43,10 +43,6 @@
 }
 
 .checkmark {
-  display: none;
-}
-
-.checkmark.visible {
   color: var(--color-text-primary);
   display: inline-flex;
 }

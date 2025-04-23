@@ -9,8 +9,7 @@ export class PuzzleListComponent {
   constructor(container, userPuzzleService) {
     this.container = container;
     this.userPuzzleService = userPuzzleService;
-    this.puzzleCard = new PuzzleCardComponent();
-    this.eventHandlers = new Map();
+    this.puzzleCards = [];
   }
 
   async render() {
@@ -20,7 +19,6 @@ export class PuzzleListComponent {
 
   async getAndRenderPuzzles() {
     const [error, puzzles] = await catchError(this.userPuzzleService.getUserPuzzles());
-
     if (error) {
       ErrorHandler.handle(error, error.metadata.context);
       this.destroy();
@@ -31,19 +29,15 @@ export class PuzzleListComponent {
   }
 
   renderPuzzleCard(puzzle) {
-    const card = this.puzzleCard.render(puzzle);
-    this.ui.cardListContainer.appendChild(card);
-    this.addListeners(card);
+    const card = 
+      new PuzzleCardComponent(puzzle, this.handleCardSelection.bind(this));
+
+    this.puzzleCards.push(card);
+    const cardElement = card.render();
+    this.ui.cardListContainer.appendChild(cardElement);
   }
 
-  addListeners(element) {
-    this.eventHandlers.addAndStoreEventListener(
-      element, "pointerup", this.handleCardSelection.bind(this, element)
-    );
-  }
-
-  handleCardSelection(element) {
-    const puzzleId = element.dataset.id;
+  handleCardSelection(puzzleId) {
     page.redirect(`/puzzle/${puzzleId}`);
     this.destroy();
   }
@@ -57,9 +51,8 @@ export class PuzzleListComponent {
   }
 
   destroy() {
-    this.eventHandlers?.forEach(({ element }) => element.remove());
-    this.eventHandlers?.removeAllEventListeners();
-    this.puzzleCard?.destroy();
+    this.puzzleCards?.forEach(card => card.destroy());
+    this.ui?.cardListContainer?.remove();
 
     Object.keys(this).forEach(key => this[key] = null);
   }
