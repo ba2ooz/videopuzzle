@@ -18,17 +18,8 @@ export class PuzzleListComponent {
     await this.getAndRenderPuzzles();
   }
 
-  getUIElements() {
-    this.container.innerHTML = cardListHTML;
-    return {
-      cardListContainer: this.container.querySelector(".puzzles-grid")
-    }
-  }
-
   async getAndRenderPuzzles() {
-    const [error, puzzles] = await catchError(
-      this.userPuzzleService.getUserPuzzles()
-    );
+    const [error, puzzles] = await catchError(this.userPuzzleService.getUserPuzzles());
 
     if (error) {
       ErrorHandler.handle(error, error.metadata.context);
@@ -55,6 +46,14 @@ export class PuzzleListComponent {
     const puzzleId = element.dataset.id;
     page.redirect(`/puzzle/${puzzleId}`);
     this.destroy();
+  }
+
+  getUIElements() {
+    this.container.innerHTML = cardListHTML;
+
+    return {
+      cardListContainer: this.container.querySelector(".puzzles-grid")
+    }
   }
 
   destroy() {
