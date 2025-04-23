@@ -9,21 +9,28 @@ import { Clock } from "../shared/ui/Clock.js";
 
 export class PuzzleSolverComponent {
   constructor(container, userPuzzleService, puzzle, retry) {
-    this.container = container;
     this.userPuzzleService = userPuzzleService; 
+    this.container = container;
     this.puzzle = puzzle;
     this.retry = retry;
     this.eventHandlers = new Map(); // store event handlers for easy removal
   }
 
   async render() {
-    this.container.innerHTML = puzzleSolverHTML;
-    
-    const clockElement = document.querySelector(".game-clock");
-    this.clock = new Clock(clockElement);
+    this.ui = this.getUIElements();
+    await this.initGame();
+    this.addListeners();
 
-    const gameContainer = document.querySelector("#solver-container");
-    this.game = new PuzzleGameComponent(gameContainer);
+    if(this.puzzle.isSolved && !this.retry) {
+      this.showSolvedState();
+    } else {
+      this.showPlayableState();
+    }
+  }
+
+  async initGame() {
+    this.clock = new Clock(this.ui.clockElement);
+    this.game = new PuzzleGameComponent(this.ui.gameContainerElement);
     this.game.render(this.puzzle);
     this.game.gameEventsHandler.disableAllGridListeners();
 
@@ -33,110 +40,39 @@ export class PuzzleSolverComponent {
       this.handleGoBack();
       return;
     }
-
-    this.addListeners();
-
-    if(this.puzzle.isSolved && !this.retry) {
-      document.querySelector(".game-clock").classList.add("hidden");
-      document.querySelector(".move-counter").classList.add("hidden");
-
-      this.game.gameEventsHandler.showSolvedPuzzle();
-      this.showSolvedModal(this.puzzle.stats);
-    } else {
-      this.game.gameEventsHandler.enableAllGridListeners();
-      this.game.gameEventsHandler.showControls();
-      this.clock.start();
-    }
   }
 
   addListeners() {
-    this.backToSelectionBtn = document.getElementById("back-to-selection");
-    this.showResult = document.querySelector("#show-result");
-    this.moves = document.getElementById("move-count");
-
     this.eventHandlers.addAndStoreEventListener(
-      this.showResult,
-      "pointerup",
+      this.ui.showResultBtn, "pointerup", 
       () => this.showSolvedModal(this.puzzle.stats, this.newStats)
     );
+
     this.eventHandlers.addAndStoreEventListener(
-      this.backToSelectionBtn,
-      "pointerup",
-      this.handleGoBack.bind(this)
+      this.ui.backToSelectionBtn, "pointerup", this.handleGoBack.bind(this)
     );
+
     this.eventHandlers.addAndStoreEventListener(
-      document,
-      "texture_swap",
-      this.handleUpdateMoves.bind(this)
+      document, "texture_swap", this.handleUpdateMoves.bind(this)
     );
+
     this.eventHandlers.addAndStoreEventListener(
-      document,
-      "unshuffled",
-      this.handlePuzzleSolved.bind(this)
+      document, "unshuffled", this.handlePuzzleSolved.bind(this)
     );
   }
 
-  destroy() {
-    this.eventHandlers?.removeAllEventListeners();
-    this.game?.destroy();
-    this.modal?.destroy();
-    this.clock?.destroy();
-
-    this.eventHandlers = null;
-    this.container = null;
-    this.service = null;
-    this.game = null;
-    this.modal = null;
-    this.clock = null;
+  handleUpdateMoves() {
+    this.ui.moveCountElement.textContent = this.game.getMovesCount();
   }
 
-  async handlePuzzleSolved() {
-    this.clock.stop();
-
-    this.newStats = {
-      moves: this.game.getMovesCount(),
-      time: this.clock.getSeconds(),
-    }
-
-    if (!this.puzzle.isSolved) 
-      await this.handleSave(this.newStats);
-
-    this.showSolvedModal(this.puzzle.stats, this.newStats);
-  }
-
-  showSolvedModal(currentStats, newStats = undefined) {
-    this.game.gameEventsHandler.hideControls();
-    this.showResult.classList.remove("hidden"); 
-    this.eventHandlers?.removeAllEventListeners();
-    
-    const currentTime = this.clock.format(currentStats.time, true);
-    const newTime = newStats ? this.clock.format(newStats.time, true) : undefined;
-
-    const stats = {
-      currentStats: {
-        ...currentStats,
-        time: currentTime,
-      },
-      newStats: newStats ? { 
-        ...newStats, 
-        time: newTime 
-      } : undefined,
-    }
-
-    this.modal = new PuzzleStatsComponent(
-      this.container.querySelector(".container"), 
-      stats,
-      this.handleTryAgain.bind(this),
-      this.handleSave.bind(this),
-      this.addListeners.bind(this),
-    );
-
-    this.modal.render();
+  handleGoBack() {
+    this.destroy();
+    page.redirect("/");
   }
 
   handleTryAgain() {
-    this.destroy();
     page(`/puzzle/${this.puzzle.id}?retry=true`);
+    this.destroy();
   }
 
   async handleSave() {
@@ -159,12 +95,84 @@ export class PuzzleSolverComponent {
     this.newStats = undefined;
   }
 
-  handleUpdateMoves() {
-    this.moves.textContent = this.game.getMovesCount();
+  async handlePuzzleSolved() {
+    this.clock.stop();
+
+    this.newStats = {
+      moves: this.game.getMovesCount(),
+      time: this.clock.getSeconds(),
+    }
+
+    if (!this.puzzle.isSolved) 
+      await this.handleSave(this.newStats);
+
+    this.game.gameEventsHandler.hideControls();
+    this.showSolvedModal(this.puzzle.stats, this.newStats);
   }
 
-  handleGoBack() {
-    this.destroy();
-    page.redirect("/");
+  getUIElements() {
+    this.container.innerHTML = puzzleSolverHTML;
+
+    return {
+      mainContainerElement: this.container.querySelector(".container"),
+      gameContainerElement: document.getElementById("solver-container"),
+      backToSelectionBtn: document.getElementById("back-to-selection"),
+      showResultBtn: document.getElementById("show-result"),
+      moveCounterElement: document.querySelector(".move-counter"),
+      moveCountElement: document.getElementById("move-count"),
+      clockElement: document.querySelector(".game-clock"),
+    }
+  }
+
+  showSolvedState() {
+    this.ui.clockElement.hide();
+    this.ui.moveCounterElement.hide();
+    this.game.gameEventsHandler.hideControls();
+    this.game.gameEventsHandler.showSolvedPuzzle();
+    this.showSolvedModal(this.puzzle.stats);
+  }
+
+  showPlayableState() {
+    this.game.gameEventsHandler.showControls();
+    this.game.gameEventsHandler.enableAllGridListeners();
+    this.clock.start();
+  }
+
+  showSolvedModal(currentStats, newStats = undefined) {
+    this.ui.showResultBtn.display(); 
+    this.eventHandlers?.removeAllEventListeners();
+    
+    const currentTime = this.clock.format(currentStats.time, true);
+    const newTime = newStats ? this.clock.format(newStats.time, true) : undefined;
+
+    const stats = {
+      currentStats: {
+        ...currentStats,
+        time: currentTime,
+      },
+      newStats: newStats ? { 
+        ...newStats, 
+        time: newTime 
+      } : undefined,
+    }
+
+    this.modal = new PuzzleStatsComponent(
+      this.ui.mainContainerElement, 
+      stats,
+      this.handleTryAgain.bind(this),
+      this.handleSave.bind(this),
+      this.addListeners.bind(this),
+    );
+
+    this.modal.render();
+  }
+
+  destroy() {
+    this.eventHandlers?.removeAllEventListeners();
+    this.modal?.destroy();
+    this.clock?.destroy();
+    this.game?.destroy();
+
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

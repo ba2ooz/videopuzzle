@@ -4,6 +4,14 @@ export function createDomElementFromHtml(htmlString) {
   return domElement.firstElementChild;
 }
 
+HTMLElement.prototype.hide = function () {
+  this.classList.add("hidden");
+}
+
+HTMLElement.prototype.display = function () {
+  this.classList.remove("hidden");
+}
+
 /**
  * Adds an event listener to the specified element and stores the handler for future reference in a given map.
  *
