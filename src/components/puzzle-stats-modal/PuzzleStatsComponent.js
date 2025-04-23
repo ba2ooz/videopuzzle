@@ -13,31 +13,44 @@ export class PuzzleStatsComponent {
 
   render() {
     this.modal = createDomElementFromHtml(modalHTML);
-    this.modal.querySelector(".current-moves").innerText = this.data.currentStats.moves;
-    this.modal.querySelector(".current-time").innerText = this.data.currentStats.time;
-    this.modal.querySelector(".moves-rank").innerText = this.data.currentStats.movesRank;
-    this.modal.querySelector(".time-rank").innerText = this.data.currentStats.timeRank;
+    this.ui = this.getUIElements();
+
+    this.ui.currentMovesElement.innerText = this.data.currentStats.moves;
+    this.ui.currentTimeElement.innerText = this.data.currentStats.time;
+    this.ui.movesRankElement.innerText = this.data.currentStats.movesRank;
+    this.ui.timeRankElement.innerText = this.data.currentStats.timeRank;
 
     if(this.data.newStats) {
-      this.modal.querySelector(".new-moves").innerText = this.data.newStats.moves;
-      this.modal.querySelector(".new-time").innerText = this.data.newStats.time;
-      this.modal.querySelector(".new-stats").classList.remove("hidden");
-      this.modal.querySelector("#save").classList.remove("hidden");
+      this.ui.newMovesElement.innerText = this.data.newStats.moves;
+      this.ui.newTimeElement.innerText = this.data.newStats.time;
+      this.ui.newStatsElement.display();
+      this.ui.saveBtn.display();
     }
 
     this.container.appendChild(this.modal);
-
     this.addListeners();
   }
 
-  addListeners() {
-    this.closeModal = this.modal.querySelector(".close-button");
-    this.tryAgain = this.modal.querySelector("#try-again");
-    this.save = this.modal.querySelector("#save");
+  getUIElements() {
+    return {
+      currentMovesElement: this.modal.querySelector(".current-moves"),
+      currentTimeElement: this.modal.querySelector(".current-time"),
+      movesRankElement: this.modal.querySelector(".moves-rank"),
+      timeRankElement: this.modal.querySelector(".time-rank"),
 
+      newStatsElement: this.modal.querySelector(".new-stats"),
+      newMovesElement: this.modal.querySelector(".new-moves"),
+      newTimeElement: this.modal.querySelector(".new-time"),
+
+      closeModalBtn: this.modal.querySelector(".close-button"),
+      tryAgainBtn: this.modal.querySelector("#try-again"),
+      saveBtn: this.modal.querySelector("#save"),
+    };
+  }
+
+  addListeners() {
     this.eventHandlers.addAndStoreEventListener(
-      this.closeModal,
-      "pointerup",
+      this.ui.closeModalBtn, "pointerup",
       () => {
         this.destroy();
         this.onClose(); 
@@ -45,14 +58,11 @@ export class PuzzleStatsComponent {
     )
 
     this.eventHandlers.addAndStoreEventListener(
-      this.tryAgain,
-      "pointerup",
-      this.onTryAgain.bind(this)
+      this.ui.tryAgainBtn, "pointerup", this.onTryAgain.bind(this)
     )
 
     this.eventHandlers.addAndStoreEventListener(
-      this.save,
-      "pointerup",
+      this.ui.saveBtn, "pointerup",
       async () => {
         await this.onSave();
         this.destroy();
