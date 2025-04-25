@@ -1,14 +1,21 @@
 /* Error */
-.error-toast {
+.toast-container {
   position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   top: var(--spacing-4);
-  right: var(--spacing-4);
-  margin-left: var(--spacing-4);
+  right: var(--spacing-4); 
+  margin-left: var(--spacing-4); 
+}
+
+.error-toast {
+  position: relative;
   background-color: var(--color-danger-500);
   padding: var(--spacing-4);
   border-radius: var(--spacing-2);
   animation: 0.3s ease-out fadeIn;
-}
+} 
 
 .fade-out {
   animation: 0.3s ease-out fadeOut;
@@ -17,7 +24,7 @@
 .error-close-btn {
   position: absolute;
   top: var(--spacing-2);
-  right: var(--spacing-2);
+  right: var(--spacing-2);  
   background: none;
   border: none;
   color: var(--color-text-primary);

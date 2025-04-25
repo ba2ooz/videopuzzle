@@ -1,52 +1,117 @@
 import errorHTML from "bundle-text:./error-toast.html?raw";
 
 export class ErrorToast {
-  static toasts = [];
+  static container;
+  static toasts = new Map();
+  static AUTOHIDE_DELAY = 5000;
 
-  static show(message) {
-    // create element with error html
-    const toast = document.createElement("div");
-    toast.innerHTML = errorHTML;
+  static createStackableContainer() {
+    if (!ErrorToast.container) {
+      ErrorToast.container = document.createElement("div");
+      ErrorToast.container.className = "toast-container";
+      document.body.appendChild(ErrorToast.container);
+    }
 
-    // insert the error message text
-    const errorMsg = toast.querySelector(".error-message");
-    errorMsg.textContent = message;
-
-    // create a bound function for this specific toast
-    const boundClose = () => ErrorToast.close(toast);
-
-    // add close event listener on close btn
-    const closeBtn = toast.querySelector(".error-close-btn");
-    closeBtn.addEventListener("pointerup", boundClose);
-
-    // display the toast in the dom
-    document.body.appendChild(toast);
-
-    // automatically remove error message after delay
-    const autoRemoveTimeout = setTimeout( () => ErrorToast.close(toast), 5000);
-
-    // push toast object to toasts array for error stacking
-    ErrorToast.toasts.push({ toast, closeBtn, boundClose, autoRemoveTimeout });
+    return ErrorToast.container;
   }
 
-  static close(toast) {
-    const toastObj = ErrorToast.toasts.find((tObj) => tObj.toast === toast);
-    if (!toastObj) {
+  static show(message) {
+    const container = ErrorToast.createStackableContainer();
+    const toast = new Toast(message);
+    ErrorToast.toasts.set(toast.id, toast);
+    toast.show(container);
+  }
+
+  static close(toastId) {
+    const toast = ErrorToast.toasts.get(toastId);
+    if (!toast) {
       return;
     }
 
-    // remove close button listener
-    toastObj.closeBtn.removeEventListener("pointerup", toastObj.boundClose);
+    toast.close();
+    ErrorToast.toasts.delete(toastId);
+    if (ErrorToast.toasts.size === 0) {
+      ErrorToast.container.remove();
+    }
+  }
+}
 
-    // ensure the element is removed after animation ends
-    toastObj.toast.firstChild.classList.add("fade-out");
-    toastObj.toast.addEventListener(
-      "animationend", () => {
-        clearTimeout(toastObj.autoRemoveTimeout); // prevent timeout from running if manually closed
-        toastObj.toast.remove();
-      }, { once: true }
+class Toast {
+  element;
+  closeButton;
+  messageElement;
+  autoHideTimeout;
+  id;
+
+  constructor(message) {
+    this.id = crypto.randomUUID();
+    this.createToastElement();
+    this.setMessage(message);
+    this.setupCloseButton();
+    this.setupAutoHide();
+  }
+
+  get id() {
+    return this.id;
+  }
+
+  createToastElement() {
+    this.element = document.createElement("div");
+    this.element.innerHTML = errorHTML;
+    this.element.dataset.toastId = this.id;
+
+    this.messageElement = this.element.querySelector(".error-message");
+    this.closeButton = this.element.querySelector(".error-close-btn");
+
+    if (!this.messageElement || !this.closeButton) {
+      throw new Error("Failed to initialize toast elements");
+    }
+  }
+
+  setMessage(message) {
+    if (!message) {
+      return;
+    }
+    this.messageElement.textContent = message;
+  }
+
+  setupCloseButton() {
+    this.closeButton.addEventListener(
+      "pointerup",
+      () => ErrorToast.close(this.id),
+      { once: true }
     );
+  }
 
-    ErrorToast.toasts = ErrorToast.toasts.filter((t) => t !== toastObj);
+  setupAutoHide() {
+    this.autoHideTimeout = setTimeout(
+      () => ErrorToast.close(this.id),
+      ErrorToast.AUTOHIDE_DELAY
+    );
+  }
+
+  show(container) {
+    if (!container) {
+      return;
+    }
+    container.appendChild(this.element);
+  }
+
+  close() {
+    clearTimeout(this.autoHideTimeout);
+
+    const content = this.element.firstChild;
+    if (!content) {
+      return;
+    }
+
+    content.classList.add("fade-out");
+    content.addEventListener(
+      "animationend",
+      () => {
+        this.element.remove();
+      },
+      { once: true }
+    );
   }
 }
