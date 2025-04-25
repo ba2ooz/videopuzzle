@@ -3,7 +3,7 @@ import { PuzzleListComponent } from "../puzzle-list/PuzzleListComponent.js";
 import { NotFoundComponent } from "../not-found/NotFoundComponent.js";
 
 import { NotFoundError } from "../../services/errors/ServiceError.js";
-import { ErrorHandler } from "../error/ErrorHandler.js";
+import { ErrorHandler } from "../shared/error/ErrorHandler.js";
 import { catchError } from "../../utils/utils.js";
 
 import page from "page";

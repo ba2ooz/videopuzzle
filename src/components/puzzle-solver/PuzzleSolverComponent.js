@@ -3,7 +3,7 @@ import page from "page";
 
 import { PuzzleStatsComponent } from "../puzzle-stats-modal/PuzzleStatsComponent.js";
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
-import { ErrorHandler } from "../error/ErrorHandler.js";
+import { ErrorHandler } from "../shared/error/ErrorHandler.js";
 import { catchError } from "../../utils/utils.js";
 import { Clock } from "../shared/ui/Clock.js";
 
