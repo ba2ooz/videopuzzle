@@ -1,5 +1,5 @@
 import cardHTML from "bundle-text:./puzzle-card.html?raw";
-import { createDomElementFromHtml } from "../../utils/utils.js";
+import { createDomElementFromHtml } from "../../utils";
 
 export class PuzzleCardComponent {
   constructor(cardInfo, onSelect) {

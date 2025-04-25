@@ -3,7 +3,7 @@ import page from "page";
 
 import { PuzzleCardComponent } from "../puzzle-card/PuzzleCardComponent.js";
 import { ErrorHandler } from "../shared/error/ErrorHandler.js";
-import { catchError } from "../../utils/utils.js";
+import { catchError } from "../../utils";
 
 export class PuzzleListComponent {
   constructor(container, userPuzzleService) {

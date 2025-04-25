@@ -1,5 +1,5 @@
 import modalHTML from "bundle-text:./puzzle-stats-modal.html?raw";
-import { createDomElementFromHtml } from "../../utils/utils.js";
+import { createDomElementFromHtml } from "../../utils";
 
 export class PuzzleStatsComponent {
   constructor(container, data, onTryAgain, onSave, onClose) {

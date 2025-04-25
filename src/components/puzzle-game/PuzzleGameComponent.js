@@ -1,5 +1,5 @@
 import gameHTML from "bundle-text:./puzzle-game.html?raw";
-import { createDomElementFromHtml } from "../../utils/utils.js";
+import { createDomElementFromHtml } from "../../utils";
 
 import { GridAnimationController } from "../../animations/GridAnimationController.js";
 import { PuzzleGameEventsHandler } from "./PuzzleGameEventsHandler.js";

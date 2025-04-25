@@ -1,5 +1,5 @@
 import { ErrorInterceptor as ErrorInterceptor } from "./ErrorInterceptor";
-import { catchError } from "../../../utils/utils";
+import { catchError } from "../../../utils";
 
 export function interceptErrors(target, propertyKey, descriptor) {
   const originalMethod = descriptor.value;

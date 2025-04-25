@@ -2,7 +2,7 @@ import { SolvedPuzzleRepository } from "../db/SolvedPuzzleRepository";
 import { PuzzleRepository } from "../db/PuzzleRepository";
 import { UserService } from "./UserService";
 import { NotFoundError } from "../errors/ServiceError";
-import { catchError } from "../../utils/utils";
+import { catchError } from "../../utils";
 
 export class UserPuzzleService {
   /**

@@ -4,7 +4,7 @@ import page from "page";
 import { PuzzleStatsComponent } from "../puzzle-stats-modal/PuzzleStatsComponent.js";
 import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 import { ErrorHandler } from "../shared/error/ErrorHandler.js";
-import { catchError } from "../../utils/utils.js";
+import { catchError } from "../../utils";
 import { Clock } from "../shared/ui/Clock.js";
 import { UserPuzzleService } from "../../services/orchestration/UserPuzzleService.js";
 

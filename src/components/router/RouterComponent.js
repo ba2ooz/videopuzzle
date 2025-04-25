@@ -4,7 +4,7 @@ import { NotFoundComponent } from "../not-found/NotFoundComponent.js";
 
 import { NotFoundError } from "../../services/errors/ServiceError.js";
 import { ErrorHandler } from "../shared/error/ErrorHandler.js";
-import { catchError } from "../../utils/utils.js";
+import { catchError } from "../../utils";
 
 import page from "page";
 

@@ -1,6 +1,6 @@
 import { UserRepository } from "../db/UserRepository";
 import { NotFoundError } from "../errors/ServiceError";
-import { catchError } from "../../utils/utils";
+import { catchError } from "../../utils";
 
 export class UserService {
   /**
