@@ -1,19 +1,27 @@
-import { NotFoundError } from "./errors/ServiceError";
-import { catchError } from "../utils/utils";
+import { SolvedPuzzleRepository } from "../db/SolvedPuzzleRepository";
+import { PuzzleRepository } from "../db/PuzzleRepository";
+import { UserService } from "./UserService";
+import { NotFoundError } from "../errors/ServiceError";
+import { catchError } from "../../utils/utils";
 
 export class UserPuzzleService {
-  constructor(puzzleService, solvedPuzzleService, userService, rankService) {
-    this.puzzleService = puzzleService;
-    this.solvedPuzzleService = solvedPuzzleService;
+  /**
+   * @param {SolvedPuzzleRepository} solvedPuzzleRepository 
+   * @param {PuzzleRepository} puzzleRepository 
+   * @param {UserService} userService 
+   * 
+   */
+  constructor(solvedPuzzleRepository, puzzleRepository, userService) {
+    this.solvedPuzzleRepository = solvedPuzzleRepository;
+    this.puzzleRepository = puzzleRepository;
     this.userService = userService;
-    this.rankService = rankService;
   }
 
   async getUserPuzzles() {
     const userId = await this.userService.getOrCreateGuestUser();
-    const allPuzzles = await this.puzzleService.getAllPuzzles();
+    const allPuzzles = await this.puzzleRepository.getAllPuzzles();
     const solvedPuzzles =
-      await this.solvedPuzzleService.getSolvedPuzzlesForUser(userId);
+      await this.solvedPuzzleRepository.getSolvedPuzzles(userId);
 
     const solvedSet = new Set(solvedPuzzles.map((puzzle) => puzzle.puzzle_id));
 
@@ -25,11 +33,11 @@ export class UserPuzzleService {
     return allPuzzlesMapped;
   }
 
-  async getPuzzleForUser(puzzleId) {
+  async getUserPuzzle(puzzleId) {
     const userId = await this.userService.getOrCreateGuestUser();
-    const puzzle = await this.puzzleService.getPuzzleById(puzzleId);
+    const puzzle = await this.puzzleRepository.getPuzzleById(puzzleId);
     const [error, puzzleSolved] = await catchError(
-      this.solvedPuzzleService.getSolvedPuzzleForUser(userId, puzzleId)
+      this.solvedPuzzleRepository.getSolvedPuzzle(userId, puzzleId)
     );
 
     // ignore puzzle not found error
@@ -43,7 +51,7 @@ export class UserPuzzleService {
       };
     }
 
-    const ranks = await this.rankService.getPuzzleRankForUser(userId, puzzleId);
+    const ranks = await this.solvedPuzzleRepository.getSolvedPuzzleRank(userId, puzzleId);
 
     return { 
       ...puzzle, 
@@ -57,11 +65,11 @@ export class UserPuzzleService {
     };
   }
 
-  async saveSolvedPuzzleForUser(puzzleId, puzzleData) {
+  async saveUserPuzzle(puzzleId, puzzleData) {
     const userId = await this.userService.getOrCreateGuestUser();
     
     const [error, puzzleAlreadySolved] = await catchError(
-      this.solvedPuzzleService.getSolvedPuzzleForUser(userId, puzzleId)
+      this.solvedPuzzleRepository.getSolvedPuzzle(userId, puzzleId)
     );
 
     // If the puzzle is not found, we ignore the error
@@ -77,7 +85,7 @@ export class UserPuzzleService {
         time: puzzleData.time,
       };
 
-      return await this.solvedPuzzleService.updateSolvedPuzzle(
+      return await this.solvedPuzzleRepository.updateSolvedPuzzle(
         puzzleAlreadySolved.id,
         updatedPuzzle
       );
@@ -90,6 +98,6 @@ export class UserPuzzleService {
       time: puzzleData.time,
     };
 
-    return await this.solvedPuzzleService.createSolvedPuzzle(newPuzzle);
+    return await this.solvedPuzzleRepository.createSolvedPuzzle(newPuzzle);
   }
 }

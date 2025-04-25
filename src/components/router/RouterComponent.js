@@ -17,7 +17,7 @@ export class RouterComponent {
   // Middleware to check if the puzzle exists
   puzzleGuard = async (ctx, next) => {
     const [error, puzzle] = await catchError(
-      this.userPuzzleService.getPuzzleForUser(ctx.params.id)
+      this.userPuzzleService.getUserPuzzle(ctx.params.id)
     );
 
     if (error) {

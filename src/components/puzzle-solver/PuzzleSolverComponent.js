@@ -6,8 +6,13 @@ import { PuzzleGameComponent } from "../puzzle-game/PuzzleGameComponent.js";
 import { ErrorHandler } from "../shared/error/ErrorHandler.js";
 import { catchError } from "../../utils/utils.js";
 import { Clock } from "../shared/ui/Clock.js";
+import { UserPuzzleService } from "../../services/orchestration/UserPuzzleService.js";
 
 export class PuzzleSolverComponent {
+  /**
+   * 
+   * @param {UserPuzzleService} userPuzzleService 
+   */
   constructor(container, userPuzzleService, puzzle, retry) {
     this.userPuzzleService = userPuzzleService; 
     this.container = container;
@@ -77,14 +82,14 @@ export class PuzzleSolverComponent {
 
   async handleSave() {
     const [saveError, _] = await catchError(
-      this.userPuzzleService.saveSolvedPuzzleForUser(this.puzzle.id, this.newStats));
+      this.userPuzzleService.saveUserPuzzle(this.puzzle.id, this.newStats));
 
       if (saveError) {
       ErrorHandler.handle(saveError, saveError.metadata.context);
       return;
     }
 
-    const [refreshError, updatedPuzzle] = await catchError(this.userPuzzleService.getPuzzleForUser(this.puzzle.id));
+    const [refreshError, updatedPuzzle] = await catchError(this.userPuzzleService.getUserPuzzle(this.puzzle.id));
     if (refreshError) {
       ErrorHandler.handle(refreshError, refreshError.metadata.context);
       return;

@@ -1,20 +1,25 @@
-import { interceptErrors } from "./errors/middleware/ErrorInterceptorDecorator";
+import { interceptErrors } from "../errors/middleware/ErrorInterceptorDecorator";
 import pb from "./PocketBaseClient";
 
-export class PuzzleSolveService {
-  constructor() {}
-
+export class SolvedPuzzleRepository {
   @interceptErrors
-  async getSolvedPuzzlesForUser(userId) {
+  async getSolvedPuzzles(userId) {
     return await pb.collection("puzzles_solved").getFullList({
       filter: `user_id="${userId}"`,
     });
   }
 
   @interceptErrors
-  async getSolvedPuzzleForUser(userId, puzzleId) {
+  async getSolvedPuzzle(userId, puzzleId) {
     return await pb
       .collection("puzzles_solved")
+      .getFirstListItem(`user_id="${userId}" && puzzle_id="${puzzleId}"`);
+  }
+
+  @interceptErrors
+  async getSolvedPuzzleRank(userId, puzzleId) {
+    return await pb
+      .collection("ranked_stats")
       .getFirstListItem(`user_id="${userId}" && puzzle_id="${puzzleId}"`);
   }
 

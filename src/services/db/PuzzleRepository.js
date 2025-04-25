@@ -1,9 +1,7 @@
-import { interceptErrors } from "./errors/middleware/ErrorInterceptorDecorator";
+import { interceptErrors } from "../errors/middleware/ErrorInterceptorDecorator";
 import pb from "./PocketBaseClient";
 
-export class PuzzleService {
-  constructor() {}
-
+export class PuzzleRepository {
   @interceptErrors
   async getAllPuzzles() {
     return await pb.collection('puzzles').getFullList();
