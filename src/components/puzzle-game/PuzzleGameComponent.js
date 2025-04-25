@@ -1,11 +1,10 @@
 import gameHTML from "bundle-text:./puzzle-game.html?raw";
+import { createDomElementFromHtml } from "../../utils/utils.js";
 
+import { GridAnimationController } from "../../animations/GridAnimationController.js";
 import { PuzzleGameEventsHandler } from "./PuzzleGameEventsHandler.js";
 import { GLContext } from "../../core/GLcontext.js";
 import { Grid } from "../../core/puzzle/Grid.js";
-
-import { createDomElementFromHtml } from "../../utils/utils.js";
-import { GridAnimationController } from "../../animations/GridAnimationController.js";
 
 export class PuzzleGameComponent {
   constructor(container) {
@@ -13,50 +12,63 @@ export class PuzzleGameComponent {
     this.availableSneakPeeks = 2;
   }
 
-  setup(videoUrl) {
+  render(gameInfo) {
+    this.ui = this.getUIElements();
+    this.setupGameComponents(gameInfo.videoUrl);
+    this.renderFrameLoop();
+  }
+
+  renderFrameLoop = () => {
+    const tiles = this.gameGrid.getTiles();
+    this.glContext.sceneManager.render(tiles, (deltaTime) =>
+      this.animationController.updateAnimations(deltaTime)
+    );
+    this.animationFrameId = requestAnimationFrame(this.renderFrameLoop);
+  };
+
+  addListeners() {
+    this.gameEventsHandler = new PuzzleGameEventsHandler(this);
+  }
+
+  setupGameComponents(videoUrl) {
+    this.initGrid();
+    this.initGraphics(videoUrl);
+    this.addListeners();
+  }
+
+  initGrid() {
     // create the game logical grid
     const puzzleSize = 4;
     this.gameGrid = new Grid(puzzleSize);
     this.animationController = new GridAnimationController(puzzleSize);
+  }
 
+  initGraphics(videoUrl) {
     // get a WebGLRenderingContext to render the grid
-    const canvasEl = document.getElementById("video-canvas");
-    this.glContext = new GLContext(canvasEl, {
+    this.glContext = new GLContext(this.ui.canvasElement, {
       vertices: this.gameGrid.getVertices(),
       textures: this.gameGrid.getTextures(),
       indices: this.gameGrid.getIndices(),
     });
 
-    // add events listeners on the canvas
-    this.gameEventsHandler = new PuzzleGameEventsHandler(this);
-
     // remove the loading spinner once video loaded and store the promise for later use
     this.isReady = this.glContext.sceneManager
       .initVideoTexture(videoUrl)
-      .then((videoElement) => {
-        const loadingSpinner = document.querySelector(".loading-spinner");
-        loadingSpinner.classList.add("inactive");
-        return videoElement;
-      })
+      .then(() => this.ui.loadingSpinnerElement.hide())
       .catch((error) => {
-        throw new Error("\nGame initialization failed. " + error.message);
+        throw new Error("GLScene initialization failed. " + error.message);
       });
   }
 
-  render(gameInfo) {
-    this.gameElement = createDomElementFromHtml(gameHTML);
-    this.container.insertBefore(this.gameElement, this.container.firstChild);
-    this.setup(gameInfo.videoUrl);
-    this.loop();
-  }
+  getUIElements() {
+    const gameElement = createDomElementFromHtml(gameHTML);
+    this.container.insertBefore(gameElement, this.container.firstChild);
 
-  loop = () => {
-    const tiles = this.gameGrid.getTiles();
-    this.glContext.sceneManager.render(tiles, (deltaTime) =>
-      this.animationController.updateAnimations(deltaTime)
-    );
-    this.animationFrameId = requestAnimationFrame(this.loop);
-  };
+    return {
+      canvasElement: document.getElementById("video-canvas"),
+      loadingSpinnerElement: document.querySelector(".loading-spinner"),
+    }
+  }
 
   getMovesCount() {
     return this.gameGrid.getMovesCount();
@@ -74,19 +86,9 @@ export class PuzzleGameComponent {
     cancelAnimationFrame(this.animationFrameId);
     this.animationController.destroy();
     this.gameEventsHandler.destroy();
-    this.gameElement.remove();
     this.glContext.destroy();
     this.gameGrid.destroy();
 
-    this.animationController = null;
-    this.gameEventsHandler = null;
-    this.animationFrameId = null;
-    this.buffersManager = null;
-    this.shaderManager = null;
-    this.sceneManager = null;
-    this.gameElement = null;
-    this.glContext = null;
-    this.container = null;
-    this.gameGrid = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

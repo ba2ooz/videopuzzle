@@ -15,16 +15,19 @@ export class PuzzleGameEventsHandler {
     this.canvasAspectRatio = this.canvas.height / this.canvas.width;
     this.eventHandlers = new Map(); // store event handlers for easy removal
 
-    // shared state for pointer events
-    this.isPointerDown = false;
+    this.init();
+  }
 
-    // set the available sneak peeks
-    this.sneakPeeksMeta = document.getElementById("sneak-peaks-meta");
-    this.sneakPeeksMeta.textContent = this.game.getAvailableSneakPeeks();
-
+  init() {
+    this.ui = this.getUIElements();
+    this.ui.sneakPeeksMetaElement.textContent = this.game.getAvailableSneakPeeks();
+    
     // add event listeners
     this.enableAllGridListeners();
     this.resizeCanvas();
+
+    // shared state for pointer events
+    this.isPointerDown = false;
   }
 
   /**
@@ -133,11 +136,7 @@ export class PuzzleGameEventsHandler {
     // get the needed data
     const unshuffledTextures = this.grid.getOriginalTextures();
     const currentTextures = this.grid.getTextures();
-    const sneakPeekDelay =
-    this.game.animationController.createSneakPeekAnimations(
-      this.grid.getTiles()
-    );
-    
+    const sneakPeekDelay = this.game.animationController.createSneakPeekAnimations(this.grid.getTiles());
     const sneakPeekDuration = 8000; // ms
 
     // change textures after 500 ms and start the countdown
@@ -147,9 +146,7 @@ export class PuzzleGameEventsHandler {
 
     // wait the sneak peek duration then call sneak peek method again to trigger the end animation
     await delay(sneakPeekDelay + sneakPeekDuration);
-    this.game.animationController.createSneakPeekAnimations(
-      this.grid.getTiles()
-    );
+    this.game.animationController.createSneakPeekAnimations(this.grid.getTiles());
 
     // change textures back after 500 ms
     await delay(500);
@@ -158,7 +155,7 @@ export class PuzzleGameEventsHandler {
     // update available sneap peeks and register event handlers back once the animation is done
     await delay(sneakPeekDelay);
     this.game.useSneakPeek();
-    this.sneakPeeksMeta.textContent = this.game.getAvailableSneakPeeks();
+    this.ui.sneakPeeksMetaElement.textContent = this.game.getAvailableSneakPeeks();
     this.enableAllGridListeners();
   }
 
@@ -172,15 +169,17 @@ export class PuzzleGameEventsHandler {
    * Once the countdown reaches zero, the timer is cleared.
    */
   startSneakPeekCountdown(duration) {
-    let sneakPeekEndsInTime = duration / 1000; // seconds
-    const sneakPeekEndsInInterval = setInterval(() => {
-      if (sneakPeekEndsInTime > -1) {
-        this.sneakPeeksMeta.textContent = `ends in ${sneakPeekEndsInTime}s`;
-        sneakPeekEndsInTime--;
-      } else {
-        clearInterval(sneakPeekEndsInInterval);
-      }
-    }, 1000);
+    let timeleft = duration / 1000; // seconds
+    const sneakPeekInterval = 
+      setInterval(() => {
+        if (timeleft > -1) {
+          this.ui.sneakPeeksMetaElement.textContent = `ends in ${timeleft}s`;
+          timeleft--;
+          return;
+        } 
+
+        clearInterval(sneakPeekInterval);
+      }, 1000);
   }
 
   handleCheckWin() {
@@ -192,100 +191,40 @@ export class PuzzleGameEventsHandler {
   }
 
   /**
-   * Registers the grid interaction events
+   * Registers the grid interaction and buttons events
    */
-  addGridListeners() {
-    this.eventHandlers.addAndStoreEventListener(
-      this.canvas,
-      "pointerdown",
-      this.handleGridPointerDown.bind(this)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      window,
-      "pointermove",
-      this.handleGridPointerMove.bind(this)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      window,
-      "pointerup",
-      this.handleGridPointerUp.bind(this)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      window,
-      "resize",
-      this.resizeCanvas.bind(this)
-    );
-  }
+  addListeners() {
+    this.getGridEventHandlers()
+      .forEach(({ element, event, handler }) =>
+        this.eventHandlers.addAndStoreEventListener(element, event, handler)
+      );
 
-  /**
-   * Registers the grid buttons click events
-   */
-  addButtonListeners() {
-    this.upButton = document.getElementById("shift_UP");
-    this.downButton = document.getElementById("shift_DOWN");
-    this.leftButton = document.getElementById("shift_LEFT");
-    this.rightButton = document.getElementById("shift_RIGHT");
-    this.sneakPeekButton = document.getElementById("sneak-peak");
-
-    const eventType = "pointerup";
-    this.eventHandlers.addAndStoreEventListener(this.upButton, eventType, () =>
-      this.handleShiftButton(this.grid.shiftOnRows, Direction.UP)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      this.downButton,
-      eventType,
-      () => this.handleShiftButton(this.grid.shiftOnRows, Direction.DOWN)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      this.leftButton,
-      eventType,
-      () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.LEFT)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      this.rightButton,
-      eventType,
-      () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.RIGHT)
-    );
-    this.eventHandlers.addAndStoreEventListener(
-      this.sneakPeekButton,
-      eventType,
-      this.handleSneakPeekButton.bind(this)
-    );
+    this.getButtonEventHandlers()
+      .forEach(({ element, event, handler }) => 
+        this.eventHandlers.addAndStoreEventListener(element, event, handler)
+      );
   }
 
   enableAllGridListeners() {
-    this.addGridListeners();
-    this.addButtonListeners();
-    this.upButton.classList.remove("inactive");
-    this.downButton.classList.remove("inactive");
-    this.leftButton.classList.remove("inactive");
-    this.rightButton.classList.remove("inactive");
-    this.sneakPeekButton.classList.remove("inactive");
+    this.addListeners();
+    Object.values(this.ui.btn)
+      .forEach(btn => btn.enable());
   }
 
   disableAllGridListeners() {
     this.eventHandlers.removeAllEventListeners();
-    this.upButton.classList.add("inactive");
-    this.downButton.classList.add("inactive");
-    this.leftButton.classList.add("inactive");
-    this.rightButton.classList.add("inactive");
-    this.sneakPeekButton.classList.add("inactive");
+    Object.values(this.ui.btn)
+    .forEach(btn => btn.disable());
   }
 
   showControls() {
-    this.upButton.classList.remove("hidden");
-    this.downButton.classList.remove("hidden");
-    this.leftButton.classList.remove("hidden");
-    this.rightButton.classList.remove("hidden");
-    this.sneakPeekButton.classList.remove("hidden");
+    Object.values(this.ui.btn)
+      .forEach(btn => btn.display());
   }
 
   hideControls() {
-    this.upButton.classList.add("hidden");
-    this.downButton.classList.add("hidden");
-    this.leftButton.classList.add("hidden");
-    this.rightButton.classList.add("hidden");
-    this.sneakPeekButton.classList.add("hidden");
+    Object.values(this.ui.btn)
+      .forEach(btn => btn.hide());
   }
 
   showSolvedPuzzle() {
@@ -346,17 +285,42 @@ export class PuzzleGameEventsHandler {
     if (this.gl) {
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     }
-}
+  }
+
+  getUIElements() {
+    return { 
+      btn: {
+        up: document.getElementById("shift_UP"),
+        down: document.getElementById("shift_DOWN"),
+        left: document.getElementById("shift_LEFT"),
+        right: document.getElementById("shift_RIGHT"),
+        sneakPeek: document.getElementById("sneak-peak"),
+      },
+      sneakPeeksMetaElement: document.getElementById("sneak-peaks-meta"),
+    }
+  }
+
+  getButtonEventHandlers() {
+    return [
+      { element: this.ui.btn.up, event: "pointerup", handler: () => this.handleShiftButton(this.grid.shiftOnRows, Direction.UP) },
+      { element: this.ui.btn.down, event: "pointerup", handler: () => this.handleShiftButton(this.grid.shiftOnRows, Direction.DOWN) },
+      { element: this.ui.btn.left, event: "pointerup", handler: () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.LEFT) },
+      { element: this.ui.btn.right, event: "pointerup", handler: () => this.handleShiftButton(this.grid.shiftOnColumns, Direction.RIGHT) },
+      { element: this.ui.btn.sneakPeek, event: "pointerup", handler: () => this.handleSneakPeekButton() },
+    ]
+  }
+
+  getGridEventHandlers() {
+    return [
+      { element: this.canvas, event: "pointerdown", handler: this.handleGridPointerDown.bind(this) },
+      { element: window, event: "pointermove", handler: this.handleGridPointerMove.bind(this) },
+      { element: window, event: "pointerup", handler: this.handleGridPointerUp.bind(this) },
+      { element: window, event: "resize", handler: this.resizeCanvas.bind(this) },
+    ]
+  }
 
   destroy() {
     this.eventHandlers.removeAllEventListeners();
-    this.eventHandlers = null;
-    this.grid = null;
-    this.canvas = null;
-    this.canvasRect = null;
-    this.upButton = null;
-    this.downButton = null;
-    this.leftButton = null;
-    this.rightButton = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

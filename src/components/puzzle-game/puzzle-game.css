@@ -12,10 +12,6 @@
   animation: spin 1s linear infinite;
 }
 
-.loading-spinner.inactive {
-  display: none;
-}
-
 @keyframes spin {
   from {
     transform: translate(-50%, -50%) rotate(0deg);

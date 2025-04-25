@@ -312,7 +312,7 @@ export class Grid {
       const slice2 = rowTilesCopy.slice(0, shiftOffset); // copy from start to offset index
       const shiftedTilesCopy = slice1.concat(slice2);
 
-      // apply shifted textures to their respective tiles and apply animations
+      // apply shifted textures to their respective tiles
       rowTiles.forEach((tile, index) => {
         tile.swapTexture(shiftedTilesCopy[index]);
       });
