@@ -1,7 +1,7 @@
 import gameHTML from "bundle-text:./puzzle-game.html?raw";
 import { createDomElementFromHtml } from "../../utils";
 
-import { GridAnimationController } from "../../animations/GridAnimationController.js";
+import { GridAnimationController } from "../../animations";
 import { PuzzleGameEventsHandler } from "./PuzzleGameEventsHandler.js";
 import { GLContext } from "../../core/GLcontext.js";
 import { Grid } from "../../core/puzzle/Grid.js";

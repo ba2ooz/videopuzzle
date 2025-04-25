@@ -1,6 +1,4 @@
-import { SneakPeekAnimation } from "./SneakPeekAnimation";
-import { TileSwapAnimation } from "./TileSwapAnimation";
-import { TileWinAnimation } from "./TileWinAnimation";
+import { TileWinAnimation, TileSwapAnimation, TileSneakPeekAnimation} from "./";
 
 export class GridAnimationController {
   constructor(gridSize) {
@@ -19,7 +17,7 @@ export class GridAnimationController {
       // apply sneak peek animation for each tile
       rowTiles.forEach((tile, index) => {
         const tileAnimationDelay = index * baseDelay;
-        const animation = new SneakPeekAnimation(
+        const animation = new TileSneakPeekAnimation(
           tile,
           totalAnimationDuration,
           tileAnimationDelay

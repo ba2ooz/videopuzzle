@@ -1,13 +1,12 @@
-import { TileAnimation } from "./TileAnimation";
-import { AnimationUtils } from "./AnimationUtils";
+import { TileAnimation, AnimationUtils } from "..";
 
-export class SneakPeekAnimation extends TileAnimation {
+export class TileWinAnimation extends TileAnimation {
   constructor(tile, totalDuration, delay = 0) {
     // make total duration longer to account for all tiles
-    super(tile, totalDuration);
+    super(tile, totalDuration + 1000);
     this.delay = delay;
     this.initialScale = 1.0;
-    this.targetScale = 1.3;
+    this.targetScale = 1.1;
     this.initialZ = tile.initialZ;
   }
 
@@ -22,7 +21,7 @@ export class SneakPeekAnimation extends TileAnimation {
     const scale = this.lerp(
       this.targetScale,
       this.initialScale,
-      AnimationUtils.easeOutBackTwiceStylized(tileProgress, 0.1, 0.75)
+      AnimationUtils.easeOutBackTwiceStylized(tileProgress, 0.25, 0.1)
     );
 
     this.tile.currentZ = 0.01;

@@ -1,4 +1,4 @@
-import { TileAnimation } from "./TileAnimation.js";
+import { TileAnimation } from "..";
 
 export class TileSwapAnimation extends TileAnimation {
   constructor(tile, startPos, zFactor = 1) {
