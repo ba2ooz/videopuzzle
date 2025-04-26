@@ -1,9 +1,9 @@
-import { SolvedPuzzleRepository } from "../db/SolvedPuzzleRepository.js";
-import { PuzzleRepository } from "../db/PuzzleRepository.js";
-import { UserRepository } from "../db/UserRepository.js";
+import { SolvedPuzzleRepository } from "../db/SolvedPuzzleRepository";
+import { PuzzleRepository } from "../db/PuzzleRepository";
+import { UserRepository } from "../db/UserRepository";
 
-import { UserPuzzleService } from "../orchestration/UserPuzzleService.js";
-import { UserService } from "../orchestration/UserService.js";
+import { UserPuzzleService } from "../orchestration/UserPuzzleService";
+import { UserService } from "../orchestration/UserService";
 
 
 export class ServiceContainer {

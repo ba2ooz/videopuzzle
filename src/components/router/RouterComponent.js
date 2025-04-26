@@ -1,5 +1,5 @@
 import { PuzzleSolverComponent, PuzzleListComponent, NotFoundComponent, ErrorHandler } from "../";
-import { NotFoundError } from "../../services/errors/ServiceError.js";
+import { NotFoundError } from "../../services";
 import { catchError } from "../../utils";
 
 import page from "page";

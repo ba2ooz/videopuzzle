@@ -1,5 +1,5 @@
 import { RouterComponent, ErrorHandler, ErrorToast } from "./components";
-import { ServiceContainer } from "./services/di/ServiceContainer.js";
+import { ServiceContainer } from "./services";
 
 const serviceContainer = new ServiceContainer();
 serviceContainer.initialize();

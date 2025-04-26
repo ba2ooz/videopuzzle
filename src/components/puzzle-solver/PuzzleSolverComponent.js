@@ -2,8 +2,8 @@ import puzzleSolverHTML from "bundle-text:./puzzle-solver.html?raw";
 import page from "page";
 
 import { PuzzleGameComponent, PuzzleStatsComponent, Clock, ErrorHandler } from "../";
+import { UserPuzzleService } from "../../services";
 import { catchError } from "../../utils";
-import { UserPuzzleService } from "../../services/orchestration/UserPuzzleService.js";
 
 export class PuzzleSolverComponent {
   /**
