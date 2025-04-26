@@ -1,6 +1,4 @@
-import { RouterComponent } from "./components/router/RouterComponent.js";
-import { ErrorHandler } from "./components/shared/error/ErrorHandler.js";
-import { ErrorToast } from "./components/shared/error/ErrorToast.js";
+import { RouterComponent, ErrorHandler, ErrorToast } from "./components";
 import { ServiceContainer } from "./services/di/ServiceContainer.js";
 
 const serviceContainer = new ServiceContainer();

@@ -1,9 +1,5 @@
-import { PuzzleSolverComponent } from "../puzzle-solver/PuzzleSolverComponent.js";
-import { PuzzleListComponent } from "../puzzle-list/PuzzleListComponent.js";
-import { NotFoundComponent } from "../not-found/NotFoundComponent.js";
-
+import { PuzzleSolverComponent, PuzzleListComponent, NotFoundComponent, ErrorHandler } from "../";
 import { NotFoundError } from "../../services/errors/ServiceError.js";
-import { ErrorHandler } from "../shared/error/ErrorHandler.js";
 import { catchError } from "../../utils";
 
 import page from "page";

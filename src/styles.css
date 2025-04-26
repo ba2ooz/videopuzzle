@@ -1,9 +1,3 @@
 @import "global.css";
-@import "./components/not-found/not-found.css";
-@import "./components/puzzle-solver/puzzle-solver.css";
-@import "./components/puzzle-card/puzzle-card.css";
-@import "./components/puzzle-list/puzzle-list.css";
-@import "./components/puzzle-game/puzzle-game.css";
-@import "./components/error/error-toast.css";
-@import "./components/puzzle-stats-modal/puzzle-stats-modal.css";
+@import "./components/styles.css";
 @import "./shared.css";

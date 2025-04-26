@@ -1,0 +1,7 @@
+@import "./not-found/not-found.css";
+@import "./puzzle-solver/puzzle-solver.css";
+@import "./puzzle-card/puzzle-card.css";
+@import "./puzzle-list/puzzle-list.css";
+@import "./puzzle-game/puzzle-game.css";
+@import "./shared/error/error-toast.css";
+@import "./puzzle-stats-modal/puzzle-stats-modal.css";

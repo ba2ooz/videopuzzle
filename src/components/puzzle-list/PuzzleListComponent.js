@@ -1,8 +1,7 @@
 import cardListHTML from "bundle-text:./puzzle-list.html?raw";
 import page from "page";
 
-import { PuzzleCardComponent } from "../puzzle-card/PuzzleCardComponent.js";
-import { ErrorHandler } from "../shared/error/ErrorHandler.js";
+import { PuzzleCardComponent, ErrorHandler } from "../";
 import { catchError } from "../../utils";
 
 export class PuzzleListComponent {

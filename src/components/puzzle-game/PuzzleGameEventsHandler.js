@@ -1,5 +1,5 @@
 import { Direction } from "../../core/puzzle/Direction.js";
-import { PuzzleGameComponent } from "./PuzzleGameComponent.js";
+import { PuzzleGameComponent } from "../";
 
 export class PuzzleGameEventsHandler {
   /**
