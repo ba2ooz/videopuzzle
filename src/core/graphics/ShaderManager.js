@@ -130,12 +130,9 @@ export class ShaderManager {
   }
 
   destroy() {
-    this.gl.deleteProgram(this.program);
-    this.attributes.clear();
-    this.uniforms.clear();
-    this.attributes = null;
-    this.uniforms = null;
-    this.program = null;
-    this.gl = null;
+    this.gl?.deleteProgram(this.program);
+    this.attributes?.clear();
+    this.uniforms?.clear();
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

@@ -1,9 +1,9 @@
 import fragmentShader from "bundle-text:./shader.frag?raw";
 import vertexShader from "bundle-text:./shader.vert?raw";
 
-import { BuffersManager } from "./graphics/BuffersManager.js";
-import { ShaderManager } from "./graphics/ShaderManager.js";
-import { SceneManager } from "./graphics/SceneManager.js";
+import { BuffersManager } from "./graphics/BuffersManager";
+import { ShaderManager } from "./graphics/ShaderManager";
+import { SceneManager } from "./graphics/SceneManager";
 
 export class GLContext {
 
@@ -100,14 +100,10 @@ export class GLContext {
   }
 
   destroy() {
-    this.buffersManager.destroy();
-    this.shaderManager.destroy();
-    this.sceneManager.destroy();
+    this.buffersManager?.destroy();
+    this.shaderManager?.destroy();
+    this.sceneManager?.destroy();
     this.cleanUpWebGLResources();
-    this.buffersManager = null;
-    this.shaderManager = null;
-    this.sceneManager = null;
-    this.canvas = null;
-    this.gl = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

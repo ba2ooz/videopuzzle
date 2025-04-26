@@ -1,7 +1,7 @@
-import { BuffersManager } from "./BuffersManager.js";
-import { ShaderManager } from "./ShaderManager.js";
-import { VideoManager } from "./VideoManager.js";
-import { Tile } from "../puzzle/Tile.js";
+import { BuffersManager } from "./BuffersManager";
+import { ShaderManager } from "./ShaderManager";
+import { VideoManager } from "./VideoManager";
+import { Tile } from "../puzzle/Tile";
 import { mat4 } from "gl-matrix";
 
 /**
@@ -148,13 +148,8 @@ export class SceneManager {
   }
 
   destroy() {
-    this.video.destroy();
+    this.video?.destroy();
 
-    this.projectionMatrix = null;
-    this.buffersManager = null;
-    this.shaderManager = null;
-    this.lastFrameTime = null;
-    this.video = null;
-    this.gl = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

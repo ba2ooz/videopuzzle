@@ -100,9 +100,8 @@ export class VideoManager {
   }
 
   destroy() {
-    this.gl.deleteTexture(this.texture);
+    this.gl?.deleteTexture(this.texture);
     this.videoElement.src = "";
-    this.videoElement = null;
-    this.gl = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

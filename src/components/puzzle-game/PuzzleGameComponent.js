@@ -3,8 +3,7 @@ import { createDomElementFromHtml } from "../../utils";
 
 import { PuzzleGameEventsHandler } from "../";
 import { GridAnimationController } from "../../animations";
-import { GLContext } from "../../core/GLcontext.js";
-import { Grid } from "../../core/puzzle/Grid.js";
+import { Grid, GLContext } from "../../core";
 
 export class PuzzleGameComponent {
   constructor(container) {

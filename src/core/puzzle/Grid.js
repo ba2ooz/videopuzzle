@@ -1,5 +1,5 @@
-import { Direction } from "./Direction.js";
-import { Tile } from "./Tile.js";
+import { Direction } from "./Direction";
+import { Tile } from "./Tile";
 
 /**
  * Holds and manages the game grid state
@@ -388,12 +388,7 @@ export class Grid {
   }
 
   destroy() {
-    this.tiles.forEach((tile) => tile.destroy());
-    this.highlightedTile = null;
-    this.draggedTile = null;
-    this.vertices = null;
-    this.indices = null;
-    this.tiles = null;
-    this.moves = null;
+    this.tiles?.forEach((tile) => tile.destroy());
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

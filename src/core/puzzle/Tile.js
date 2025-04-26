@@ -236,7 +236,6 @@ export class Tile {
   }
 
   destroy() {
-    this.texture = null;
-    this.modelMatrix = null;
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }

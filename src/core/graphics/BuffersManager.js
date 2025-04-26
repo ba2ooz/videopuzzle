@@ -137,14 +137,11 @@ export class BuffersManager {
   }
 
   destroy() {
-    this.eventHandlers.removeAllEventListeners();
-    this.gl.deleteBuffer(this.textureCoordBuffer);
-    this.gl.deleteBuffer(this.positionBuffer);
-    this.gl.deleteBuffer(this.indexBuffer);
-    this.textureCoordBuffer = null; 
-    this.positionBuffer = null;
-    this.indexBuffer = null;
-    this.config = null;
-    this.gl = null;
+    this.eventHandlers?.removeAllEventListeners();
+    this.gl?.deleteBuffer(this.textureCoordBuffer);
+    this.gl?.deleteBuffer(this.positionBuffer);
+    this.gl?.deleteBuffer(this.indexBuffer);
+    
+    Object.keys(this).forEach(key => this[key] = null);
   }
 }
