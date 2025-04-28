@@ -59,6 +59,10 @@ export class PuzzleSolverComponent {
     );
 
     this.eventHandlers.addAndStoreEventListener(
+      document, "unshuffled_start", this.handlePuzzleSolvedStart.bind(this)
+    );
+
+    this.eventHandlers.addAndStoreEventListener(
       document, "unshuffled", this.handlePuzzleSolved.bind(this)
     );
   }
@@ -97,7 +101,7 @@ export class PuzzleSolverComponent {
     this.newStats = undefined;
   }
 
-  async handlePuzzleSolved() {
+  async handlePuzzleSolvedStart() {
     this.clock.stop();
 
     this.newStats = {
@@ -107,7 +111,9 @@ export class PuzzleSolverComponent {
 
     if (!this.puzzle.isSolved) 
       await this.handleSave(this.newStats);
+  }
 
+  async handlePuzzleSolved() {
     this.game.gameEventsHandler.hideControls();
     this.showSolvedModal(this.puzzle.stats, this.newStats);
   }

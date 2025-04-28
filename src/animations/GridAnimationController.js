@@ -45,6 +45,8 @@ export class GridAnimationController {
         );
       });
     }
+
+    return totalAnimationDuration;
   }
 
   createSwapAnimation(sourceTile, targetTile) {

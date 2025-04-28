@@ -182,11 +182,13 @@ export class PuzzleGameEventsHandler {
       }, 1000);
   }
 
-  handleCheckWin() {
+  async handleCheckWin() {
     if (this.grid.isUnshuffled()) {
-      this.game.animationController.createWinAnimations(this.grid.getTiles());
-      setTimeout(this.notifyUnshuffled, 1600); // allow the animation to finish before notifying listeners
       this.disableAllGridListeners();
+      this.notifyUnshuffledStart();
+      const animationDuration = this.game.animationController.createWinAnimations(this.grid.getTiles());
+      await new Promise(resolve => setTimeout(resolve, animationDuration)); // allow the animation to finish before notifying listeners of completion
+      this.notifyUnshuffledComplete(); 
     }
   }
 
@@ -250,7 +252,11 @@ export class PuzzleGameEventsHandler {
     );
   }
 
-  notifyUnshuffled() {
+  notifyUnshuffledStart() {
+    document.dispatchEvent(new CustomEvent("unshuffled_start"));
+  }
+
+  notifyUnshuffledComplete() {
     document.dispatchEvent(new CustomEvent("unshuffled"));
   }
 
