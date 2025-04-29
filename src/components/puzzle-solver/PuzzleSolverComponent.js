@@ -10,11 +10,13 @@ export class PuzzleSolverComponent {
    * 
    * @param {UserPuzzleService} userPuzzleService 
    */
-  constructor(container, userPuzzleService, puzzle, retry) {
+  constructor(container, userPuzzleService, puzzle, retry, tutorial) {
     this.userPuzzleService = userPuzzleService; 
     this.container = container;
     this.puzzle = puzzle;
     this.retry = retry;
+    this.tutorial = tutorial;
+    console.log("should be tutorial", this.tutorial);
     this.eventHandlers = new Map(); // store event handlers for easy removal
   }
 

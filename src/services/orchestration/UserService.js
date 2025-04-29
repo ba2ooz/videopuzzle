@@ -9,21 +9,12 @@ export class UserService {
   constructor(userRepository) {
     this.userRepository = userRepository;
     this.STORAGE_USER_KEY = "guestUser";
+    this.cachedUserId = null;
   }
 
   async getOrCreateGuestUser() {
-    const storedUserId = localStorage.getItem(this.STORAGE_USER_KEY);
-
-    const [error, existingUser] = await catchError(
-      this.userRepository.getUserById(storedUserId)
-    );
-
-    // If the user is not found, we can ignore the error
-    // because we will create a new guest user
-    if (error && !(error instanceof NotFoundError)) 
-        throw error;
-
-    if (existingUser) 
+    const storedUserId = await this.getUser();
+    if (storedUserId) 
         return storedUserId;
 
     const guestUser = this.generateGuestUserRecord();
@@ -31,6 +22,29 @@ export class UserService {
     localStorage.setItem(this.STORAGE_USER_KEY, guestUserRecord.id);
 
     return guestUserRecord.id;
+  }
+
+  async getUser() {
+    if (this.cachedUserId) 
+        return this.cachedUserId;
+
+    const storedUserId = localStorage.getItem(this.STORAGE_USER_KEY);
+    if (!storedUserId) 
+        return null;
+
+    const [error, user] = await catchError(
+      this.userRepository.getUserById(storedUserId)
+    );
+
+    if (error) {
+      if (error instanceof NotFoundError) 
+        return null;
+
+      throw error;
+    }
+
+    this.cachedUserId = user.id;
+    return user.id;
   }
 
   generateGuestUserRecord() {

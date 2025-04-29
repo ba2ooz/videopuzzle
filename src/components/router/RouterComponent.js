@@ -1,4 +1,9 @@
-import { PuzzleSolverComponent, PuzzleListComponent, NotFoundComponent, ErrorHandler } from "../";
+import {
+  PuzzleSolverComponent,
+  PuzzleListComponent,
+  NotFoundComponent,
+  ErrorHandler,
+} from "../";
 import { NotFoundError } from "../../services";
 import { catchError } from "../../utils";
 
@@ -7,8 +12,19 @@ import page from "page";
 export class RouterComponent {
   constructor(appContainer, services) {
     this.appContainer = appContainer;
+    this.userService = services.get("userService");
     this.userPuzzleService = services.get("userPuzzleService");
   }
+
+  // Add new middleware for tutorial initialization
+  initializeTutorial = async (ctx, next) => {
+    if (!this.isUserInitialized) {
+      const user = await this.userService.getUser();
+      this.isTutorialRequired = !!!user;
+    }
+
+    next();
+  };
 
   // Middleware to check if the puzzle exists
   puzzleGuard = async (ctx, next) => {
@@ -21,7 +37,7 @@ export class RouterComponent {
         page.redirect("/*");
       } else {
         ErrorHandler.handle(error, error.metadata.context);
-      } 
+      }
 
       return;
     }
@@ -31,6 +47,8 @@ export class RouterComponent {
   };
 
   start() {
+    page(this.initializeTutorial);
+
     // Set up page.js routes
     page("/", () => {
       const puzzleListPage = new PuzzleListComponent(
@@ -45,7 +63,8 @@ export class RouterComponent {
         this.appContainer,
         this.userPuzzleService,
         ctx.puzzle,
-        ctx.querystring === 'retry=true'
+        ctx.querystring === "retry=true",
+        this.isTutorialRequired
       );
       puzzleSolverPage.render();
     });
