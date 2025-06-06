@@ -6,8 +6,9 @@ import { GridAnimationController } from "../../animations";
 import { Grid, GLContext } from "../../core";
 
 export class PuzzleGameComponent {
-  constructor(container) {
+  constructor(container, grid) {
     this.container = container;
+    this.gameGrid = grid;
     this.availableSneakPeeks = 2;
   }
 
@@ -38,7 +39,7 @@ export class PuzzleGameComponent {
   initGrid() {
     // create the game logical grid
     const puzzleSize = 4;
-    this.gameGrid = new Grid(puzzleSize);
+    // this.gameGrid = new Grid(puzzleSize);
     this.animationController = new GridAnimationController(puzzleSize);
   }
 
@@ -65,6 +66,7 @@ export class PuzzleGameComponent {
 
     return {
       canvasElement: document.getElementById("video-canvas"),
+      puzzleBoardElement: gameElement.querySelector(".puzzle-board"),
       loadingSpinnerElement: document.querySelector(".loading-spinner"),
     }
   }

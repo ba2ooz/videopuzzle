@@ -18,8 +18,9 @@ export class PuzzleListComponent {
 
   async getAndRenderPuzzles() {
     const [error, puzzles] = await catchError(this.userPuzzleService.getUserPuzzles());
+    console.log(error);
     if (error) {
-      ErrorHandler.handle(error, error.metadata.context);
+      ErrorHandler.handle(error, error.metadata?.context || this.constructor.name);
       this.destroy();
       return;
     }

@@ -1,17 +1,17 @@
 import puzzleSolverHTML from "bundle-text:./puzzle-solver.html?raw";
 import page from "page";
 
-import { PuzzleGameComponent, PuzzleStatsComponent, Clock, ErrorHandler } from "../";
+import { PuzzleGameComponent, PuzzleStatsComponent, Clock, ErrorHandler } from "..";
 import { UserPuzzleService } from "../../services";
 import { catchError } from "../../utils";
 import { Grid } from "../../core";
 
-export class PuzzleSolverComponent {
+export class PuzzleSolverBaseComponent {
   /**
    * 
    * @param {UserPuzzleService} userPuzzleService 
    */
-  constructor(container, userPuzzleService, puzzle, retry = false) {
+  constructor(container, userPuzzleService, puzzle, retry) {
     this.userPuzzleService = userPuzzleService; 
     this.container = container;
     this.puzzle = puzzle;
@@ -21,20 +21,13 @@ export class PuzzleSolverComponent {
 
   async render() {
     this.ui = this.getUIElements();
-    this.clock = new Clock(this.ui.clockElement);
     await this.initGame();
     this.addListeners();
-
-    if(this.puzzle.isSolved && !this.retry) {
-      this.showSolvedState();
-    } else {
-      this.showPlayableState();
-    }
   }
 
   async initGame() {
-    const grid = this.getGameGrid();
-    this.game = new PuzzleGameComponent(this.ui.gameContainerElement, grid);
+    this.clock = new Clock(this.ui.clockElement);
+    this.game = new PuzzleGameComponent(this.ui.gameContainerElement, this.getGameGrid());
     this.game.render(this.puzzle);
     this.game.gameEventsHandler.disableAllListeners();
 
@@ -47,12 +40,13 @@ export class PuzzleSolverComponent {
   }
 
   getGameGrid() {
-    return new Grid(4);
+    throw new Error(`${this.getGameGrid.name} must be implemented`);
   }
 
   addListeners() {
     this.eventHandlers.addAndStoreEventListener(
-      this.ui.showResultBtn, "pointerup", this.handleShowResult.bind(this)
+      this.ui.showResultBtn, "pointerup", 
+      () => this.showSolvedModal(this.puzzle.stats, this.newStats)
     );
 
     this.eventHandlers.addAndStoreEventListener(
@@ -70,10 +64,6 @@ export class PuzzleSolverComponent {
     this.eventHandlers.addAndStoreEventListener(
       document, "unshuffled", this.handlePuzzleSolved.bind(this)
     );
-  }
-
-  handleShowResult() {
-    this.showSolvedModal(this.puzzle.stats, this.newStats);
   }
 
   handleUpdateMoves() {
@@ -141,19 +131,7 @@ export class PuzzleSolverComponent {
     }
   }
 
-  showSolvedState() {
-    this.ui.clockElement.hide();
-    this.ui.moveCounterElement.hide();
-    this.game.gameEventsHandler.hideControls();
-    this.game.gameEventsHandler.showSolvedPuzzle();
-    this.showSolvedModal(this.puzzle.stats);
-  }
 
-  showPlayableState() {
-    this.game.gameEventsHandler.showControls();
-    this.game.gameEventsHandler.enableAllListeners();
-    this.clock.start();
-  }
 
   showSolvedModal(currentStats, newStats = undefined) {
     this.ui.showResultBtn.display(); 
@@ -173,10 +151,6 @@ export class PuzzleSolverComponent {
       } : undefined,
     }
 
-    this.renderStatsModal(stats);
-  }
-
-  renderStatsModal(stats) {
     this.modal = new PuzzleStatsComponent(
       this.ui.mainContainerElement, 
       stats,

@@ -1,3 +1,6 @@
+export { PuzzleSolverTutorialComponent } from "./puzzle-solver/PuzzleSolverTutorialComponent";
+export { PuzzleStatsTutorialComponent } from "./puzzle-stats-modal/PuzzleStatsTutorialComponent";
+export { PuzzleGameTutorialComponent } from "./puzzle-game-tutorial/PuzzleGameTutorialComponent";
 export { PuzzleGameEventsHandler } from "./puzzle-game/PuzzleGameEventsHandler";
 export { PuzzleSolverComponent } from "./puzzle-solver/PuzzleSolverComponent";
 export { PuzzleStatsComponent } from "./puzzle-stats-modal/PuzzleStatsComponent";

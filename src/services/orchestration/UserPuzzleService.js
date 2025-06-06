@@ -18,7 +18,7 @@ export class UserPuzzleService {
   }
 
   async getUserPuzzles() {
-    const userId = await this.userService.getOrCreateGuestUser();
+    const userId = (await this.userService.getOrCreateGuestUser()).id;
     const allPuzzles = await this.puzzleRepository.getAllPuzzles();
     const solvedPuzzles =
       await this.solvedPuzzleRepository.getSolvedPuzzles(userId);
@@ -34,7 +34,7 @@ export class UserPuzzleService {
   }
 
   async getUserPuzzle(puzzleId) {
-    const userId = await this.userService.getOrCreateGuestUser();
+    const userId = (await this.userService.getOrCreateGuestUser()).id;
     const puzzle = await this.puzzleRepository.getPuzzleById(puzzleId);
     const [error, puzzleSolved] = await catchError(
       this.solvedPuzzleRepository.getSolvedPuzzle(userId, puzzleId)
@@ -66,7 +66,7 @@ export class UserPuzzleService {
   }
 
   async saveUserPuzzle(puzzleId, puzzleData) {
-    const userId = await this.userService.getOrCreateGuestUser();
+    const userId = (await this.userService.getOrCreateGuestUser()).id;
     
     const [error, puzzleAlreadySolved] = await catchError(
       this.solvedPuzzleRepository.getSolvedPuzzle(userId, puzzleId)

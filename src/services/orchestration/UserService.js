@@ -9,33 +9,21 @@ export class UserService {
   constructor(userRepository) {
     this.userRepository = userRepository;
     this.STORAGE_USER_KEY = "guestUser";
-    this.cachedUserId = null;
-  }
-
-  async getOrCreateGuestUser() {
-    const storedUserId = await this.getUser();
-    if (storedUserId) 
-        return storedUserId;
-
-    const guestUser = this.generateGuestUserRecord();
-    const guestUserRecord = await this.userRepository.createGuestUser(guestUser);
-    localStorage.setItem(this.STORAGE_USER_KEY, guestUserRecord.id);
-
-    return guestUserRecord.id;
+    this.cachedUser = null;
   }
 
   async getUser() {
-    if (this.cachedUserId) 
-        return this.cachedUserId;
+    if (this.cachedUser) 
+        return UserDto.parse(this.cachedUser);
 
-    const storedUserId = localStorage.getItem(this.STORAGE_USER_KEY);
-    if (!storedUserId) 
+    // get user from local storage
+    const storedUserJson = localStorage.getItem(this.STORAGE_USER_KEY);
+    const storedUser = UserDto.parse(storedUserJson);
+    if (!storedUser?.id?.trim()) 
         return null;
 
-    const [error, user] = await catchError(
-      this.userRepository.getUserById(storedUserId)
-    );
-
+    // make sure user exists in the database
+    const [error, user] = await catchError(this.userRepository.getUserById(storedUser.id.trim()));
     if (error) {
       if (error instanceof NotFoundError) 
         return null;
@@ -43,8 +31,36 @@ export class UserService {
       throw error;
     }
 
-    this.cachedUserId = user.id;
-    return user.id;
+    return user;
+  }
+
+  async getOrCreateGuestUser() {
+    //get local user
+    const storedUserJson = await this.getUser();
+    if (storedUserJson) {
+      return storedUserJson; 
+    }
+
+    // no cached user, create new guest user
+    const guestUser = this.generateGuestUserRecord();
+    const guestUserRecord = await this.userRepository.createGuestUser(guestUser);
+    this.updateCachedUser(guestUserRecord);
+
+    return guestUserRecord; 
+  }
+
+  updateCachedUser(userObj) {
+    const userJson = UserDto.stringify(userObj);
+    localStorage.setItem(this.STORAGE_USER_KEY, userJson);
+    this.cachedUser = userJson;
+  }
+
+  async saveUserTutorial() {
+    const user = await this.getUser();
+    const updatedUser = await this.userRepository.updateUser(user.id, { tutorialCompleted: true });
+    this.updateCachedUser(updatedUser);
+    
+    return updatedUser;
   }
 
   generateGuestUserRecord() {
@@ -54,5 +70,27 @@ export class UserService {
       password: guestUserPass,
       passwordConfirm: guestUserPass,
     };
+  }
+}
+
+class UserDto {
+  static normalize(obj) {
+    return {
+      id: obj?.id ?? null,
+      tutorialCompleted: obj?.tutorialCompleted ?? null,
+    };
+  }
+
+  static stringify(obj) {
+    return JSON.stringify(UserDto.normalize(obj));
+  }
+
+  static parse(jsonString) {
+    try {
+      const parsed = JSON.parse(jsonString);
+      return UserDto.normalize(parsed);
+    } catch {
+      return null; 
+    }
   }
 }

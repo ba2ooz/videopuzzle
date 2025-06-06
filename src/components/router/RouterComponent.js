@@ -1,4 +1,5 @@
 import {
+  PuzzleSolverTutorialComponent,
   PuzzleSolverComponent,
   PuzzleListComponent,
   NotFoundComponent,
@@ -14,14 +15,13 @@ export class RouterComponent {
     this.appContainer = appContainer;
     this.userService = services.get("userService");
     this.userPuzzleService = services.get("userPuzzleService");
+    this.isTutorialRequired = undefined;
   }
 
   // Add new middleware for tutorial initialization
   initializeTutorial = async (ctx, next) => {
-    if (!this.isUserInitialized) {
-      const user = await this.userService.getUser();
-      this.isTutorialRequired = !!!user;
-    }
+    const user = await this.userService.getUser();
+    this.isTutorialRequired = !user ? true : !user.tutorialCompleted; 
 
     next();
   };
@@ -59,14 +59,13 @@ export class RouterComponent {
     });
 
     page("/puzzle/:id", this.puzzleGuard, (ctx) => {
-      const puzzleSolverPage = new PuzzleSolverComponent(
-        this.appContainer,
-        this.userPuzzleService,
-        ctx.puzzle,
-        ctx.querystring === "retry=true",
-        this.isTutorialRequired
-      );
-      puzzleSolverPage.render();
+      if (this.isTutorialRequired) {
+        const tutorialPage = new PuzzleSolverTutorialComponent(this.appContainer, this.userPuzzleService, this.userService, ctx.puzzle);
+        tutorialPage.render();
+      } else {
+        const puzzleSolverPage = new PuzzleSolverComponent(this.appContainer, this.userPuzzleService, ctx.puzzle, ctx.querystring === "retry=true");
+        puzzleSolverPage.render();
+      }
     });
 
     page("/*", () => {

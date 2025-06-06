@@ -9,9 +9,11 @@ export class UserRepository {
 
   @interceptErrors
   async getUserById(userId) {
-    if (!userId?.trim()) 
-      return null;
+    return await pb.collection("users").getOne(userId)
+  }
 
-    return await pb.collection("users").getOne(userId.trim())
+  @interceptErrors
+  async updateUser(userId, data) {
+    return await pb.collection("users").update(userId, data);
   }
 }

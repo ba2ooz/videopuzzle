@@ -23,7 +23,7 @@ export class PuzzleGameEventsHandler {
     this.ui.sneakPeeksMetaElement.textContent = this.game.getAvailableSneakPeeks();
     
     // add event listeners
-    this.enableAllGridListeners();
+    this.enableAllListeners();
     this.resizeCanvas();
 
     // shared state for pointer events
@@ -131,7 +131,7 @@ export class PuzzleGameEventsHandler {
     }
 
     // disbale any interaction with the grid
-    this.disableAllGridListeners();
+    this.disableAllListeners();
 
     // get the needed data
     const unshuffledTextures = this.grid.getOriginalTextures();
@@ -156,7 +156,7 @@ export class PuzzleGameEventsHandler {
     await delay(sneakPeekDelay);
     this.game.useSneakPeek();
     this.ui.sneakPeeksMetaElement.textContent = this.game.getAvailableSneakPeeks();
-    this.enableAllGridListeners();
+    this.enableAllListeners();
   }
 
   /**
@@ -184,7 +184,7 @@ export class PuzzleGameEventsHandler {
 
   async handleCheckWin() {
     if (this.grid.isUnshuffled()) {
-      this.disableAllGridListeners();
+      this.disableAllListeners();
       this.notifyUnshuffledStart();
       const animationDuration = this.game.animationController.createWinAnimations(this.grid.getTiles());
       await new Promise(resolve => setTimeout(resolve, animationDuration)); // allow the animation to finish before notifying listeners of completion
@@ -192,28 +192,46 @@ export class PuzzleGameEventsHandler {
     }
   }
 
+  enableButton(btnElement) {
+    const elementEventHandler = this.getButtonEventHandlers().find(item => item.element === btnElement);
+    this.eventHandlers.addAndStoreEventListener(elementEventHandler.element, elementEventHandler.event, elementEventHandler.handler);
+    btnElement.enable();
+  }
+
+  enableGridEvent(event) {
+    const eventHandler = this.getGridEventHandlers().find(item => item.event === event);
+    this.eventHandlers.addAndStoreEventListener(eventHandler.element, eventHandler.event, eventHandler.handler);
+  }
+
   /**
-   * Registers the grid interaction and buttons events
+   * Registers the grid interaction events
    */
-  addListeners() {
+  addGridListeners() {
     this.getGridEventHandlers()
       .forEach(({ element, event, handler }) =>
         this.eventHandlers.addAndStoreEventListener(element, event, handler)
       );
-
-    this.getButtonEventHandlers()
-      .forEach(({ element, event, handler }) => 
-        this.eventHandlers.addAndStoreEventListener(element, event, handler)
-      );
   }
 
-  enableAllGridListeners() {
-    this.addListeners();
+  /**
+   * Registers the buttons events
+   */
+  addButtonListeners() {
+    this.getButtonEventHandlers()
+    .forEach(({ element, event, handler }) => 
+      this.eventHandlers.addAndStoreEventListener(element, event, handler)
+    );
+  }
+
+  enableAllListeners() {
+    this.eventHandlers.removeAllEventListeners();
+    this.addGridListeners();
+    this.addButtonListeners();
     Object.values(this.ui.btn)
       .forEach(btn => btn.enable());
   }
 
-  disableAllGridListeners() {
+  disableAllListeners() {
     this.eventHandlers.removeAllEventListeners();
     Object.values(this.ui.btn)
     .forEach(btn => btn.disable());
