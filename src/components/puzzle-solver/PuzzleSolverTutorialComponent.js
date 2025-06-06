@@ -1,4 +1,4 @@
-import { TutorialGrid } from "../../core/puzzle/TutorialGrid";
+import { TutorialGrid } from "../../core";
 import { PuzzleSolverComponent } from "./PuzzleSolverComponent";
 import { PuzzleGameTutorialComponent, PuzzleStatsTutorialComponent, ErrorHandler } from "../";
 import { catchError } from "../../utils";
