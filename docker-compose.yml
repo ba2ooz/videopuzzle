@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  pocketbase:
+    image: alpine:latest
+    container_name: pocketbase
+    working_dir: /app
+    volumes:
+      - ./pocketbase:/app
+    command: ./pocketbase serve --http=0.0.0.0:8090
+    ports:
+      - "8090:8090"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "1234:1234"
+    depends_on:
+      - pocketbase

@@ -1,0 +1,68 @@
+<div class="modal">
+  <div class="modal-header">
+    <h2 class="modal-title">Puzzle Solved</h2>
+    <button class="close-button">✕</button>
+  </div>
+  <div class="modal-content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Best Moves</div>
+        <div class="stat-value current-moves">42</div>
+        <div class="rank">Rank: #<span class="moves-rank">3</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Best Time</div>
+        <div class="stat-value current-time">1:24.56</div>
+        <div class="rank">Rank: #<span class="time-rank">5</span></div>
+      </div>
+    </div>
+
+    <div class="new-stats hidden">
+      <div class="new-stat">
+        <div class="new-stat-title">NEW MOVES</div>
+        <div class="new-stat-value new-moves">38</div>
+      </div>
+      <div class="new-stat">
+        <div class="new-stat-title">NEW TIME</div>
+        <div class="new-stat-value new-time">1:12.34</div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="try-again" class="button secondary-button">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M4 4V9H4.58152M19.9381 11C19.446 7.05369 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M19.4185 15C18.2317 17.9318 15.3574 20 12 20C7.92038 20 4.55399 16.9463 4.06189 13M19.4185 15H15"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Try Again
+      </button>
+      <button id="save" class="button primary-button hidden">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8 7H5C3.89543 7 3 7.89543 3 9V18C3 19.1046 3.89543 20 5 20H19C20.1046 20 21 19.1046 21 18V9C21 7.89543 20.1046 7 19 7H16M15 11L12 14M12 14L9 11M12 14V4"
+            stroke="white"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
