@@ -12,18 +12,20 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache nodejs
+# Install minimal static server
+RUN apk add --no-cache nodejs npm
+RUN npm install -g serve
 
-# Copy built frontend into PocketBase's public directory
-COPY --from=builder /app/frontend/dist ./pb_public
+# Copy built frontend
+COPY --from=builder /app/frontend/dist ./frontend
 
 # Copy PocketBase binary and preloaded data
 COPY pocketbase/pocketbase ./pocketbase
 COPY pocketbase/pb_data ./pb_data
 
-# Expose pocketbase port
+# Expose ports
+EXPOSE 1234
 EXPOSE 8090
 
-# Run pocketbase serving frontend and API/admin panel
-CMD ["./pocketbase", "serve", "--http=0.0.0.0:8090"]
+# Run both servers concurrently
+CMD sh -c "./pocketbase serve --http=0.0.0.0:8090 & serve -s ./frontend -l 1234 && wait"
