@@ -124,7 +124,14 @@ export class PuzzleGameEventsHandler {
    * @returns {Promise<void>} Resolves when the sneak peek process is complete.
    */
   async handleSneakPeekButton() {
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = (ms) => new Promise((resolve) => {
+    setTimeout(() => {
+      if (!this.game)
+        return;
+      
+      resolve();
+      }, ms);
+    });
 
     if (!this.game.getAvailableSneakPeeks()) {
       return;
@@ -173,6 +180,11 @@ export class PuzzleGameEventsHandler {
     const sneakPeekInterval = 
       setInterval(() => {
         if (timeleft > -1) {
+          if (!this.game) {
+            clearInterval(sneakPeekInterval);
+            return;
+          }
+          
           this.ui.sneakPeeksMetaElement.textContent = `ends in ${timeleft}s`;
           timeleft--;
           return;
